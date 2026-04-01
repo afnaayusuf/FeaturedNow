@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>MERIDIAN — Vault</title>
-  <meta name="description" content="Meridian Vault — your academic library of shared, attributed, permanent study materials." />
+  <title>RAINFONT — Vault</title>
+  <meta name="description" content="Rainfont Vault — your academic library of shared, attributed, permanent study materials." />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -51,10 +51,33 @@
     .notif-panel.open { transform: translateX(0); }
     .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
     .notif-overlay.open { pointer-events: auto; }
-  </style>
+  
+    /* Bismuth Hopper Crystal background */
+    body {
+      background:
+        radial-gradient(ellipse 90% 70% at 0% 0%,    rgba(160, 40, 220, 0.50) 0%, transparent 48%),
+        radial-gradient(ellipse 70% 90% at 100% 0%,  rgba(20,  80, 220, 0.45) 0%, transparent 48%),
+        radial-gradient(ellipse 80% 70% at 100% 100%,rgba(0,  210, 185, 0.38) 0%, transparent 48%),
+        radial-gradient(ellipse 90% 60% at 0%  100%, rgba(230,165,  10, 0.32) 0%, transparent 48%),
+        radial-gradient(ellipse 55% 75% at 50%  50%, rgba(110, 20, 185, 0.22) 0%, transparent 62%),
+        linear-gradient(135deg, #060511 0%, #0b091a 25%, #070d17 50%, #0d070f 75%, #060511 100%);
+      background-attachment: fixed;
+    }
+    /* Bismuth crystalline scale overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(-45deg, transparent 0px, transparent 17px, rgba(190,130,255,0.045) 17px, rgba(190,130,255,0.045) 18px),
+        repeating-linear-gradient( 45deg, transparent 0px, transparent 17px, rgba(60,170,255,0.035) 17px, rgba(60,170,255,0.035) 18px);
+      pointer-events: none;
+      z-index: -1;
+    }
+</style>
 </head>
 
-<body class="bg-surface text-on-surface antialiased min-h-screen pb-24">
+<body class="text-on-surface antialiased min-h-screen pb-24">
 
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
@@ -63,7 +86,7 @@
         <button class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
           <span class="material-symbols-outlined text-primary">menu</span>
         </button>
-        <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+        <span class="text-lg font-black tracking-tighter text-primary">RAINFONT</span>
       </div>
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white">JS</div>
