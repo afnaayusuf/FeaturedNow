@@ -1,10 +1,9 @@
 [build]
-  base = "meridian-app"
-  command = "npm run build"
-  publish = "dist"
+  publish = "."
+  command = "#"
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Cache-Control = "public, max-age=3600"
-    X-Frame-Options = "SAMEORIGIN"
+[[redirects]]
+  from = "/"
+  to = "/page-1.html"
+  status = 200
+  force = true
