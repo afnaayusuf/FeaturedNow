@@ -1,6 +1,12 @@
 [build]
-  publish = "."
-  command = ""
+  base = "meridian-app"
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/*"
