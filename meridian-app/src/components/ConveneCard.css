@@ -1,0 +1,94 @@
+.convene-card {
+  margin: 0 20px 12px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--border);
+  overflow: hidden;
+}
+
+.convene-header {
+  background: var(--navy);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.convene-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 4px;
+}
+
+.convene-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  color: #F5F0E8;
+  line-height: 1.25;
+}
+
+.convene-deadline {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(184,74,43,0.2);
+  border: 0.5px solid rgba(184,74,43,0.35);
+  color: #F5A088;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.convene-body {
+  padding: 12px 16px 14px;
+}
+
+.convene-detail-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.convene-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.convene-detail-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.convene-detail-val {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.register-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--radius-md);
+  background: var(--navy);
+  color: var(--paper);
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.14s;
+}
+
+.register-btn:active {
+  background: var(--navy-deep);
+  transform: scale(0.98);
+}

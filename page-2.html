@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Folio · Julian Thorne</title>
+  <meta name="description" content="Julian Thorne's academic Folio on Meridian — published research, Vault contributions, and Convene history." />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37", "surface-container-lowest": "#ffffff",
+            "on-surface-variant": "#43474e", "surface-variant": "#e1e3e4",
+            "on-primary": "#ffffff", "on-primary-container": "#87a4cc",
+            "background": "#f8f9fa", "secondary": "#4e6354",
+            "surface-container-highest": "#e1e3e4", "on-tertiary-fixed-variant": "#7c2e10",
+            "secondary-fixed-dim": "#b5ccb9", "tertiary-fixed": "#ffdbcf",
+            "primary-fixed-dim": "#abc9f2", "on-secondary-container": "#546a59",
+            "on-error": "#ffffff", "surface-container-high": "#e7e8e9",
+            "on-background": "#191c1d", "primary": "#002444",
+            "on-secondary-fixed-variant": "#374c3d", "tertiary-container": "#692003",
+            "surface-tint": "#436084", "outline-variant": "#c3c6cf",
+            "on-error-container": "#93000a", "surface": "#f8f9fa",
+            "tertiary": "#461100", "primary-fixed": "#d2e4ff",
+            "on-tertiary-container": "#ef8661", "outline": "#73777f",
+            "surface-bright": "#f8f9fa", "surface-dim": "#d9dadb",
+            "error-container": "#ffdad6", "secondary-container": "#d0e9d4",
+            "inverse-primary": "#abc9f2", "surface-container": "#edeeef",
+            "inverse-on-surface": "#f0f1f2", "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#ffb59c", "error": "#ba1a1a",
+            "primary-container": "#1a3a5c", "on-tertiary": "#ffffff",
+            "surface-container-low": "#f3f4f5", "on-secondary-fixed": "#0b1f13",
+            "on-primary-fixed-variant": "#2a486b", "on-surface": "#191c1d",
+            "on-tertiary-fixed": "#390c00", "inverse-surface": "#2e3132",
+            "secondary-fixed": "#d0e9d4", "gold": "#C9922A"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+    .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
+    .card-press:active { transform: scale(0.97); }
+    .tab-btn { transition: all 200ms ease; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Sheet */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 100; transition: background 300ms ease; pointer-events: none; }
+    .sheet-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 90vh; overflow-y: auto; }
+    .bottom-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+
+    .outcome-winner { background: #fef3c7; color: #92400e; }
+    .outcome-finalist { background: #dbeafe; color: #1e40af; }
+    .outcome-participant { background: #f3f4f5; color: #43474e; }
+    /* Notification panel */
+    .notif-panel { position: fixed; top: 64px; right: 0; width: min(360px, 100vw); background: #fff; z-index: 150; transform: translateX(110%); transition: transform 300ms cubic-bezier(0.32,0.72,0,1); border-left: 1px solid #e1e3e4; box-shadow: -4px 0 24px rgba(0,0,0,0.08); max-height: calc(100dvh - 64px); overflow-y: auto; }
+    .notif-panel.open { transform: translateX(0); }
+    .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
+    .notif-overlay.open { pointer-events: auto; }
+    /* Cohort rule tag */
+    .rule-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; }
+    .rule-can-post { background: #d0e9d4; color: #374c3d; }
+    .rule-can-review { background: #dbeafe; color: #1e40af; }
+    .rule-sealed { background: #fef3c7; color: #92400e; }
+    .rule-observer { background: #f3f4f5; color: #43474e; }
+    .rule-parallel { background: #ede9fe; color: #4338ca; }
+    /* Toggle pill */
+    .toggle-pill { position: relative; width: 44px; height: 24px; background: #c3c6cf; border-radius: 9999px; cursor: pointer; transition: background 200ms; flex-shrink: 0; }
+    .toggle-pill.on { background: #002444; }
+    .toggle-pill::after { content:''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 200ms; }
+    .toggle-pill.on::after { transform: translateX(20px); }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface pb-24">
+
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="flex items-center justify-between px-5 h-16 w-full max-w-4xl mx-auto">
+      <div class="flex items-center gap-3">
+        <a href="page-1.html" class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
+          <span class="material-symbols-outlined text-primary">arrow_back</span>
+        </a>
+        <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <nav class="hidden md:flex gap-5 mr-4">
+          <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-1.html">Ledger</a>
+          <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-6.html">Nodes</a>
+          <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-3.html">Vault</a>
+        </nav>
+        <button class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full relative" onclick="toggleNotifPanel()">
+          <span class="material-symbols-outlined text-primary">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-white" id="notif-dot"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-20 px-4 md:max-w-4xl md:mx-auto">
+
+    <!-- Profile Header -->
+    <section class="mt-4 mb-6">
+      <div class="flex flex-col md:flex-row md:items-end gap-5">
+        <div class="relative w-28 h-28 md:w-36 md:h-36 shrink-0">
+          <img alt="Julian Thorne" class="w-full h-full object-cover rounded-xl shadow-lg"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhZ64VPdWjrfvpUAHj7Nz5lT4bXDZMsEGJGyAhJVdsNAFRTviVL1fW25TMXqAHA8rXwh92Q7A-qDCSkfuYqsGWFxkrjXoQ8SzhvQWGNdzNRxaY9j8MJS0zzdWXE2BPWELnXcKQIbl8QQdzP21UNVnovJgf8w_nLMuZ0kZA5SqximXzSdVSYLq9CnCyoEpq4GgUUOBsVKgn2HyJXa_ML1mRFRVrIELT9mfy0iW4VNPPZbnDjX4uJ4xjPRI3OyK-QK_88J8slEKQqJLb" />
+          <div class="absolute -bottom-2 -right-2 bg-primary p-1.5 rounded-full border-4 border-surface">
+            <span class="material-symbols-outlined fill-icon text-white text-sm">verified</span>
+          </div>
+          <!-- Gold verified ring -->
+          <div class="absolute inset-0 rounded-xl" style="box-shadow: 0 0 0 3px #C9922A40;"></div>
+        </div>
+        <div class="flex-grow space-y-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-3xl font-extrabold tracking-tight text-primary">Julian Thorne</h1>
+            <span style="color:#C9922A" class="text-xl font-bold">✦</span>
+          </div>
+          <p class="text-on-surface-variant font-medium flex items-center gap-2 text-sm">
+            <span class="material-symbols-outlined text-base">account_balance</span>
+            Stanford University · Dept. of Quantum Informatics
+          </p>
+          <!-- Fixed chips as per README -->
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">Quantum Informatics</span>
+            <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest rounded-full">Scholar ✦</span>
+          </div>
+        </div>
+        <!-- Action buttons per README -->
+        <div class="flex gap-2">
+          <button onclick="shareFolio()" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">
+            <span class="material-symbols-outlined text-base">ios_share</span> Share Folio
+          </button>
+          <button onclick="copyLink()" class="flex items-center gap-2 p-2.5 bg-surface-container-low text-primary rounded-xl active:scale-95 transition-transform" title="Copy link">
+            <span class="material-symbols-outlined">link</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics Grid — per README -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="bg-surface-container-low p-4 rounded-lg card-press">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ledger Posts</p>
+        <p class="text-2xl font-black text-primary">142</p>
+      </div>
+      <div class="bg-surface-container-low p-4 rounded-lg card-press">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Seals Received</p>
+        <p class="text-2xl font-black text-primary">38</p>
+        <p class="text-[10px] text-on-surface-variant mt-0.5">by Guides</p>
+      </div>
+      <div class="bg-surface-container-low p-4 rounded-lg card-press">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Reviews Written</p>
+        <p class="text-2xl font-black text-primary">47</p>
+      </div>
+      <div class="bg-surface-container-low p-4 rounded-lg card-press">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nodes Active</p>
+        <p class="text-2xl font-black text-primary">5</p>
+      </div>
+    </section>
+
+    <!-- Guide Seals (renamed + rebuilt per README) -->
+    <section class="mb-8">
+      <div class="flex items-center justify-between mb-4 px-1">
+        <h2 class="text-xs font-black text-primary tracking-widest uppercase">Guide Seals</h2>
+        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">38 total</span>
+      </div>
+      <div class="flex overflow-x-auto gap-4 pb-3 no-scrollbar">
+        <!-- Seal Card 1 -->
+        <div class="flex-none w-52 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/20 card-press" onclick="openSealDetail('Optimizing Zero-Knowledge Proofs in High-Latency Networks')">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white shrink-0">AT</div>
+            <div class="min-w-0">
+              <p class="font-bold text-primary text-xs leading-tight">Dr. Aris Thorne <span style="color:#C9922A">✦</span></p>
+              <p class="text-[10px] text-on-surface-variant truncate">MIT Media Lab</p>
+            </div>
+          </div>
+          <div class="w-8 h-0.5 mb-2" style="background:#C9922A; border-radius: 9999px;"></div>
+          <p class="text-xs font-semibold text-on-surface line-clamp-2 leading-snug">Optimizing Zero-Knowledge Proofs in High-Latency Distributed Nodes</p>
+        </div>
+        <!-- Seal Card 2 -->
+        <div class="flex-none w-52 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/20 card-press">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold text-white shrink-0">PR</div>
+            <div class="min-w-0">
+              <p class="font-bold text-primary text-xs leading-tight">Prof. Reena Khanna <span style="color:#C9922A">✦</span></p>
+              <p class="text-[10px] text-on-surface-variant truncate">IIT Madras</p>
+            </div>
+          </div>
+          <div class="w-8 h-0.5 mb-2" style="background:#C9922A; border-radius: 9999px;"></div>
+          <p class="text-xs font-semibold text-on-surface line-clamp-2 leading-snug">Post-Quantum Signature Schemes: A Comparative Analysis</p>
+        </div>
+        <!-- Seal Card 3 -->
+        <div class="flex-none w-52 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/20 card-press">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white shrink-0">DR</div>
+            <div class="min-w-0">
+              <p class="font-bold text-primary text-xs leading-tight">Dr. Nour Diallo <span style="color:#C9922A">✦</span></p>
+              <p class="text-[10px] text-on-surface-variant truncate">Harvard SEAS</p>
+            </div>
+          </div>
+          <div class="w-8 h-0.5 mb-2" style="background:#C9922A; border-radius: 9999px;"></div>
+          <p class="text-xs font-semibold text-on-surface line-clamp-2 leading-snug">Byzantine Fault Tolerance in Peer-to-Peer Academic Networks</p>
+        </div>
+        <!-- Seal Card 4 -->
+        <div class="flex-none w-52 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/20 card-press">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-full bg-tertiary-container flex items-center justify-center text-[10px] font-bold text-white shrink-0">SK</div>
+            <div class="min-w-0">
+              <p class="font-bold text-primary text-xs leading-tight">Dr. Sonia Kaur <span style="color:#C9922A">✦</span></p>
+              <p class="text-[10px] text-on-surface-variant truncate">NUS Computing</p>
+            </div>
+          </div>
+          <div class="w-8 h-0.5 mb-2" style="background:#C9922A; border-radius: 9999px;"></div>
+          <p class="text-xs font-semibold text-on-surface line-clamp-2 leading-snug">Adversarial Robustness in LLM Fine-Tuning Pipelines</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab Row: Published / Vault / Convenes / Cohorts -->
+    <div class="flex gap-1 bg-surface-container-low p-1 rounded-xl mb-6" id="folio-tabs">
+      <button id="tab-published" onclick="switchFolioTab('published')" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm tab-btn">Published</button>
+      <button id="tab-vault" onclick="switchFolioTab('vault')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Vault</button>
+      <button id="tab-convenes" onclick="switchFolioTab('convenes')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Convenes</button>
+      <button id="tab-cohorts" onclick="switchFolioTab('cohorts')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Cohorts</button>
+    </div>
+
+    <!-- Published tab (Ledger History) -->
+    <div id="content-published">
+      <div class="flex items-center justify-between mb-4 px-1">
+        <h2 class="text-xs font-black text-primary tracking-widest uppercase">Published</h2>
+        <button class="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-1">
+          Sort <span class="material-symbols-outlined text-sm">sort</span>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <!-- Item 1 -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Optimizing Zero-Knowledge Proofs in High-Latency Distributed Nodes','04 MAY 2024','Quantum Protocol','4.8','4.9','12',true)">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">04 MAY 2024 · Quantum Protocol</span>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
+          </div>
+          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Optimizing Zero-Knowledge Proofs in High-Latency Distributed Nodes</h4>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-on-secondary-container text-[10px] font-bold flex items-center gap-1">Clarity 4.8</span>
+            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.9</span>
+            <span class="text-on-surface-variant text-[10px]">· 12 reviews</span>
+            <span class="flex items-center gap-1 text-[10px] font-bold ml-auto" style="color:#C9922A">✦ Sealed</span>
+          </div>
+        </div>
+        <!-- Item 2 -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Post-Quantum Signature Schemes: A Comparative Analysis of Lattice-Based Solutions','21 APR 2024','Cryptography','4.6','4.7','8',false)">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">21 APR 2024 · Cryptography</span>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
+          </div>
+          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Post-Quantum Signature Schemes: A Comparative Analysis of Lattice-Based Solutions</h4>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.6</span>
+            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.7</span>
+            <span class="text-on-surface-variant text-[10px]">· 8 reviews</span>
+          </div>
+        </div>
+        <!-- Item 3 -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Byzantine Fault Tolerance in Peer-to-Peer Academic Publishing Networks','15 MAR 2024','Distributed Systems','4.7','4.8','20',true)">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">15 MAR 2024 · Distributed Systems</span>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
+          </div>
+          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Byzantine Fault Tolerance in Peer-to-Peer Academic Publishing Networks</h4>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.7</span>
+            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.8</span>
+            <span class="text-on-surface-variant text-[10px]">· 20 reviews</span>
+            <span class="flex items-center gap-1 text-[10px] font-bold ml-auto" style="color:#C9922A">✦ Sealed</span>
+          </div>
+        </div>
+        <!-- Item 4 -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">02 FEB 2024 · Quantum Protocol</span>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
+          </div>
+          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Adversarial Robustness in LLM Fine-Tuning Pipelines: A Systematic Review</h4>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.4</span>
+            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.5</span>
+            <span class="text-on-surface-variant text-[10px]">· 7 reviews</span>
+          </div>
+        </div>
+      </div>
+      <button class="w-full mt-5 py-3 bg-surface-container-low text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-lg hover:bg-surface-container-high transition-colors" onclick="showToast('Showing all 142 posts...')">
+        View all 142 posts
+      </button>
+    </div>
+
+    <!-- Vault tab -->
+    <div id="content-vault" class="hidden">
+      <div class="space-y-3">
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press group hover:shadow-md transition-shadow flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-blue-700 text-2xl">description</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">ZK_Proof_Lecture_Notes.pdf</p>
+            <p class="text-[11px] text-on-surface-variant mt-0.5">Quantum Informatics · v2.1 · Updated Feb 2024</p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">Cryptography</span>
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">ZK-Proofs</span>
+              <span class="text-primary text-[10px] font-bold ml-auto">↗ 14 forks</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press group hover:shadow-md transition-shadow flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-green-700 text-2xl">table_chart</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">Lattice_BFS_Dataset_v3.csv</p>
+            <p class="text-[11px] text-on-surface-variant mt-0.5">Quantum Informatics · v3.0 · Updated Jan 2024</p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">Dataset</span>
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">Lattice</span>
+              <span class="text-primary text-[10px] font-bold ml-auto">↗ 7 forks</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press group hover:shadow-md transition-shadow flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-purple-700 text-2xl">code</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">bft_simulation.py</p>
+            <p class="text-[11px] text-on-surface-variant mt-0.5">Distributed Systems · v1.4 · Forked from E. Rossi</p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">Python</span>
+              <span class="text-[10px] font-bold bg-surface-container-low px-2 py-0.5 rounded">BFT</span>
+              <span class="text-primary text-[10px] font-bold ml-auto">↗ 3 forks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Convenes tab -->
+    <div id="content-convenes" class="hidden">
+      <div class="space-y-3">
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow flex items-center gap-4">
+          <span class="outcome-winner px-3 py-1.5 rounded-lg font-bold text-xs shrink-0">🏆 Winner</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">Defense-Tech Innovation Challenge</p>
+            <p class="text-[11px] text-on-surface-variant">May 2024 · Washington DC</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow flex items-center gap-4">
+          <span class="outcome-finalist px-3 py-1.5 rounded-lg font-bold text-xs shrink-0">🥈 Finalist</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">Open-Source LLM Benchmarking</p>
+            <p class="text-[11px] text-on-surface-variant">May 2024 · Virtual</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow flex items-center gap-4">
+          <span class="outcome-participant px-3 py-1.5 rounded-lg font-bold text-xs shrink-0">Participant</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">Global Bio-Genomics Summit</p>
+            <p class="text-[11px] text-on-surface-variant">June 2024 · Cambridge MA</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow flex items-center gap-4">
+          <span class="outcome-winner px-3 py-1.5 rounded-lg font-bold text-xs shrink-0">🏆 Winner</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">Quantum Cryptography Hackathon</p>
+            <p class="text-[11px] text-on-surface-variant">Feb 2024 · IIT Bombay</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cohorts tab -->
+    <div id="content-cohorts" class="hidden">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h2 class="text-xs font-black text-primary tracking-widest uppercase">Cohorts I manage</h2>
+        <button onclick="openCreateCohort()" class="flex items-center gap-1 text-[11px] font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-full hover:bg-primary/5 active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-sm">add</span> New cohort
+        </button>
+      </div>
+      <div class="space-y-3 mb-7" id="managed-cohorts-list"></div>
+      <h2 class="text-xs font-black text-primary tracking-widest uppercase mb-3 px-1">Cohorts I'm in</h2>
+      <div class="space-y-3" id="joined-cohorts-list"></div>
+    </div>
+
+    <!-- Active Nodes (rebuilt from Network Nodes per README) -->
+    <section class="mt-8 mb-6">
+      <h2 class="text-xs font-black text-primary tracking-widest uppercase mb-4 px-1">Active Nodes</h2>
+      <div class="flex flex-wrap gap-2">
+        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+          <span class="text-sm font-bold text-primary">Gradient</span>
+        </a>
+        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+          <span class="text-sm font-bold text-primary">Bare Metal</span>
+        </a>
+        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full bg-purple-500 shrink-0"></span>
+          <span class="text-sm font-bold text-primary">Softer</span>
+        </a>
+        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
+          <span class="text-sm font-bold text-primary">Dark Current</span>
+        </a>
+        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
+          <span class="text-sm font-bold text-primary">Bio-Sys</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- About section -->
+    <section class="mb-24">
+      <h2 class="text-xs font-black text-primary tracking-widest uppercase mb-4 px-1">About</h2>
+      <div class="bg-surface-container-low p-5 rounded-lg">
+        <p class="text-sm leading-relaxed text-on-surface-variant">
+          Interdisciplinary researcher focused on the intersection of quantum computing and decentralized consensus algorithms. Actively building the next generation of cryptographic proofs. Open to Parallel collaboration on ZK-proof research.
+        </p>
+        <div class="mt-5 space-y-3">
+          <a class="flex items-center gap-3 text-sm font-semibold text-primary hover:underline transition-colors" href="#">
+            <span class="material-symbols-outlined text-lg">link</span>
+            meridian.app/folio/julianthorne
+          </a>
+          <a class="flex items-center gap-3 text-sm font-semibold text-primary hover:underline transition-colors" href="#">
+            <span class="material-symbols-outlined text-lg">public</span>
+            orcid.org/0000-0012-3456-789X
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Share Folio persistent strip — above bottom nav -->
+  <div class="fixed bottom-20 left-0 right-0 z-40 px-4 md:hidden">
+    <div class="bg-surface-container-lowest border border-outline-variant/30 shadow-lg rounded-xl flex items-center justify-between px-4 py-3">
+      <p class="text-[11px] text-on-surface-variant truncate flex-1 mr-3">meridian.app/folio/julianthorne</p>
+      <button onclick="shareFolio()" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold active:scale-95 transition-transform whitespace-nowrap">
+        Share <span class="material-symbols-outlined text-sm ml-0.5">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-primary text-base">Notifications</h3>
+      <button onclick="closeNotifPanel()" class="material-symbols-outlined text-on-surface-variant text-lg">close</button>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0">rate_review</span>
+        <div><p class="text-sm font-bold text-primary">Elena Rossi reviewed your post</p><p class="text-[11px] text-on-surface-variant mt-0.5">Clarity 4.8 · Depth 5.0 on "Quantum Advantage"</p></div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0" style="color:#C9922A">verified</span>
+        <div><p class="text-sm font-bold text-on-surface">Dr. Thorne sealed your post ✦</p><p class="text-[11px] text-on-surface-variant mt-0.5">"Decentralized LLMs" — 5 hours ago</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Published Post Detail Sheet -->
+  <div class="sheet-backdrop" id="pub-backdrop" onclick="closePublishedPost()"></div>
+  <div class="bottom-sheet" id="pub-sheet" style="max-height:90vh">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <div class="flex items-center gap-2 mb-1">
+        <span id="pub-sheet-date" class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight"></span>
+        <span id="pub-sheet-sealed" class="text-[10px] font-bold ml-auto" style="color:#C9922A"></span>
+      </div>
+      <h3 class="font-bold text-primary text-lg leading-tight mb-3" id="pub-sheet-title"></h3>
+      <div class="flex items-center gap-3 mb-4" id="pub-sheet-scores"></div>
+      <p class="text-sm text-on-surface-variant leading-relaxed mb-6">Full post content would appear here in the live application, including methodology, results, and attached files.</p>
+      <div class="flex gap-3">
+        <button onclick="closePublishedPost()" class="flex-1 py-3.5 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Close</button>
+        <a href="page-1.html" class="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform text-center">View on Ledger ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 w-full z-50 rounded-t-lg bg-white shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] border-t border-slate-100">
+    <div class="flex justify-around items-center w-full px-2 py-3 h-20">
+      <a href="page-1.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-transform active:scale-90">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Ledger</span>
+      </a>
+      <a href="page-6.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-transform active:scale-90">
+        <span class="material-symbols-outlined">hub</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Nodes</span>
+      </a>
+      <a href="page-5.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-transform active:scale-90">
+        <span class="material-symbols-outlined text-3xl">add_circle</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Publish</span>
+      </a>
+      <a href="page-3.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-transform active:scale-90">
+        <span class="material-symbols-outlined">lock</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Vault</span>
+      </a>
+      <a href="page-2.html" class="flex flex-col items-center justify-center text-primary bg-slate-100 rounded-xl px-3 py-1 transition-transform active:scale-90">
+        <span class="material-symbols-outlined fill-icon">style</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Create Cohort sheet -->
+  <div class="sheet-backdrop" id="create-cohort-backdrop" onclick="closeCreateCohort()"></div>
+  <div class="bottom-sheet" id="create-cohort-sheet" style="max-height:92vh">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-lg mb-1">New Cohort</h3>
+      <p class="text-[11px] text-on-surface-variant mb-5">A cohort is a named, rule-governed group under your Folio. Members don't see each other's identities.</p>
+
+      <!-- Name -->
+      <label class="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5 block">Cohort name</label>
+      <input id="cohort-name-input" type="text" maxlength="40" placeholder="e.g. Thesis Students, Reading Circle..." class="w-full border border-outline-variant/40 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 mb-5" />
+
+      <!-- Privacy -->
+      <div class="flex items-center justify-between mb-5 bg-surface-container-low rounded-xl px-4 py-3">
+        <div>
+          <p class="text-sm font-bold text-on-surface" id="privacy-label">Private</p>
+          <p class="text-[10px] text-on-surface-variant mt-0.5">Only members know this cohort exists</p>
+        </div>
+        <div class="toggle-pill on" id="privacy-toggle" onclick="togglePrivacy()"></div>
+      </div>
+
+      <!-- Rules -->
+      <label class="text-[10px] font-black text-primary uppercase tracking-widest mb-3 block">Access rules</label>
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl">
+          <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">edit</span><p class="text-sm font-semibold text-on-surface">Can Post</p></div>
+          <div class="toggle-pill" id="toggle-can_post" onclick="toggleRule('can_post')"></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl">
+          <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">rate_review</span><p class="text-sm font-semibold text-on-surface">Can Review</p></div>
+          <div class="toggle-pill" id="toggle-can_review" onclick="toggleRule('can_review')"></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl">
+          <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm" style="color:#C9922A">verified</span><p class="text-sm font-semibold text-on-surface">Sealed Access</p></div>
+          <div class="toggle-pill" id="toggle-sealed" onclick="toggleRule('sealed')"></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl">
+          <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">account_tree</span><p class="text-sm font-semibold text-on-surface">Parallel Access</p></div>
+          <div class="toggle-pill" id="toggle-parallel" onclick="toggleRule('parallel')"></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl">
+          <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">visibility</span><p class="text-sm font-semibold text-on-surface">Observer Only <span class="text-[10px] font-normal text-on-surface-variant">(overrides all)</span></p></div>
+          <div class="toggle-pill" id="toggle-observer" onclick="toggleRule('observer')"></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="closeCreateCohort()" class="flex-1 py-3.5 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Cancel</button>
+        <button onclick="saveNewCohort()" class="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Create Cohort</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seal detail sheet -->
+  <div class="sheet-backdrop" id="seal-backdrop" onclick="closeSealDetail()"></div>
+  <div class="bottom-sheet" id="seal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-sm font-bold text-white shrink-0">AT</div>
+        <div>
+          <p class="font-bold text-primary">Dr. Aris Thorne <span style="color:#C9922A">✦</span></p>
+          <p class="text-[11px] text-on-surface-variant">MIT Media Lab · Verified Guide</p>
+        </div>
+      </div>
+      <div class="w-10 h-1 mb-4 rounded-full" style="background:#C9922A"></div>
+      <h3 class="font-bold text-primary text-base mb-3" id="seal-post-title">Post title</h3>
+      <p class="text-sm text-on-surface-variant leading-relaxed mb-5">
+        "This work demonstrates a deep understanding of the tradeoffs in ZK-proof systems. The methodology is sound and the results replicate. This is exactly the kind of rigorous student research Meridian exists for — highly recommended for any student in this domain." — Dr. Aris Thorne
+      </p>
+      <button onclick="closeSealDetail()" class="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">View full post</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Tab switching
+    function switchFolioTab(tab) {
+      ['published','vault','convenes','cohorts'].forEach(t => {
+        document.getElementById('content-' + t).classList.add('hidden');
+        const btn = document.getElementById('tab-' + t);
+        btn.classList.remove('bg-white','text-primary','shadow-sm');
+        btn.classList.add('text-on-surface-variant');
+      });
+      document.getElementById('content-' + tab).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + tab);
+      activeBtn.classList.add('bg-white','text-primary','shadow-sm');
+      activeBtn.classList.remove('text-on-surface-variant');
+      if (tab === 'cohorts') renderCohorts();
+    }
+
+    // Share Folio
+    function shareFolio() {
+      if (navigator.share) {
+        navigator.share({ title: 'Julian Thorne — Meridian Folio', url: 'https://meridian.app/folio/julianthorne' });
+      } else {
+        copyLink();
+      }
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText('https://meridian.app/folio/julianthorne').then(() => {
+        showToast('Link copied to clipboard');
+      }).catch(() => showToast('Link: meridian.app/folio/julianthorne'));
+    }
+
+    // Seal detail sheet
+    function openSealDetail(title) {
+      document.getElementById('seal-post-title').textContent = title;
+      document.getElementById('seal-backdrop').classList.add('open');
+      document.getElementById('seal-sheet').classList.add('open');
+    }
+    function closeSealDetail() {
+      document.getElementById('seal-backdrop').classList.remove('open');
+      document.getElementById('seal-sheet').classList.remove('open');
+    }
+
+    // Notification panel
+    function toggleNotifPanel() {
+      document.getElementById('notif-panel').classList.toggle('open');
+      document.getElementById('notif-overlay').classList.toggle('open');
+      document.getElementById('notif-dot').style.display = 'none';
+    }
+    function closeNotifPanel() {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-overlay').classList.remove('open');
+    }
+    // Published post detail sheet
+    function openPublishedPost(title, date, domain, clarity, depth, reviews, sealed) {
+      document.getElementById('pub-sheet-title').textContent = title;
+      document.getElementById('pub-sheet-date').textContent = date + ' · ' + domain;
+      document.getElementById('pub-sheet-sealed').textContent = sealed ? '✦ Sealed' : '';
+      document.getElementById('pub-sheet-scores').innerHTML = `<span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${clarity}</span><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold ml-1">Depth ${depth}</span><span class="text-on-surface-variant text-[10px] ml-1">${reviews} reviews</span>`;
+      document.getElementById('pub-backdrop').classList.add('open');
+      document.getElementById('pub-sheet').classList.add('open');
+    }
+    function closePublishedPost() {
+      document.getElementById('pub-backdrop').classList.remove('open');
+      document.getElementById('pub-sheet').classList.remove('open');
+    }
+
+    // ─── COHORTS ─────────────────────────────────────────────────────────────
+    const RULE_META = [
+      { key: 'can_post',   label: 'Can Post',      icon: 'edit',           cls: 'rule-can-post' },
+      { key: 'can_review', label: 'Can Review',    icon: 'rate_review',    cls: 'rule-can-review' },
+      { key: 'sealed',     label: 'Sealed Access', icon: 'verified',       cls: 'rule-sealed' },
+      { key: 'parallel',   label: 'Parallel',      icon: 'account_tree',   cls: 'rule-parallel' },
+      { key: 'observer',   label: 'Observer Only', icon: 'visibility',     cls: 'rule-observer' },
+    ];
+
+    const DEFAULT_COHORTS = [
+      { id: 'c1', name: 'Thesis Students', privacy: 'private', members: 12, rules: ['can_review','sealed'], owned: true, context: 'folio' },
+      { id: 'c2', name: 'Public Readers',  privacy: 'public',  members: 89, rules: ['can_review'],          owned: true, context: 'folio' },
+      { id: 'c3', name: 'Observers',       privacy: 'public',  members: 203, rules: ['observer'],           owned: true, context: 'folio' },
+      { id: 'c4', name: 'Paper Authors',   privacy: 'private', members: 5, rules: ['can_post','can_review','sealed','parallel'], owned: false, context: 'folio', managedBy: 'Dr. Aris Thorne' },
+    ];
+
+    function getCohorts() {
+      const stored = localStorage.getItem('meridian_cohorts_folio');
+      return stored ? JSON.parse(stored) : DEFAULT_COHORTS;
+    }
+    function saveCohorts(list) {
+      localStorage.setItem('meridian_cohorts_folio', JSON.stringify(list));
+    }
+
+    function renderCohortCard(c, managed) {
+      const ruleTags = c.rules.map(r => {
+        const m = RULE_META.find(x => x.key === r);
+        return m ? `<span class="rule-tag ${m.cls}"><span class="material-symbols-outlined" style="font-size:10px">${m.icon}</span>${m.label}</span>` : '';
+      }).join('');
+      const privBadge = c.privacy === 'private'
+        ? `<span class="flex items-center gap-0.5 text-[10px] font-bold text-on-surface-variant"><span class="material-symbols-outlined" style="font-size:12px">lock</span>Private</span>`
+        : `<span class="flex items-center gap-0.5 text-[10px] font-bold text-green-700"><span class="material-symbols-outlined" style="font-size:12px">public</span>Public</span>`;
+      const managedBy = !managed ? `<p class="text-[10px] text-on-surface-variant mt-0.5">Managed by ${c.managedBy || 'Node admin'}</p>` : '';
+      const actions = managed
+        ? `<div class="flex gap-2 mt-3">
+            <button onclick="inviteToCohort('${c.id}','${c.name}')" class="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-full text-[11px] font-bold active:scale-95 transition-transform hover:opacity-90"><span class="material-symbols-outlined" style="font-size:13px">person_add</span>Invite</button>
+            <button onclick="deleteCohort('${c.id}')" class="flex items-center gap-1 px-3 py-1.5 border border-error/40 text-error rounded-full text-[11px] font-bold active:scale-95 transition-transform hover:bg-error/5"><span class="material-symbols-outlined" style="font-size:13px">delete</span>Remove</button>
+           </div>`
+        : '';
+      return `<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 shadow-sm" id="cohort-${c.id}">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div>
+            <p class="font-bold text-primary text-sm">${c.name}</p>
+            ${managedBy}
+          </div>
+          <div class="flex flex-col items-end gap-1">${privBadge}<span class="text-[11px] font-bold text-on-surface-variant">${c.members} members</span></div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-2">${ruleTags}</div>
+        ${actions}
+      </div>`;
+    }
+
+    function renderCohorts() {
+      const all = getCohorts();
+      const managed = all.filter(c => c.owned);
+      const joined  = all.filter(c => !c.owned);
+      document.getElementById('managed-cohorts-list').innerHTML = managed.length
+        ? managed.map(c => renderCohortCard(c, true)).join('')
+        : '<p class="text-sm text-on-surface-variant px-1">No cohorts yet. Create your first one.</p>';
+      document.getElementById('joined-cohorts-list').innerHTML = joined.length
+        ? joined.map(c => renderCohortCard(c, false)).join('')
+        : '<p class="text-sm text-on-surface-variant px-1">You haven\'t been added to any cohorts yet.</p>';
+    }
+
+    function deleteCohort(id) {
+      const all = getCohorts().filter(c => c.id !== id);
+      saveCohorts(all);
+      document.getElementById('cohort-' + id)?.remove();
+      showToast('Cohort removed');
+    }
+
+    function inviteToCohort(id, name) {
+      const link = `https://meridian.app/cohort/${id}/join`;
+      navigator.clipboard.writeText(link).catch(() => {});
+      showToast('Invite link copied — share it to add members');
+    }
+
+    // Create Cohort
+    let newRules = {};
+    let newPrivate = true;
+
+    function openCreateCohort() {
+      newRules = {};
+      newPrivate = true;
+      document.getElementById('cohort-name-input').value = '';
+      // reset toggles
+      RULE_META.forEach(r => {
+        const el = document.getElementById('toggle-' + r.key);
+        if (el) el.classList.remove('on');
+      });
+      document.getElementById('privacy-toggle').classList.add('on');
+      document.getElementById('privacy-label').textContent = 'Private';
+      document.getElementById('create-cohort-backdrop').classList.add('open');
+      document.getElementById('create-cohort-sheet').classList.add('open');
+      setTimeout(() => document.getElementById('cohort-name-input').focus(), 300);
+    }
+    function closeCreateCohort() {
+      document.getElementById('create-cohort-backdrop').classList.remove('open');
+      document.getElementById('create-cohort-sheet').classList.remove('open');
+    }
+    function toggleRule(key) {
+      const el = document.getElementById('toggle-' + key);
+      if (newRules[key]) {
+        delete newRules[key];
+        el.classList.remove('on');
+      } else {
+        newRules[key] = true;
+        el.classList.add('on');
+        // observer is exclusive
+        if (key === 'observer') {
+          ['can_post','can_review','sealed','parallel'].forEach(k => { delete newRules[k]; document.getElementById('toggle-' + k)?.classList.remove('on'); });
+        } else {
+          delete newRules['observer'];
+          document.getElementById('toggle-observer')?.classList.remove('on');
+        }
+      }
+    }
+    function togglePrivacy() {
+      newPrivate = !newPrivate;
+      const el = document.getElementById('privacy-toggle');
+      el.classList.toggle('on', newPrivate);
+      document.getElementById('privacy-label').textContent = newPrivate ? 'Private' : 'Public';
+    }
+    function saveNewCohort() {
+      const name = document.getElementById('cohort-name-input').value.trim();
+      if (!name) { showToast('Give your cohort a name'); return; }
+      const rules = Object.keys(newRules);
+      if (!rules.length) { showToast('Set at least one access rule'); return; }
+      const all = getCohorts();
+      const newC = { id: 'c' + Date.now(), name, privacy: newPrivate ? 'private' : 'public', members: 0, rules, owned: true, context: 'folio' };
+      all.push(newC);
+      saveCohorts(all);
+      closeCreateCohort();
+      renderCohorts();
+      showToast('Cohort "' + name + '" created ✓');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>

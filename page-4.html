@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Convene</title>
+  <meta name="description" content="Meridian Convene — find hackathons, symposiums, and research challenges. One-tap verified registration." />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37","surface-container-lowest": "#ffffff","on-surface-variant": "#43474e","surface-variant": "#e1e3e4","on-primary": "#ffffff","on-primary-container": "#87a4cc","background": "#f8f9fa","secondary": "#4e6354","surface-container-highest": "#e1e3e4","on-tertiary-fixed-variant": "#7c2e10","secondary-fixed-dim": "#b5ccb9","tertiary-fixed": "#ffdbcf","primary-fixed-dim": "#abc9f2","on-secondary-container": "#546a59","on-error": "#ffffff","surface-container-high": "#e7e8e9","on-background": "#191c1d","primary": "#002444","on-secondary-fixed-variant": "#374c3d","tertiary-container": "#692003","surface-tint": "#436084","outline-variant": "#c3c6cf","on-error-container": "#93000a","surface": "#f8f9fa","tertiary": "#461100","primary-fixed": "#d2e4ff","on-tertiary-container": "#ef8661","outline": "#73777f","surface-bright": "#f8f9fa","surface-dim": "#d9dadb","error-container": "#ffdad6","secondary-container": "#d0e9d4","inverse-primary": "#abc9f2","surface-container": "#edeeef","inverse-on-surface": "#f0f1f2","on-secondary": "#ffffff","tertiary-fixed-dim": "#ffb59c","error": "#ba1a1a","primary-container": "#1a3a5c","on-tertiary": "#ffffff","surface-container-low": "#f3f4f5","on-secondary-fixed": "#0b1f13","on-primary-fixed-variant": "#2a486b","on-surface": "#191c1d","on-tertiary-fixed": "#390c00","inverse-surface": "#2e3132","secondary-fixed": "#d0e9d4","gold": "#C9922A"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Search overlay */
+    .search-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-start; padding-top: 80px; }
+    .search-overlay.open { display: flex; }
+    .notif-panel { position: fixed; top: 64px; right: 0; width: min(360px, 100vw); background: #fff; z-index: 150; transform: translateX(110%); transition: transform 300ms cubic-bezier(0.32,0.72,0,1); border-left: 1px solid #e1e3e4; box-shadow: -4px 0 24px rgba(0,0,0,0.08); max-height: calc(100dvh - 64px); overflow-y: auto; }
+    .notif-panel.open { transform: translateX(0); }
+    .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
+    .notif-overlay.open { pointer-events: auto; }
+    .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
+    .card-press:active { transform: scale(0.97); }
+    /* Sheet */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 100; transition: background 300ms ease; pointer-events: none; }
+    .sheet-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 92vh; overflow-y: auto; }
+    .bottom-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+    /* Toast */
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    /* Deadline badge colors */
+    .deadline-urgent { background: #ffdad6; color: #ba1a1a; }
+    .deadline-caution { background: #ffdbcf; color: #7c2e10; }
+    .deadline-safe { background: #edeeef; color: #43474e; }
+    /* Success anim */
+    @keyframes circleIn { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
+    @keyframes checkIn { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
+    .circle-anim { stroke-dasharray: 200; stroke-dashoffset: 200; animation: circleIn 300ms ease forwards; }
+    .check-anim { stroke-dasharray: 60; stroke-dashoffset: 60; animation: checkIn 200ms ease 300ms forwards; }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body">
+
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm flex items-center justify-between px-5 h-16">
+    <div class="flex items-center gap-3">
+      <a href="page-1.html" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95">arrow_back</a>
+      <h1 class="text-lg font-black tracking-tighter text-primary">MERIDIAN</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openSearch()" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95">search</button>
+      <button onclick="toggleNotifPanel()" class="relative material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95">notifications
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-white" id="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay" onclick="closeSearch()">
+    <div class="w-full max-w-xl mx-4" onclick="event.stopPropagation()">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input id="convene-search" type="text" placeholder="Search events, locations, types..." oninput="searchEvents()" class="w-full pl-12 pr-4 py-4 bg-white rounded-2xl text-sm shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+      <div id="search-results" class="mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden"></div>
+    </div>
+  </div>
+
+  <main class="pt-16 pb-24 max-w-5xl mx-auto px-4 sm:px-6">
+
+    <!-- Hero -->
+    <section class="mb-8 mt-4">
+      <div class="max-w-xl">
+        <span class="text-[10px] font-semibold text-on-surface-variant uppercase tracking-[0.2em] mb-2 block">Events</span>
+        <h2 class="text-4xl font-extrabold tracking-tight text-primary mb-4 leading-tight">Convene — find your next challenge.</h2>
+        <!-- Filter chips -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1" id="event-filters">
+          <button data-filter="all" onclick="filterEvents(this)" class="filter-chip px-4 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full whitespace-nowrap">All Events</button>
+          <button data-filter="hackathon" onclick="filterEvents(this)" class="filter-chip px-4 py-1.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors whitespace-nowrap">Hackathons</button>
+          <button data-filter="symposium" onclick="filterEvents(this)" class="filter-chip px-4 py-1.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors whitespace-nowrap">Symposiums</button>
+          <button data-filter="workshop" onclick="filterEvents(this)" class="filter-chip px-4 py-1.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors whitespace-nowrap">Workshops</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Carousel -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold tracking-tight text-primary">Curated for you</h3>
+        <a href="#" class="text-xs font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary">See all</a>
+      </div>
+      <div class="flex overflow-x-auto no-scrollbar gap-4 snap-x snap-mandatory">
+        <!-- Carousel Card 1 -->
+        <div class="min-w-[300px] md:min-w-[380px] snap-start group cursor-pointer" onclick="openEventDetail('Global Bio-Genomics Summit','symposium')">
+          <div class="relative h-48 rounded-lg overflow-hidden">
+            <img alt="Bio-Genomics Summit" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlOcvbH7zUELt_kZsCWd_nv3GPjj_EB6bxD2tqDubKDGd11yIl5WFUwHVilX3Zae9-Kj5ZeHzYD_T2l4jYWZXSckxq8LGncKgVmuPTaqzVSXJTPzYcJLWL4inS03JGw2yL6DAe5T5wZvidhB9Gxd5bvVmJcqbLXioZauxBiXIB3BLy24-bcS61WJP-QkQv4IzifmFjLdQ-tAU2beUS4E14gmmkOwyyFUQhZq3h8YQ_LXvYn_ZO3tNAwZr68AauwB1KdqZk1SBMS4nt" />
+            <!-- Deadline badge top-right -->
+            <span class="absolute top-3 right-3 deadline-caution text-[10px] font-bold px-2 py-0.5 rounded-full">6d left</span>
+            <!-- Featured badge top-left -->
+            <div class="absolute top-3 left-3 bg-primary/90 backdrop-blur px-3 py-1 rounded text-[10px] font-bold text-white uppercase tracking-widest">Featured</div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+              <span class="text-white/80 text-[11px] font-medium">Cambridge, MA · June 12</span>
+              <h4 class="text-white text-base font-bold leading-tight mt-0.5">Global Bio-Genomics Summit</h4>
+            </div>
+          </div>
+        </div>
+        <!-- Carousel Card 2 -->
+        <div class="min-w-[300px] md:min-w-[380px] snap-start group cursor-pointer" onclick="openEventDetail('Neural-Link 2024: Ethics Hack','hackathon')">
+          <div class="relative h-48 rounded-lg overflow-hidden">
+            <img alt="Neural-Link Hackathon" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-yHFGUehdS8HZip8PqxGt6tlMTRPMRUDxwCfuVSKqxSak9ZcXgU0SSUuVGk_sIDlnIKY325P4ngA_TvsjKMY8cGBaskqFraN6_u-xY1AuQm3DdWpleZUYXyTcGWiIyoJO9WHW0_KxUEFgZgaxmS8sMNGOMgBa-jRrpddVwV0IzO4A7ECVL1KdbmNeSyP2al8wBdg2zd30-C87h1s-aYS8jWHtoy2G6tm8zYF4bn1OvCi7gV6i5OJZYV1BMpJa8ZgTRAQ-7DzBvLyu" />
+            <span class="absolute top-3 right-3 deadline-urgent text-[10px] font-bold px-2 py-0.5 rounded-full">2d left</span>
+            <div class="absolute top-3 left-3 bg-primary/90 backdrop-blur px-3 py-1 rounded text-[10px] font-bold text-white uppercase tracking-widest">High Demand</div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+              <span class="text-white/80 text-[11px] font-medium">Virtual · May 28</span>
+              <h4 class="text-white text-base font-bold leading-tight mt-0.5">Neural-Link 2024: Ethics Hack</h4>
+            </div>
+          </div>
+        </div>
+        <!-- Carousel Card 3 -->
+        <div class="min-w-[300px] md:min-w-[380px] snap-start group cursor-pointer" onclick="openEventDetail('Oxford Quantum Materials Workshop','workshop')">
+          <div class="relative h-48 rounded-lg overflow-hidden">
+            <img alt="Oxford Workshop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcdnFbogrXdPFOxYyyNSnpdG30b-70aJq-qiINk2mgjVyGa9KsVjXx2jhV8J31NdZKW0Xn1zkK4_rqwdq41OC1q6IjTFT_zh1nDyYGIr2MUVKRz571lAF8Mt0BUeqdVQSfJbZ90a0Tmclr8PIU9XfVHB8G5-CfJ3L9UEYZZMUa1HBJo-gAaGqXvHcvczX7t80EMA9ciGexlgxH6AxoG50IreJzf_pJNS0cwVW0ruSVPVnnoJj8m72FfyHrKrIEdRTK3Ti0PM52yqXA" />
+            <span class="absolute top-3 right-3 deadline-safe text-[10px] font-bold px-2 py-0.5 rounded-full">14d left</span>
+            <div class="absolute top-3 left-3 bg-primary/90 backdrop-blur px-3 py-1 rounded text-[10px] font-bold text-white uppercase tracking-widest">New</div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+              <span class="text-white/80 text-[11px] font-medium">Oxford, UK · July 04</span>
+              <h4 class="text-white text-base font-bold leading-tight mt-0.5">Oxford Quantum Materials Workshop</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chronological list -->
+    <section class="space-y-10" id="event-list">
+
+      <!-- MAY -->
+      <div data-month="may">
+        <div class="sticky top-16 z-40 bg-surface/95 backdrop-blur-sm py-3 mb-5 border-b border-outline-variant/10">
+          <div class="flex items-baseline justify-between">
+            <h3 class="text-2xl font-black text-primary tracking-tighter">May 2024</h3>
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">3 Events</span>
+          </div>
+        </div>
+        <div class="space-y-5">
+
+          <!-- Event 1 — Defense Tech hackathon -->
+          <div class="event-card bg-surface-container-lowest rounded-lg p-5 flex flex-col lg:flex-row gap-5 hover:shadow-xl hover:shadow-primary/5 transition-all group card-press" data-type="hackathon" id="event-defense" onclick="openEventDetail('Defense-Tech Innovation Challenge','hackathon')">
+            <div class="lg:w-1/4 h-40 lg:h-auto rounded-lg overflow-hidden bg-surface-container shrink-0">
+              <img alt="Defense Tech" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJrJYQGt-Fa7ibATYo9qKurZvtmhCBT6_R1QfybB-GFXNRXxfDe0gNet_pELve_r8gf-hnhoHy4fH_8_IG_enL35sW-p_cylLIXArwt8N8Ut3r3Z_D_Uk03w2atNKSKoXh1sxnEATGunf1U9wM_1BMtEy5YdptEbu3yAkOBNNOuAslWWxaMFrBfOEbpAZDeHsVMzg85Z5eN8Dtm7xvghCpEgKBH3yP0vQSUbipnaacsiP40855dd8-oik4UitVdp_ckYFttwyYOwyw" />
+            </div>
+            <div class="flex-1 flex flex-col justify-between" onclick="event.stopPropagation()">
+              <div>
+                <div class="flex items-start justify-between mb-2">
+                  <span class="text-[10px] font-bold text-on-tertiary-fixed-variant bg-tertiary-fixed px-2 py-0.5 rounded uppercase tracking-tight">Hackathon</span>
+                  <!-- Deadline badge -->
+                  <span class="deadline-urgent text-[10px] font-bold px-2 py-0.5 rounded-full">2d left</span>
+                </div>
+                <h4 class="text-lg font-bold text-primary mb-1">Defense-Tech Innovation Challenge</h4>
+                <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">A 48-hour sprint focusing on sovereign cloud infrastructure and resilient network architecture for decentralized nodes.</p>
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">calendar_today</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Date</p><p class="text-xs font-semibold">May 24–26</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">pin_drop</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Location</p><p class="text-xs font-semibold">Washington, DC</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">school</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Eligibility</p><p class="text-xs font-semibold text-error">Limited Spots</p></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Register / Registered state -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-primary flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span> 120 attending</span>
+                <div id="reg-defense">
+                  <button onclick="registerEvent('defense')" class="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95">Register — Verified ✦</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 2 — LLM Benchmarking hackathon -->
+          <div class="event-card bg-surface-container-lowest rounded-lg p-5 flex flex-col lg:flex-row gap-5 hover:shadow-xl hover:shadow-primary/5 transition-all group card-press" data-type="hackathon" id="event-llm" onclick="openEventDetail('Open-Source LLM Benchmarking','hackathon')">
+            <div class="lg:w-1/4 h-40 lg:h-auto rounded-lg overflow-hidden bg-surface-container shrink-0">
+              <img alt="LLM Benchmarking" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdqrxNpY6EwQeoQSu58eZp7J_VGp1yv9NYOa3jeQSd0e6-UXMCY7uxNx7IYgTwf8ovZO5bAOh-yjpHCj83rjHl59QynOB5x1YLtRFrUIud3gV0tkLsEa8Kh1yMiyrQrNTkqD8XXjrFh-dkYEXFtHmtAQBcPg37NLcfYOAAfuFkvNCi2unc1Zf_WRGJ35rdVdCT8V75gG5oEV_297s3ZgXcA1xqudOVc2SPxop8OIn6LMsNAo2dAnLoyv9ehkXP47wj6og1zRgu4ybC" />
+            </div>
+            <div class="flex-1 flex flex-col justify-between" onclick="event.stopPropagation()">
+              <div>
+                <div class="flex items-start justify-between mb-2">
+                  <span class="text-[10px] font-bold text-on-secondary-container bg-secondary-container px-2 py-0.5 rounded uppercase tracking-tight">Data Science</span>
+                  <span class="deadline-caution text-[10px] font-bold px-2 py-0.5 rounded-full">5d left</span>
+                </div>
+                <h4 class="text-lg font-bold text-primary mb-1">Open-Source LLM Benchmarking</h4>
+                <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">Collaborative evaluation of decentralized model performance across non-standard datasets.</p>
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">calendar_today</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Date</p><p class="text-xs font-semibold">May 29</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">pin_drop</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Location</p><p class="text-xs font-semibold">Virtual</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">school</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Eligibility</p><p class="text-xs font-semibold">Open to all</p></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-primary flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span> 450+ joined</span>
+                <div id="reg-llm">
+                  <button onclick="registerEvent('llm')" class="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95">Register — Verified ✦</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 3 — Bio workshop -->
+          <div class="event-card bg-surface-container-lowest rounded-lg p-5 flex flex-col lg:flex-row gap-5 hover:shadow-xl hover:shadow-primary/5 transition-all group card-press" data-type="symposium" id="event-bio" onclick="openEventDetail('Global Bio-Genomics Summit','symposium')">
+            <div class="lg:w-1/4 h-40 lg:h-auto rounded-lg overflow-hidden bg-surface-container shrink-0">
+              <img alt="Bio-Genomics" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlOcvbH7zUELt_kZsCWd_nv3GPjj_EB6bxD2tqDubKDGd11yIl5WFUwHVilX3Zae9-Kj5ZeHzYD_T2l4jYWZXSckxq8LGncKgVmuPTaqzVSXJTPzYcJLWL4inS03JGw2yL6DAe5T5wZvidhB9Gxd5bvVmJcqbLXioZauxBiXIB3BLy24-bcS61WJP-QkQv4IzifmFjLdQ-tAU2beUS4E14gmmkOwyyFUQhZq3h8YQ_LXvYn_ZO3tNAwZr68AauwB1KdqZk1SBMS4nt" />
+            </div>
+            <div class="flex-1 flex flex-col justify-between" onclick="event.stopPropagation()">
+              <div>
+                <div class="flex items-start justify-between mb-2">
+                  <span class="text-[10px] font-bold text-on-primary-fixed-variant bg-primary-fixed px-2 py-0.5 rounded uppercase tracking-tight">Symposium</span>
+                  <span class="deadline-caution text-[10px] font-bold px-2 py-0.5 rounded-full">6d left</span>
+                </div>
+                <h4 class="text-lg font-bold text-primary mb-1">Global Bio-Genomics Summit</h4>
+                <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">Annual symposium for biological systems and genomics researchers across South Asia and the UK.</p>
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">calendar_today</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Date</p><p class="text-xs font-semibold">June 12</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">pin_drop</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Location</p><p class="text-xs font-semibold">Cambridge, MA</p></div>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary-container text-lg">school</span>
+                    <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Eligibility</p><p class="text-xs font-semibold">Research scholars</p></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-primary flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span> 84 registered</span>
+                <div id="reg-bio">
+                  <button onclick="registerEvent('bio')" class="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95">Register — Verified ✦</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JUNE -->
+      <div data-month="june">
+        <div class="sticky top-16 z-40 bg-surface/95 backdrop-blur-sm py-3 mb-5 border-b border-outline-variant/10">
+          <div class="flex items-baseline justify-between">
+            <h3 class="text-2xl font-black text-primary tracking-tighter">June 2024</h3>
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">1 Major Event</span>
+          </div>
+        </div>
+
+        <!-- Event 4 — Mechatronics -->
+        <div class="event-card bg-surface-container-lowest rounded-lg p-5 flex flex-col lg:flex-row gap-5 hover:shadow-xl hover:shadow-primary/5 transition-all group card-press border-l-4 border-primary" data-type="hackathon" id="event-mecha" onclick="openEventDetail('Mechatronics Masters 2024','hackathon')">
+          <div class="lg:w-1/4 h-40 lg:h-auto rounded-lg overflow-hidden bg-surface-container shrink-0">
+            <img alt="Mechatronics" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBINCBDkfUck5S3C8PG_RRraEFuzgvltJNLc4wzVT2aQwAaEtKRcLJQ-G-x_g5W10G7MG_Vt6Ub3mnDTY06Ax46lwopscOb0FcG0pb1cZZZY03ZM9JiCyWxUHEoTaxXf56eeAjHShWz94dnPazyZyoHxj4xD9ShkCn77xeI_KF134o_9pLr3kT7q6YHhM_yx17alCsR_BG8oFfgt-xQv7QlmgrewY-AnGIVcNZhXFZVaiAGTuq1i65yGpIxoj_BZnBZ1N4n_Y2RfysY" />
+          </div>
+          <div class="flex-1 flex flex-col justify-between" onclick="event.stopPropagation()">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex gap-2">
+                  <span class="text-[10px] font-bold text-on-primary-fixed-variant bg-primary-fixed px-2 py-0.5 rounded uppercase tracking-tight">Engineering</span>
+                  <span class="text-[10px] font-bold text-white bg-tertiary-container px-2 py-0.5 rounded uppercase tracking-tight">Premier</span>
+                </div>
+                <span class="deadline-safe text-[10px] font-bold px-2 py-0.5 rounded-full">14d left</span>
+              </div>
+              <h4 class="text-lg font-bold text-primary mb-1">Mechatronics Masters 2024</h4>
+              <p class="text-sm text-on-surface-variant mb-3 line-clamp-2">Elite competition for doctoral candidates focusing on soft-robotics and biomimetic movement in extreme environments.</p>
+              <p class="text-sm font-bold text-primary mb-4">$5,000 Prize Pool</p>
+              <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-primary-container text-lg">calendar_today</span>
+                  <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Date</p><p class="text-xs font-semibold">June 15–20</p></div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-primary-container text-lg">pin_drop</span>
+                  <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Location</p><p class="text-xs font-semibold">ETH Zurich</p></div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-primary-container text-lg">school</span>
+                  <div><p class="text-[10px] font-bold text-on-surface-variant uppercase">Eligibility</p><p class="text-xs font-semibold">PhD / Research</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-primary flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span> 24 teams</span>
+              <div id="reg-mecha">
+                <button onclick="registerEvent('mecha')" class="px-6 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95">Register — Verified ✦</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="md:hidden fixed bottom-0 w-full z-50 bg-white border-t border-slate-100 shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] rounded-t-lg flex justify-around items-center px-2 py-3 h-20">
+    <a href="page-1.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Ledger</span>
+    </a>
+    <a href="page-6.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">hub</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Nodes</span>
+    </a>
+    <a href="page-5.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined text-3xl">add_circle</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Publish</span>
+    </a>
+    <a href="page-3.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">lock</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Vault</span>
+    </a>
+    <a href="page-2.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">style</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+    </a>
+  </nav>
+
+  <!-- Notification Panel -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-primary text-base">Notifications</h3>
+      <button onclick="closeNotifPanel()" class="material-symbols-outlined text-on-surface-variant text-lg">close</button>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0">event_available</span>
+        <div><p class="text-sm font-bold text-primary">Defense-Tech Challenge — 2 days left</p><p class="text-[11px] text-on-surface-variant mt-0.5">Registration closes May 22</p></div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0">group_add</span>
+        <div><p class="text-sm font-bold text-on-surface">Arjun Kumar wants to team up</p><p class="text-[11px] text-on-surface-variant mt-0.5">NIT Calicut · Neural-Link Hackathon</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Success Sheet -->
+  <div class="sheet-backdrop" id="reg-backdrop" onclick="closeRegSuccess()"></div>
+  <div class="bottom-sheet" id="reg-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-10 flex flex-col items-center text-center">
+      <svg width="72" height="72" viewBox="0 0 72 72" class="mt-4">
+        <circle cx="36" cy="36" r="30" fill="none" stroke="#d0e9d4" stroke-width="4" class="circle-anim"/>
+        <polyline points="22,36 31,45 50,27" fill="none" stroke="#546a59" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="check-anim"/>
+      </svg>
+      <h3 class="font-bold text-primary text-xl mt-4 mb-1">Registered!</h3>
+      <p class="text-on-surface-variant text-sm mb-1" id="reg-event-name">Event name</p>
+      <p class="text-[11px] text-on-surface-variant mb-6">Your verified identity has been sent to the organizer. This Convene will appear in your Folio.</p>
+      <button onclick="closeRegSuccess()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Done</button>
+    </div>
+  </div>
+
+  <!-- Event Detail Sheet -->
+  <div class="sheet-backdrop" id="detail-backdrop" onclick="closeEventDetail()"></div>
+  <div class="bottom-sheet" id="detail-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <h3 id="detail-title" class="font-bold text-primary text-xl mb-2">Event</h3>
+      <p class="text-sm text-on-surface-variant mb-4">Full event details, problem statement, and judging criteria would appear here in the live app.</p>
+      <!-- Team Formation Board (only for registered) -->
+      <div class="border border-outline-variant/30 rounded-xl p-4 mb-5">
+        <h4 class="font-bold text-primary text-sm mb-3">Looking for teammates</h4>
+        <p class="text-[11px] text-on-surface-variant mb-3">Register first to see who else is looking for a team.</p>
+        <div class="space-y-3 opacity-50">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 text-[11px] font-bold">AK</div>
+            <div class="flex-1"><p class="font-bold text-primary text-xs">Arjun Kumar</p><p class="text-[10px] text-on-surface-variant">NIT Calicut · <span class="text-blue-700">Gradient</span></p></div>
+            <button class="px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold">Invite</button>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 text-[11px] font-bold">MR</div>
+            <div class="flex-1"><p class="font-bold text-primary text-xs">Meena Raghavan</p><p class="text-[10px] text-on-surface-variant">IIIT Hyderabad · <span class="text-blue-700">Gradient</span></p></div>
+            <button class="px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold">Invite</button>
+          </div>
+        </div>
+      </div>
+      <button onclick="closeEventDetail()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Close</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Search overlay
+    function openSearch() {
+      document.getElementById('search-overlay').classList.add('open');
+      setTimeout(() => document.getElementById('convene-search').focus(), 100);
+    }
+    function closeSearch() {
+      document.getElementById('search-overlay').classList.remove('open');
+      document.getElementById('convene-search').value = '';
+      document.getElementById('search-results').innerHTML = '';
+    }
+    function searchEvents() {
+      const q = document.getElementById('convene-search').value.toLowerCase();
+      const results = [];
+      document.querySelectorAll('.event-card').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        if (!q || text.includes(q)) results.push(card.querySelector('h4')?.textContent || '');
+      });
+      const rEl = document.getElementById('search-results');
+      if (!q) { rEl.innerHTML = ''; return; }
+      rEl.innerHTML = results.length
+        ? results.map(r => `<div class="px-4 py-3 text-sm font-semibold text-primary hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0" onclick="closeSearch(); showToast('Jumping to: ${r.replace(/'/g,'')}')">📅 ${r}</div>`).join('')
+        : '<div class="px-4 py-4 text-sm text-on-surface-variant text-center">No events found</div>';
+    }
+    // Notification panel
+    function toggleNotifPanel() {
+      document.getElementById('notif-panel').classList.toggle('open');
+      document.getElementById('notif-overlay').classList.toggle('open');
+      document.getElementById('notif-dot').style.display = 'none';
+    }
+    function closeNotifPanel() {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-overlay').classList.remove('open');
+    }
+    // Store registration state
+    const registered = JSON.parse(localStorage.getItem('meridian_registered') || '{}');
+
+    // On load, restore registered states
+    Object.keys(registered).forEach(id => {
+      if (registered[id]) setRegisteredUI(id, registered[id]);
+    });
+
+    function registerEvent(id) {
+      const eventNames = { defense: 'Defense-Tech Innovation Challenge', llm: 'Open-Source LLM Benchmarking', bio: 'Global Bio-Genomics Summit', mecha: 'Mechatronics Masters 2024' };
+      const name = eventNames[id];
+      registered[id] = name;
+      localStorage.setItem('meridian_registered', JSON.stringify(registered));
+      setRegisteredUI(id, name);
+      document.getElementById('reg-event-name').textContent = name;
+      document.getElementById('reg-backdrop').classList.add('open');
+      document.getElementById('reg-sheet').classList.add('open');
+    }
+
+    function setRegisteredUI(id, name) {
+      const container = document.getElementById('reg-' + id);
+      if (!container) return;
+      container.innerHTML = `
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1.5 text-on-secondary-container font-bold text-sm">
+            <span class="material-symbols-outlined fill-icon text-base" style="color:#546a59">check_circle</span>
+            Registered ✓
+          </span>
+          <button class="text-primary font-bold text-sm hover:underline" onclick="openTeamBoard()">View team →</button>
+        </div>`;
+    }
+
+    function closeRegSuccess() {
+      document.getElementById('reg-backdrop').classList.remove('open');
+      document.getElementById('reg-sheet').classList.remove('open');
+    }
+
+    // Filter chips
+    function filterEvents(btn) {
+      document.querySelectorAll('.filter-chip').forEach(b => {
+        b.classList.remove('bg-primary','text-on-primary');
+        b.classList.add('bg-surface-container','text-on-surface-variant');
+      });
+      btn.classList.add('bg-primary','text-on-primary');
+      btn.classList.remove('bg-surface-container','text-on-surface-variant');
+
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.event-card').forEach(card => {
+        const show = filter === 'all' || card.dataset.type === filter;
+        card.style.display = show ? '' : 'none';
+      });
+    }
+
+    // Event detail sheet
+    function openEventDetail(title, type) {
+      document.getElementById('detail-title').textContent = title;
+      document.getElementById('detail-backdrop').classList.add('open');
+      document.getElementById('detail-sheet').classList.add('open');
+    }
+    function closeEventDetail() {
+      document.getElementById('detail-backdrop').classList.remove('open');
+      document.getElementById('detail-sheet').classList.remove('open');
+    }
+
+    function openTeamBoard() { showToast('Team board — register first to unlock'); }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>

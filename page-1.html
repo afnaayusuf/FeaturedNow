@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Ledger</title>
+  <meta name="description" content="Meridian Ledger — your academic feed of peer-reviewed posts from your Nodes." />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37",
+            "surface-container-lowest": "#ffffff",
+            "on-surface-variant": "#43474e",
+            "surface-variant": "#e1e3e4",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#87a4cc",
+            "background": "#f8f9fa",
+            "secondary": "#4e6354",
+            "surface-container-highest": "#e1e3e4",
+            "on-tertiary-fixed-variant": "#7c2e10",
+            "secondary-fixed-dim": "#b5ccb9",
+            "tertiary-fixed": "#ffdbcf",
+            "primary-fixed-dim": "#abc9f2",
+            "on-secondary-container": "#546a59",
+            "on-error": "#ffffff",
+            "surface-container-high": "#e7e8e9",
+            "on-background": "#191c1d",
+            "primary": "#002444",
+            "on-secondary-fixed-variant": "#374c3d",
+            "tertiary-container": "#692003",
+            "surface-tint": "#436084",
+            "outline-variant": "#c3c6cf",
+            "on-error-container": "#93000a",
+            "surface": "#f8f9fa",
+            "tertiary": "#461100",
+            "primary-fixed": "#d2e4ff",
+            "on-tertiary-container": "#ef8661",
+            "outline": "#73777f",
+            "surface-bright": "#f8f9fa",
+            "surface-dim": "#d9dadb",
+            "error-container": "#ffdad6",
+            "secondary-container": "#d0e9d4",
+            "inverse-primary": "#abc9f2",
+            "surface-container": "#edeeef",
+            "inverse-on-surface": "#f0f1f2",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#ffb59c",
+            "error": "#ba1a1a",
+            "primary-container": "#1a3a5c",
+            "on-tertiary": "#ffffff",
+            "surface-container-low": "#f3f4f5",
+            "on-secondary-fixed": "#0b1f13",
+            "on-primary-fixed-variant": "#2a486b",
+            "on-surface": "#191c1d",
+            "on-tertiary-fixed": "#390c00",
+            "inverse-surface": "#2e3132",
+            "secondary-fixed": "#d0e9d4",
+            "gold": "#C9922A"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Card press feel */
+    .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
+    .card-press:active { transform: scale(0.97); }
+
+    /* Shimmer skeleton */
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .shimmer { background: linear-gradient(90deg, #e7e8e9 25%, #f3f4f5 50%, #e7e8e9 75%); background-size: 200% 100%; animation: shimmer 1.6s infinite; border-radius: 0.5rem; }
+
+    /* Bottom sheet */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 100; transition: background 300ms ease; pointer-events: none; }
+    .sheet-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 90vh; overflow-y: auto; }
+    .bottom-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+
+    /* Star rating */
+    .star-btn { font-size: 28px; transition: transform 80ms ease; color: #c3c6cf; cursor: pointer; }
+    .star-btn.active { color: #002444; }
+    .star-btn:active { transform: scale(1.25); }
+
+    /* Tab pill animation */
+    .filter-tabs { position: relative; }
+    .tab-pill { transition: background 200ms ease, color 200ms ease; }
+
+    /* Review success */
+    @keyframes circleIn { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
+    @keyframes checkIn { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
+    .circle-anim { stroke-dasharray: 200; stroke-dashoffset: 200; animation: circleIn 300ms ease forwards; }
+    .check-anim { stroke-dasharray: 60; stroke-dashoffset: 60; animation: checkIn 200ms ease 300ms forwards; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Notification badge */
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: #ba1a1a; border-radius: 50%; border: 2px solid white; }
+
+    /* Sidebar drawer */
+    .sidebar-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 200; transition: background 300ms ease; pointer-events: none; }
+    .sidebar-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #fff; z-index: 201; transform: translateX(-100%); transition: transform 320ms cubic-bezier(0.32,0.72,0,1); overflow-y: auto; }
+    .sidebar.open { transform: translateX(0); }
+
+    /* Notification drawer */
+    .notif-panel { position: fixed; top: 64px; right: 0; width: min(360px, 100vw); background: #fff; z-index: 150; transform: translateX(110%); transition: transform 300ms cubic-bezier(0.32,0.72,0,1); border-left: 1px solid #e1e3e4; box-shadow: -4px 0 24px rgba(0,0,0,0.08); max-height: calc(100dvh - 64px); overflow-y: auto; }
+    .notif-panel.open { transform: translateX(0); }
+    .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
+    .notif-overlay.open { pointer-events: auto; }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm flex items-center justify-between px-5 h-16">
+    <div class="flex items-center gap-3">
+      <button onclick="openSidebar()" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95 duration-200">menu</button>
+      <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <nav class="hidden md:flex gap-6 mr-4">
+        <a class="text-primary font-bold text-sm" href="page-1.html">Ledger</a>
+        <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-6.html">Nodes</a>
+        <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-3.html">Vault</a>
+        <a class="text-slate-500 hover:text-primary transition-colors text-sm font-semibold" href="page-4.html">Convene</a>
+      </nav>
+      <button onclick="toggleNotifPanel()" class="relative material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95 duration-200" id="notif-btn">notifications
+        <span class="notif-dot" id="notif-dot"></span>
+      </button>
+      <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white ml-1">JT</div>
+    </div>
+  </header>
+
+  <main class="pt-16 pb-24 max-w-3xl mx-auto px-4">
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs flex gap-2 overflow-x-auto py-4 no-scrollbar" id="filter-tabs">
+      <button data-tab="foryou" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-primary text-on-primary rounded-full text-xs font-bold whitespace-nowrap tracking-wide">For You</button>
+      <button data-tab="following" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">Following</button>
+      <button data-tab="gradient" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">
+        <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span>Gradient
+      </button>
+      <button data-tab="baremetal" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">
+        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>Bare Metal
+      </button>
+      <button data-tab="softer" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">
+        <span class="inline-block w-2 h-2 rounded-full bg-purple-500 mr-1"></span>Softer
+      </button>
+      <button data-tab="convenes" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">Convenes</button>
+      <button data-tab="vault" onclick="switchTab(this)" class="tab-pill px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold whitespace-nowrap tracking-wide hover:bg-surface-container-highest transition-colors">Vault</button>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+      <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm card-press border border-outline-variant/20">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nodes</p>
+        <p class="text-2xl font-black text-primary">5</p>
+        <p class="text-[10px] font-semibold text-on-secondary-container mt-1">12 new posts</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm card-press border border-outline-variant/20">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Reviews</p>
+        <p class="text-2xl font-black text-primary">3</p>
+        <p class="text-[10px] font-semibold text-on-surface-variant mt-1">pending</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm card-press border border-outline-variant/20">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Inquiry</p>
+        <p class="text-2xl font-black text-error">1/1</p>
+        <p class="text-[10px] font-semibold text-error mt-1">resets in 4d</p>
+      </div>
+    </div>
+
+    <!-- Featured Post Card -->
+    <section class="mb-6" id="feed-foryou">
+      <div class="bg-primary-container rounded-lg p-6 relative overflow-hidden group card-press mb-4">
+        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+          <span class="material-symbols-outlined fill-icon text-white text-9xl">auto_awesome</span>
+        </div>
+        <div class="flex items-center gap-2 mb-4 flex-wrap">
+          <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">✦ Sealed</span>
+          <span class="text-[12px] font-semibold" style="color:#C9922A">✦ by Dr. Aris Thorne</span>
+          <span class="text-on-primary-container/60 text-xs font-medium ml-auto">2h ago</span>
+        </div>
+        <h2 class="text-xl font-bold text-white mb-2 tracking-tight leading-tight">Decentralized Large Language Models: A Peer-to-Peer Inference Framework</h2>
+        <!-- Score Pills -->
+        <div class="flex items-center gap-2 mb-4 flex-wrap">
+          <span class="bg-secondary-container/30 text-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.7</span>
+          <span class="bg-secondary-container/30 text-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.9</span>
+          <span class="text-on-primary-container/70 text-[10px] font-medium">14 reviews</span>
+        </div>
+        <p class="text-on-primary-container text-sm leading-relaxed mb-5 opacity-90 max-w-xl">
+          Exploring the feasibility of distributed inference across heterogeneous consumer hardware using gossip protocols and weight-sharding techniques...
+        </p>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-300 overflow-hidden ring-2 ring-white/20">
+              <img alt="Dr. Aris Thorne" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFZ0dsGx8V1GrOE0tQK5gRQNHR_9KyiTJnv_8My7lW8lVZlr_XTFagJ8hdOHS2zAbHewk5joz-GeebOPoeKpGP1Tb8N_KSfO4lEXlVQxYPI-Y0if0iIZboDRdmLBID4bCPKhAgAhLyCgqE1ad8FEMc43XlXSNV25CUwVgNYFJwewSXIyY2U7tO0ppkdRvJIk8U0Kw8RDWJOcqBqKkSkqnwe4QKUHGg-d3RL0Gnu8NrGAAKV13F6gmQ7B8crFeK0RZ0YMKGdJQxdGKz" />
+            </div>
+            <div>
+              <p class="text-white text-xs font-bold">Dr. Aris Thorne <span style="color:#C9922A">✦</span></p>
+              <p class="text-on-primary-container text-[10px] font-medium">MIT Media Lab · Guide</p>
+            </div>
+          </div>
+          <button onclick="openPostDetail('Decentralized Large Language Models: A Peer-to-Peer Inference Framework','Dr. Aris Thorne','MIT Media Lab','Gradient','4.7','4.9','14','Exploring the feasibility of distributed inference across heterogeneous consumer hardware using gossip protocols and weight-sharding techniques. The proposed architecture divides model weights across volunteer nodes using a Merkle-tree sharding scheme, with a lightweight gossip protocol for consensus. Benchmarks show 73% inference throughput parity with centralized inference at 1/5th the operator cost. Failure modes under Byzantine node conditions are documented and mitigated via quorum thresholds.')" class="bg-white text-primary px-5 py-2 rounded-full text-xs font-extrabold active:scale-95 transition-transform hover:bg-primary-fixed">Open post</button>
+        </div>
+      </div>
+
+      <!-- Feed Cards -->
+      <div class="space-y-4" id="feed-cards">
+
+        <!-- Card 1 — Gradient node, Sealed -->
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-1">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex gap-2 flex-wrap">
+              <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient
+              </span>
+              <span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">
+                ✦ Sealed
+              </span>
+            </div>
+            <button id="bk-1" onclick="toggleBookmark(1)" class="text-outline hover:text-primary transition-colors p-1">
+              <span class="material-symbols-outlined text-xl">bookmark</span>
+            </button>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2 leading-snug line-clamp-2">Semantic Entropy in Synthetic Dataset Generation</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">
+            This paper quantifies the degradation of model performance when trained on iteratively generated synthetic data, proposing a new metric for semantic decay...
+          </p>
+          <!-- Score pills -->
+          <div class="flex items-center gap-2 mb-3">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.3</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.7</span>
+            <span class="text-on-surface-variant text-[10px]">9 reviews</span>
+          </div>
+          <!-- Attachments -->
+          <div class="flex gap-2 mb-3 flex-wrap">
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
+              <span class="material-symbols-outlined text-sm">dataset</span><span>dataset_v2.json · 2.1 MB</span>
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
+              <span class="material-symbols-outlined text-sm">description</span><span>methodology.pdf</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-slate-200 overflow-hidden">
+                <img alt="Sarah Jenkins" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlcZhh26mpZvRZwjz5cZ_gg1Jxq5V7iurhSVy11o1DUmonfXFhgUxocpa78w_ZhPAaqwcYkf1_4QmAlNWMKlU3hc5f5EEluIR23u8ws9X1S6BRlOr50YaYmRClfm9G9i8Ow6jAGJR-0IxCIrmscK2y5k35M2IgEATjnBZ3ly3wVve8-7OAV3X459_N7-P7ep-YhsngcVpLdK1vSqGJCpE_SiF_JbymA8Admc2EkEz26TX-oFmBwf-h3BlxFHdT7Y1X0N6l5ZMdKEcx" />
+              </div>
+              <div>
+                <p class="text-on-surface text-xs font-bold leading-tight">Sarah Jenkins <span style="color:#C9922A">✦</span></p>
+                <p class="text-on-surface-variant text-[10px]">Stanford AI Lab · 3rd yr</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button id="review-btn-1" onclick="openReview('post-1','Sarah Jenkins','Gradient','Semantic Entropy in Synthetic Dataset Generation')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
+                <span class="material-symbols-outlined text-sm">rate_review</span> Review
+              </button>
+              <button onclick="openParallel()" class="flex items-center gap-1 px-3 py-1.5 hover:bg-surface-container-low rounded text-xs font-bold text-primary transition-colors">
+                <span class="material-symbols-outlined text-sm">account_tree</span> Parallel
+              </button>
+              <span class="text-on-surface-variant text-[10px] ml-2">2h ago</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2 — Softer node (humanities) -->
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-2">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex gap-2">
+              <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer
+              </span>
+            </div>
+            <button id="bk-2" onclick="toggleBookmark(2)" class="text-outline hover:text-primary transition-colors p-1">
+              <span class="material-symbols-outlined text-xl">bookmark</span>
+            </button>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2 leading-snug line-clamp-2">The Architecture of Silence: Minimalist Urbanism in Post-War Japan</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">
+            A comprehensive review of architectural void spaces as a response to industrial density in 1960s Tokyo, focusing on the works of the Metabolist movement...
+          </p>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.1</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.5</span>
+            <span class="text-on-surface-variant text-[10px]">6 reviews</span>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
+              <span class="material-symbols-outlined text-sm">image</span><span>site_photos.zip · 14 MB</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-slate-200 overflow-hidden">
+                <img alt="Kenji Tanaka" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOBb73W9PADmsHbg6nOFnQ0fXxn6IzVqYi9ElkQq-VqbxcnKzE5sOm5pDmvO19vGUZljKT7NKYmdOI3yc42M6tcy-t-93W9kWzTvdCCWiRRD_qh_ZpKXPAyl9EgTcR-Gl18s_OrO3xn3RV32tuGTbwDsazplHXcKQjNomJ8xoi5Pc2xP6FLiTvQ51CqXyPYwlj24lczek9TmN31ibThVn3R5apMc8ND7PbJBuq5mDE8sIPakdeC8U5sFdzmLtgWEXtM2DQgqJip3FS" />
+              </div>
+              <div>
+                <p class="text-on-surface text-xs font-bold leading-tight">Kenji Tanaka</p>
+                <p class="text-on-surface-variant text-[10px]">University of Tokyo · 2nd yr</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button id="review-btn-2" onclick="openReview('post-2','Kenji Tanaka','Softer','The Architecture of Silence')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
+                <span class="material-symbols-outlined text-sm">rate_review</span> Review
+              </button>
+              <button onclick="openParallel()" class="flex items-center gap-1 px-3 py-1.5 hover:bg-surface-container-low rounded text-xs font-bold text-primary transition-colors">
+                <span class="material-symbols-outlined text-sm">account_tree</span> Parallel
+              </button>
+              <span class="text-on-surface-variant text-[10px] ml-2">5h ago</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3 — Bare Metal node (replaces CRITICAL NODE / 142 CITATIONS) -->
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-3">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex gap-2">
+              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              </span>
+              <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">
+                ↔ Parallel · 3 institutions
+              </span>
+            </div>
+            <button id="bk-3" onclick="toggleBookmark(3)" class="text-outline hover:text-primary transition-colors p-1">
+              <span class="material-symbols-outlined text-xl">bookmark</span>
+            </button>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2 leading-snug line-clamp-2">Quantum Advantage in Sub-linear Search Algorithms</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">
+            Proof of concept for a novel quantum circuit that achieves a 14% speedup over traditional Grover's algorithm for unstructured database queries...
+          </p>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.8</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 5.0</span>
+            <span class="text-on-surface-variant text-[10px]">22 reviews</span>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-slate-200 overflow-hidden">
+                <img alt="Elena Rossi" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfsoQr5cj_nkrNR13UhaO5S-Nj2zMF-PCoj7o6zBF8LD2M1ZCPeTij0V1SrSWl3-xBo_lPFaUuBfCeHODiv-4MGQsFNxi0Y7pt2uD3VaLO6qqYWGepeCpU1aIAfoPOEt1HjykI2J5cCQUpT89PS7lzyDz3XL08bLXAMAEUWJYrIo8nCanLmiQFO7kX4j5U3fV4KRD9sXqBsHRihwr26yE_sTzIMBjL7S1yAK98J_r5MB7C5_mCDnY7X5kQpbWqYQQnxeVCdB9mznOn" />
+              </div>
+              <div>
+                <p class="text-on-surface text-xs font-bold leading-tight">Elena Rossi <span style="color:#C9922A">✦</span></p>
+                <p class="text-on-surface-variant text-[10px]">CERN Theoretical Group · PhD</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button id="review-btn-3" onclick="openReview('post-3','Elena Rossi','Bare Metal','Quantum Advantage in Sub-linear Search')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
+                <span class="material-symbols-outlined text-sm">rate_review</span> Review
+              </button>
+              <button onclick="openParallel()" class="flex items-center gap-1 px-3 py-1.5 hover:bg-surface-container-low rounded text-xs font-bold text-primary transition-colors">
+                <span class="material-symbols-outlined text-sm">account_tree</span> Parallel
+              </button>
+              <span class="text-on-surface-variant text-[10px] ml-2">1d ago</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Load more -->
+        <div class="flex justify-center pt-2 pb-4" id="load-more-btn">
+          <button onclick="loadMore()" class="px-8 py-2.5 bg-surface-container text-primary text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors active:scale-95">Load more posts</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Following tab content (hidden by default) -->
+    <section class="hidden" id="feed-following">
+      <div class="text-center py-16 text-on-surface-variant">
+        <span class="material-symbols-outlined text-5xl mb-3 block">group</span>
+        <p class="font-bold text-primary mb-1">No followed Scholars yet</p>
+        <p class="text-sm">Follow Scholars from their Folio pages to see their posts here.</p>
+      </div>
+    </section>
+
+    <!-- Node tab contents -->
+    <section class="hidden" id="feed-gradient">
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Showing: Gradient Node</p>
+      <!-- same card pattern, filtered -->
+      <div class="space-y-4">
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
+          <div class="flex gap-2 mb-3">
+            <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient</span>
+            <span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2">Semantic Entropy in Synthetic Dataset Generation</h3>
+          <div class="flex items-center gap-2">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.3</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.7</span>
+            <span class="text-on-surface-variant text-[10px]">9 reviews</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="hidden" id="feed-baremetal">
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Showing: Bare Metal Node</p>
+      <div class="space-y-4">
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
+          <div class="flex gap-2 mb-3">
+            <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal</span>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2">Quantum Advantage in Sub-linear Search Algorithms</h3>
+          <div class="flex items-center gap-2">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.8</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 5.0</span>
+            <span class="text-on-surface-variant text-[10px]">22 reviews</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="hidden" id="feed-softer">
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Showing: Softer Node</p>
+      <div class="space-y-4">
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
+          <div class="flex gap-2 mb-3">
+            <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer</span>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2">The Architecture of Silence: Minimalist Urbanism in Post-War Japan</h3>
+          <div class="flex items-center gap-2">
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.1</span>
+            <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.5</span>
+            <span class="text-on-surface-variant text-[10px]">6 reviews</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="hidden" id="feed-convenes">
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Convene events in your Nodes</p>
+      <div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm card-press">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary-container text-2xl fill-icon">groups</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-bold text-primary text-sm">Mechatronics Masters 2024</p>
+            <p class="text-on-surface-variant text-[11px]">ETH Zurich · June 15–20</p>
+          </div>
+          <a href="page-4.html" class="px-4 py-1.5 bg-primary text-white rounded-xl text-xs font-bold active:scale-95">View</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="hidden" id="feed-vault">
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Recent Vault files in your Nodes</p>
+      <div class="space-y-3">
+        <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm card-press flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+            <span class="material-symbols-outlined text-xl">description</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-primary text-sm truncate">DSP_Lecture_Notes_Sem4.pdf</p>
+            <p class="text-[11px] text-on-surface-variant">Arjun Mehta · Gradient Node</p>
+          </div>
+          <span class="text-[10px] font-bold bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full">New</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sidebar Drawer -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+      <button onclick="closeSidebar()" class="material-symbols-outlined text-on-surface-variant p-1 hover:bg-slate-100 rounded-full">close</button>
+    </div>
+    <div class="px-4 py-4">
+      <div class="flex items-center gap-3 mb-6 p-3 bg-surface-container-low rounded-xl">
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-sm font-bold text-white">JT</div>
+        <div>
+          <p class="font-bold text-primary text-sm">Julian Thorne</p>
+          <p class="text-[11px] text-on-surface-variant">Stanford · Scholar ✦</p>
+        </div>
+      </div>
+      <nav class="space-y-1">
+        <a href="page-1.html" class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg font-bold text-sm"><span class="material-symbols-outlined fill-icon text-lg">account_balance_wallet</span>Ledger</a>
+        <a href="page-6.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">hub</span>Nodes</a>
+        <a href="page-5.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">add_circle</span>Publish</a>
+        <a href="page-3.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">lock</span>Vault</a>
+        <a href="page-4.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">groups</span>Convene</a>
+        <a href="page-2.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">style</span>Folio</a>
+      </nav>
+      <div class="mt-6 pt-5 border-t border-slate-100">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Inquiry quota</p>
+        <div class="bg-error/10 rounded-lg p-3">
+          <p class="text-error font-bold text-sm">1 / 1 used</p>
+          <p class="text-[11px] text-error/80 mt-0.5">Resets in 4 days</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-primary text-base">Notifications</h3>
+      <button onclick="markAllRead()" class="text-[11px] font-bold text-primary hover:underline">Mark all read</button>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0 mt-0.5">rate_review</span>
+        <div>
+          <p class="text-sm font-bold text-primary leading-snug">Elena Rossi reviewed your post</p>
+          <p class="text-[11px] text-on-surface-variant mt-0.5">"Quantum Advantage in Sub-linear Search" — Clarity 4.8 · Depth 5.0</p>
+          <p class="text-[10px] text-on-surface-variant mt-1">2 hours ago</p>
+        </div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+        <span class="material-symbols-outlined text-gold fill-icon text-xl shrink-0 mt-0.5" style="color:#C9922A">verified</span>
+        <div>
+          <p class="text-sm font-bold text-primary leading-snug">Dr. Aris Thorne sealed your post ✦</p>
+          <p class="text-[11px] text-on-surface-variant mt-0.5">"Decentralized LLMs" received a Guide Seal</p>
+          <p class="text-[10px] text-on-surface-variant mt-1">5 hours ago</p>
+        </div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0 mt-0.5">account_tree</span>
+        <div>
+          <p class="text-sm font-bold text-on-surface leading-snug">Sarah Jenkins sent a Parallel request</p>
+          <p class="text-[11px] text-on-surface-variant mt-0.5">Gradient Node · "Semantic Entropy..."</p>
+          <p class="text-[10px] text-on-surface-variant mt-1">Yesterday</p>
+        </div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0 mt-0.5">hub</span>
+        <div>
+          <p class="text-sm font-bold text-on-surface leading-snug">12 new posts in Gradient</p>
+          <p class="text-[11px] text-on-surface-variant mt-0.5">Your Node is active</p>
+          <p class="text-[10px] text-on-surface-variant mt-1">Yesterday</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Detail Sheet -->
+  <div class="sheet-backdrop" id="post-backdrop" onclick="closePostDetail()"></div>
+  <div class="bottom-sheet" id="post-sheet" style="max-height:92vh">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <div class="flex gap-2 mb-3 flex-wrap" id="post-sheet-badges"></div>
+      <h2 class="font-bold text-primary text-xl leading-tight mb-2" id="post-sheet-title"></h2>
+      <div class="flex items-center gap-2 mb-4" id="post-sheet-scores"></div>
+      <div class="flex items-center gap-3 mb-5" id="post-sheet-author">
+        <div class="w-8 h-8 rounded-full bg-slate-200 shrink-0 flex items-center justify-center text-xs font-bold text-primary">AT</div>
+        <div>
+          <p class="text-sm font-bold text-primary" id="post-sheet-author-name"></p>
+          <p class="text-[11px] text-on-surface-variant" id="post-sheet-author-inst"></p>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded-xl p-4 mb-5">
+        <p class="text-sm leading-relaxed text-on-surface" id="post-sheet-body"></p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closePostDetail()" class="flex-1 py-3.5 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Close</button>
+        <button onclick="closePostDetail(); showToast('Opening in full view...')" class="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Open in full ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-lg bg-white shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] border-t border-slate-100 flex justify-around items-center px-2 py-3 h-20">
+    <a href="page-1.html" class="flex flex-col items-center justify-center text-primary bg-slate-100 rounded-xl px-3 py-1 active:scale-90 transition-transform">
+      <span class="material-symbols-outlined fill-icon">account_balance_wallet</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Ledger</span>
+    </a>
+    <a href="page-6.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-colors active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">hub</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Nodes</span>
+    </a>
+    <a href="page-5.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-colors active:scale-90 transition-transform">
+      <span class="material-symbols-outlined text-3xl">add_circle</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Publish</span>
+    </a>
+    <a href="page-3.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-colors active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">lock</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Vault</span>
+    </a>
+    <a href="page-2.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary transition-colors active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">style</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+    </a>
+  </nav>
+
+  <!-- ====== PEER REVIEW BOTTOM SHEET ====== -->
+  <div class="sheet-backdrop" id="review-backdrop" onclick="closeReview()"></div>
+  <div class="bottom-sheet" id="review-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-8">
+      <!-- Success state (hidden initially) -->
+      <div class="hidden flex-col items-center justify-center py-10 text-center" id="review-success">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#d0e9d4" stroke-width="4" class="circle-anim"/>
+          <polyline points="22,36 31,45 50,27" fill="none" stroke="#546a59" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="check-anim"/>
+        </svg>
+        <p class="font-bold text-primary text-lg mt-4" id="success-msg">Review published.</p>
+        <p class="text-on-surface-variant text-sm mt-1" id="success-sub">The author has been notified.</p>
+      </div>
+
+      <!-- Form -->
+      <div id="review-form">
+        <div class="mb-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1" id="sheet-node-label">Node</p>
+          <h3 class="font-bold text-primary text-base leading-tight line-clamp-2" id="sheet-post-title">Post title</h3>
+          <p class="text-on-surface-variant text-xs mt-1" id="sheet-author-label">by Author</p>
+        </div>
+
+        <!-- Clarity stars -->
+        <div class="mb-5">
+          <p class="text-xs font-bold text-on-surface mb-2">Clarity <span class="text-on-surface-variant font-normal">(1–5)</span></p>
+          <div class="flex gap-3" id="clarity-stars">
+            <button class="star-btn material-symbols-outlined" data-val="1" onclick="setStars('clarity',1)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="2" onclick="setStars('clarity',2)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="3" onclick="setStars('clarity',3)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="4" onclick="setStars('clarity',4)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="5" onclick="setStars('clarity',5)">star</button>
+          </div>
+        </div>
+        <!-- Depth stars -->
+        <div class="mb-5">
+          <p class="text-xs font-bold text-on-surface mb-2">Technical Depth <span class="text-on-surface-variant font-normal">(1–5)</span></p>
+          <div class="flex gap-3" id="depth-stars">
+            <button class="star-btn material-symbols-outlined" data-val="1" onclick="setStars('depth',1)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="2" onclick="setStars('depth',2)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="3" onclick="setStars('depth',3)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="4" onclick="setStars('depth',4)">star</button>
+            <button class="star-btn material-symbols-outlined" data-val="5" onclick="setStars('depth',5)">star</button>
+          </div>
+        </div>
+        <!-- Comment -->
+        <div class="mb-4">
+          <p class="text-xs font-bold text-on-surface mb-2">Written review</p>
+          <textarea id="review-comment" oninput="updateWordCount()" rows="4" placeholder="Describe the post's strengths, methodology, and what could be improved — in your own words." class="w-full bg-surface-container-low rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all leading-relaxed"></textarea>
+          <p class="text-[11px] mt-1 text-right" id="word-count-label"><span id="word-count">0</span> / 40 minimum words</p>
+        </div>
+        <p class="text-[11px] text-on-surface-variant mb-5">Your review will show your name, institution, and year. Reviews are not anonymous.</p>
+        <button id="submit-review-btn" onclick="submitReview()" disabled class="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 bg-surface-container-high text-on-surface-variant cursor-not-allowed" style="cursor:not-allowed">Submit review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PARALLEL BOTTOM SHEET ====== -->
+  <div class="sheet-backdrop" id="parallel-backdrop" onclick="closeParallel()"></div>
+  <div class="bottom-sheet" id="parallel-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-xl mb-2">What is Parallel?</h3>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-5">
+        Parallel is how students from different institutions contribute to the same research post. If a post is <strong>open for Parallel</strong>, you can submit a contribution request — a brief explanation of what you'd add. The original author approves contributions, and all contributors are credited on the published post.
+      </p>
+      <div class="bg-surface-container-low rounded-lg p-4 mb-6">
+        <p class="font-bold text-primary text-sm mb-1">Your proposed contribution</p>
+        <textarea rows="3" placeholder="What would you add to this research? Be specific — methodology extension, dataset expansion, literature review..." class="w-full bg-transparent text-sm resize-none focus:outline-none leading-relaxed mt-1 text-on-surface"></textarea>
+      </div>
+      <button onclick="submitParallel()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Send contribution request</button>
+      <button onclick="closeParallel()" class="w-full py-3 text-on-surface-variant text-sm font-semibold mt-2">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Filter tabs ----
+    const tabMap = {
+      foryou: 'feed-foryou',
+      following: 'feed-following',
+      gradient: 'feed-gradient',
+      baremetal: 'feed-baremetal',
+      softer: 'feed-softer',
+      convenes: 'feed-convenes',
+      vault: 'feed-vault'
+    };
+
+    function switchTab(btn) {
+      document.querySelectorAll('#filter-tabs .tab-pill').forEach(b => {
+        b.classList.remove('bg-primary','text-on-primary');
+        b.classList.add('bg-surface-container-high','text-on-surface-variant');
+      });
+      btn.classList.add('bg-primary','text-on-primary');
+      btn.classList.remove('bg-surface-container-high','text-on-surface-variant');
+
+      const tab = btn.dataset.tab;
+      Object.values(tabMap).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      document.getElementById(tabMap[tab])?.classList.remove('hidden');
+    }
+
+    // ---- Bookmark toggle ----
+    const bookmarks = {};
+    function toggleBookmark(id) {
+      bookmarks[id] = !bookmarks[id];
+      const btn = document.getElementById(`bk-${id}`);
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (bookmarks[id]) {
+        icon.classList.add('fill-icon');
+        icon.style.color = '#002444';
+        showToast('Bookmarked');
+      } else {
+        icon.classList.remove('fill-icon');
+        icon.style.color = '';
+        showToast('Bookmark removed');
+      }
+    }
+
+    // ---- Peer Review Sheet ----
+    let clarityVal = 0, depthVal = 0;
+    let currentPostId = '', currentAuthor = '';
+
+    function openReview(postId, author, node, title) {
+      currentPostId = postId;
+      currentAuthor = author;
+      document.getElementById('sheet-post-title').textContent = title;
+      document.getElementById('sheet-author-label').textContent = 'by ' + author;
+      document.getElementById('sheet-node-label').textContent = node;
+      document.getElementById('review-success').classList.add('hidden');
+      document.getElementById('review-success').classList.remove('flex');
+      document.getElementById('review-form').classList.remove('hidden');
+      clarityVal = 0; depthVal = 0;
+      updateStarUI('clarity', 0);
+      updateStarUI('depth', 0);
+      document.getElementById('review-comment').value = '';
+      document.getElementById('word-count').textContent = '0';
+      document.getElementById('word-count-label').style.color = '';
+      updateSubmitBtn();
+      document.getElementById('review-backdrop').classList.add('open');
+      document.getElementById('review-sheet').classList.add('open');
+    }
+
+    function closeReview() {
+      document.getElementById('review-backdrop').classList.remove('open');
+      document.getElementById('review-sheet').classList.remove('open');
+    }
+
+    function setStars(type, val) {
+      if (type === 'clarity') clarityVal = val;
+      else depthVal = val;
+      updateStarUI(type, val);
+      // Animate tapped star
+      const container = document.getElementById(type + '-stars');
+      const tapped = container.querySelectorAll('.star-btn')[val - 1];
+      tapped.style.transform = 'scale(1.25)';
+      setTimeout(() => tapped.style.transform = '', 80);
+      updateSubmitBtn();
+    }
+
+    function updateStarUI(type, val) {
+      const stars = document.querySelectorAll(`#${type}-stars .star-btn`);
+      stars.forEach((s, i) => {
+        s.classList.toggle('active', i < val);
+        s.style.fontVariationSettings = i < val ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+      });
+    }
+
+    function updateWordCount() {
+      const text = document.getElementById('review-comment').value.trim();
+      const words = text ? text.split(/\s+/).length : 0;
+      document.getElementById('word-count').textContent = words;
+      const label = document.getElementById('word-count-label');
+      label.style.color = words >= 40 ? '#546a59' : '';
+      updateSubmitBtn();
+    }
+
+    function updateSubmitBtn() {
+      const text = document.getElementById('review-comment').value.trim();
+      const words = text ? text.split(/\s+/).length : 0;
+      const btn = document.getElementById('submit-review-btn');
+      const ready = clarityVal > 0 && depthVal > 0 && words >= 40;
+      btn.disabled = !ready;
+      if (ready) {
+        btn.classList.remove('bg-surface-container-high','text-on-surface-variant');
+        btn.classList.add('bg-primary','text-white');
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.classList.add('bg-surface-container-high','text-on-surface-variant');
+        btn.classList.remove('bg-primary','text-white');
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+
+    function submitReview() {
+      document.getElementById('review-form').classList.add('hidden');
+      const success = document.getElementById('review-success');
+      success.classList.remove('hidden');
+      success.classList.add('flex');
+      document.getElementById('success-msg').textContent = 'Review published.';
+      document.getElementById('success-sub').textContent = currentAuthor + ' has been notified.';
+      // Mark the review button as done
+      const btn = document.getElementById(`review-btn-${currentPostId.replace('post-','')}`);
+      if (btn) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm fill-icon" style="color:#546a59">check_circle</span> <span style="color:#546a59">Reviewed ✓</span>';
+        btn.onclick = null;
+        btn.classList.remove('border-secondary-container','text-on-secondary-container');
+        btn.classList.add('border-surface-container');
+      }
+      setTimeout(closeReview, 2500);
+    }
+
+    // ---- Parallel Sheet ----
+    function openParallel() {
+      document.getElementById('parallel-backdrop').classList.add('open');
+      document.getElementById('parallel-sheet').classList.add('open');
+    }
+    function closeParallel() {
+      document.getElementById('parallel-backdrop').classList.remove('open');
+      document.getElementById('parallel-sheet').classList.remove('open');
+    }
+    function submitParallel() {
+      closeParallel();
+      showToast('Contribution request sent');
+    }
+
+    function openPostDetail(title, author, inst, node, clarity, depth, reviews, body) {
+      document.getElementById('post-sheet-title').textContent = title;
+      document.getElementById('post-sheet-body').textContent = body;
+      document.getElementById('post-sheet-author-name').textContent = author + ' ✦';
+      document.getElementById('post-sheet-author-inst').textContent = inst + ' · Guide';
+      document.getElementById('post-sheet-badges').innerHTML = `<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span><span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded">${node}</span>`;
+      document.getElementById('post-sheet-scores').innerHTML = `<span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${clarity}</span><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth ${depth}</span><span class="text-on-surface-variant text-[10px]">${reviews} reviews</span>`;
+      document.getElementById('post-backdrop').classList.add('open');
+      document.getElementById('post-sheet').classList.add('open');
+    }
+    function closePostDetail() {
+      document.getElementById('post-backdrop').classList.remove('open');
+      document.getElementById('post-sheet').classList.remove('open');
+    }
+
+    let moreLoaded = false;
+    function loadMore() {
+      if (moreLoaded) { showToast('All posts loaded'); return; }
+      moreLoaded = true;
+      const extra = [
+        { id: 4, node: 'Gradient', nodeColor: 'blue', title: 'RLHF Reward Collapse: A Documented Failure', body: 'Systematic documentation of reward hacking in fine-tuned RLHF pipelines...', clarity: 4.6, depth: 4.4, reviews: 5, author: 'Riya Srivastava', inst: 'IIIT Hyderabad', time: '2d ago', sealed: false },
+        { id: 5, node: 'Bare Metal', nodeColor: 'green', title: 'SPI DMA Transfer on STM32 — Race Condition Debug', body: 'Documenting a subtle DMA-SPI race condition found during production firmware testing...', clarity: 4.2, depth: 4.6, reviews: 8, author: 'Dev Iyer', inst: 'IIT Madras', time: '3d ago', sealed: false }
+      ];
+      const container = document.getElementById('feed-cards');
+      const loadBtn = document.getElementById('load-more-btn');
+      extra.forEach(p => {
+        const el = document.createElement('article');
+        el.className = 'bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press';
+        el.id = 'post-' + p.id;
+        el.innerHTML = `<div class="flex justify-between items-start mb-3"><div class="flex gap-2">${p.sealed ? '<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>' : ''}<span class="flex items-center gap-1 bg-${p.nodeColor}-50 text-${p.nodeColor}-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-${p.nodeColor}-500"></span>${p.node}</span></div><button id="bk-${p.id}" onclick="toggleBookmark(${p.id})" class="text-outline hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-xl">bookmark</span></button></div><h3 class="text-base font-bold text-on-background mb-2 leading-snug">${p.title}</h3><p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">${p.body}</p><div class="flex items-center gap-2 mb-3"><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${p.clarity}</span><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth ${p.depth}</span><span class="text-on-surface-variant text-[10px]">${p.reviews} reviews</span></div><div class="flex items-center justify-between pt-3 border-t border-surface-container"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">${p.author[0]}</div><div><p class="text-on-surface text-xs font-bold">${p.author}</p><p class="text-on-surface-variant text-[10px]">${p.inst}</p></div></div><div class="flex items-center gap-1"><button onclick="openReview('post-${p.id}','${p.author}','${p.node}','${p.title}')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container"><span class="material-symbols-outlined text-sm">rate_review</span>Review</button><span class="text-on-surface-variant text-[10px] ml-2">${p.time}</span></div></div>`;
+        container.insertBefore(el, loadBtn);
+      });
+      loadBtn.innerHTML = '<button onclick="loadMore()" class="px-8 py-2.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full cursor-not-allowed opacity-60">All posts loaded</button>';
+    }
+
+    // Sidebar
+    function openSidebar() {
+      document.getElementById('sidebar-backdrop').classList.add('open');
+      document.getElementById('sidebar').classList.add('open');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar-backdrop').classList.remove('open');
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    // Notification panel
+    function toggleNotifPanel() {
+      const panel = document.getElementById('notif-panel');
+      const overlay = document.getElementById('notif-overlay');
+      const isOpen = panel.classList.contains('open');
+      panel.classList.toggle('open');
+      overlay.classList.toggle('open');
+      if (!isOpen) {
+        document.getElementById('notif-dot').style.display = 'none';
+      }
+    }
+    function closeNotifPanel() {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-overlay').classList.remove('open');
+    }
+    function markAllRead() {
+      document.querySelectorAll('#notif-panel .bg-primary\/5').forEach(el => el.classList.remove('bg-primary/5'));
+      showToast('All notifications marked as read');
+    }
+
+    // ---- Toast ----
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+  </script>
+</body>
+</html>

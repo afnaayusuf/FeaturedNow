@@ -1,0 +1,46 @@
+.filter-row {
+  padding: 10px 20px 0;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--paper);
+  position: sticky;
+  top: 52px;
+  z-index: 49;
+}
+.filter-row::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-tab {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 0.5px solid var(--border);
+  background: transparent;
+  color: var(--mist);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+
+.filter-tab.active {
+  background: var(--navy);
+  color: var(--paper);
+  border-color: var(--navy);
+}
+
+.filter-tab:active {
+  transform: scale(0.97);
+}
+
+.nav-divider {
+  height: 0.5px;
+  background: var(--border);
+  margin: 10px 0 0;
+}

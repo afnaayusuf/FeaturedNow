@@ -1,0 +1,5 @@
+cloudflared.exe
+cf.log
+meridian-app/node_modules/
+meridian-app/dist/
+*.log

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Publish to Ledger</title>
+  <meta name="description" content="Publish a new post to the Meridian Ledger. Your work, attributed, permanent." />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37","surface-container-lowest": "#ffffff","on-surface-variant": "#43474e","surface-variant": "#e1e3e4","on-primary": "#ffffff","on-primary-container": "#87a4cc","background": "#f8f9fa","secondary": "#4e6354","surface-container-highest": "#e1e3e4","on-tertiary-fixed-variant": "#7c2e10","secondary-fixed-dim": "#b5ccb9","tertiary-fixed": "#ffdbcf","primary-fixed-dim": "#abc9f2","on-secondary-container": "#546a59","on-error": "#ffffff","surface-container-high": "#e7e8e9","on-background": "#191c1d","primary": "#002444","on-secondary-fixed-variant": "#374c3d","tertiary-container": "#692003","surface-tint": "#436084","outline-variant": "#c3c6cf","on-error-container": "#93000a","surface": "#f8f9fa","tertiary": "#461100","primary-fixed": "#d2e4ff","on-tertiary-container": "#ef8661","outline": "#73777f","surface-bright": "#f8f9fa","surface-dim": "#d9dadb","error-container": "#ffdad6","secondary-container": "#d0e9d4","inverse-primary": "#abc9f2","surface-container": "#edeeef","inverse-on-surface": "#f0f1f2","on-secondary": "#ffffff","tertiary-fixed-dim": "#ffb59c","error": "#ba1a1a","primary-container": "#1a3a5c","on-tertiary": "#ffffff","surface-container-low": "#f3f4f5","on-secondary-fixed": "#0b1f13","on-primary-fixed-variant": "#2a486b","on-surface": "#191c1d","on-tertiary-fixed": "#390c00","inverse-surface": "#2e3132","secondary-fixed": "#d0e9d4","gold": "#C9922A"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100dvh; background: #f8f9fa; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+    /* Field styling */
+    .field-input { width: 100%; background: #ffffff; border: 1.5px solid #c3c6cf; border-radius: 0.75rem; padding: 14px 16px; font-size: 14px; font-family: inherit; transition: border-color 200ms; outline: none; }
+    .field-input:focus { border-color: #002444; }
+    .field-input.error { border-color: #ba1a1a; }
+    textarea.field-input { resize: none; line-height: 1.6; }
+
+    /* Step progress */
+    .step-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #c3c6cf; display: flex; align-items: center; justify-content: center; transition: all 200ms; }
+    .step-dot.active { background: #002444; border-color: #002444; }
+    .step-dot.done { background: #002444; border-color: #002444; }
+    .step-line { flex: 1; height: 2px; background: #c3c6cf; transition: background 200ms; }
+    .step-line.done { background: #002444; }
+
+    /* Node chip */
+    .node-chip { padding: 6px 14px; border-radius: 9999px; border: 1.5px solid #c3c6cf; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 150ms; white-space: nowrap; }
+    .node-chip.selected { background: #002444; color: #ffffff; border-color: #002444; }
+    .node-chip.mine { border-color: #87a4cc; background: #d2e4ff; }
+
+    /* AI strip */
+    .ai-strip { display: none; opacity: 0; transform: translateY(8px); transition: all 200ms ease; border-radius: 0.5rem; padding: 10px 14px; }
+    .ai-strip.show { display: flex; opacity: 1; transform: translateY(0); }
+    .ai-strip.confident { background: #d0e9d4; color: #546a59; }
+    .ai-strip.uncertain { background: #ffdbcf; color: #7c2e10; }
+    .confidence-bar { width: 60px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 9999px; overflow: hidden; }
+    .confidence-fill { height: 100%; border-radius: 9999px; background: currentColor; transition: width 600ms ease; }
+
+    /* Formatting toolbar */
+    .fmt-tool { width: 36px; height: 36px; border-radius: 0.4rem; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; cursor: pointer; color: #43474e; transition: background 120ms; border: none; background: transparent; font-family: inherit; }
+    .fmt-tool:hover { background: #edeeef; }
+    .fmt-tool.active { background: #002444; color: white; }
+
+    /* Submit button */
+    .publish-btn { width: 100%; height: 52px; border-radius: 1.5rem; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: all 200ms; font-family: inherit; }
+    .publish-btn.inactive { background: #e7e8e9; color: #43474e; cursor: not-allowed; }
+    .publish-btn.active { background: #002444; color: white; }
+
+    /* Success screen */
+    .success-screen { position: fixed; inset: 0; background: #1a3a5c; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; }
+    .success-screen.show { display: flex; }
+    @keyframes circleIn { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
+    @keyframes checkIn { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
+    .circle-anim { stroke-dasharray: 220; stroke-dashoffset: 220; animation: circleIn 300ms ease forwards; }
+    .check-anim { stroke-dasharray: 70; stroke-dashoffset: 70; animation: checkIn 250ms ease 300ms forwards; }
+
+    /* Word/char counter */
+    .counter { font-size: 11px; color: #73777f; text-align: right; margin-top: 4px; }
+    .counter.reached { color: #546a59; }
+
+    /* Toggle */
+    .toggle-track { width: 44px; height: 24px; border-radius: 9999px; background: #c3c6cf; transition: background 200ms; cursor: pointer; position: relative; border: none; }
+    .toggle-track.on { background: #002444; }
+    .toggle-thumb { width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 3px; transition: left 200ms; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle-track.on .toggle-thumb { left: 23px; }
+
+    /* Sheet */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 100; transition: background 300ms ease; pointer-events: none; }
+    .sheet-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 80vh; overflow-y: auto; }
+    .bottom-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+  </style>
+</head>
+
+<body>
+  <!-- Top Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-outline-variant/20 flex items-center justify-between px-5 h-14">
+    <a href="page-1.html" class="text-on-surface-variant text-sm font-semibold hover:text-on-surface transition-colors flex items-center gap-1">
+      <span class="material-symbols-outlined text-lg">close</span> Cancel
+    </a>
+    <span class="text-sm font-black tracking-widest text-primary uppercase">Publish to Ledger</span>
+    <button onclick="openInfo()" class="p-2 hover:bg-slate-100 rounded-full active:scale-95 transition-transform">
+      <span class="material-symbols-outlined text-on-surface-variant text-lg">info</span>
+    </button>
+  </header>
+
+  <!-- Step progress (fixed below top bar) -->
+  <div class="fixed top-14 w-full z-40 bg-surface px-5 py-3 border-b border-outline-variant/10">
+    <div class="flex items-center gap-2 max-w-2xl mx-auto mb-2">
+      <div class="step-dot active" id="dot-1">
+        <span class="text-white text-[10px] font-bold">1</span>
+      </div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2">
+        <span class="text-on-surface-variant text-[10px]">2</span>
+      </div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3">
+        <span class="text-on-surface-variant text-[10px]">3</span>
+      </div>
+    </div>
+    <p class="text-[11px] text-on-surface-variant text-right max-w-2xl mx-auto" id="step-label">Step 1 of 3 · Post details</p>
+  </div>
+
+  <main class="pt-32 pb-32 px-5 max-w-2xl mx-auto space-y-6">
+
+    <!-- TITLE FIELD -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-2">Title of your work</label>
+      <input id="post-title" type="text" maxlength="120" placeholder="What did you build, find, or prove?" class="field-input" oninput="onTitleInput()" />
+      <div class="flex justify-between mt-1">
+        <p class="text-[11px] text-on-surface-variant">Be specific. 'LoRa mesh for rural health monitoring' is better than 'My IoT project.'</p>
+        <p class="text-[11px] text-on-surface-variant" id="title-counter">0 / 120</p>
+      </div>
+    </div>
+
+    <!-- DOMAIN FIELD -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-2">Domain</label>
+      <select id="domain-select" class="field-input" onchange="onDomainChange()" style="height:52px">
+        <option value="">Select a domain...</option>
+        <option value="cs">Computer Science & AI</option>
+        <option value="ee">Electronics & Embedded</option>
+        <option value="bio">Biological Sciences</option>
+        <option value="hum">Humanities & Social Sciences</option>
+        <option value="mech">Mechanical & Robotics</option>
+        <option value="math">Mathematics & Statistics</option>
+        <option value="phys">Physics & Quantum</option>
+        <option value="env">Environmental Science</option>
+      </select>
+    </div>
+
+    <!-- NODE PICKER (revealed after domain select) -->
+    <div id="node-picker" class="hidden">
+      <label class="text-sm font-bold text-on-surface block mb-2">Node <span class="text-on-surface-variant font-normal">(your Nodes appear first)</span></label>
+      <div class="flex gap-2 overflow-x-auto pb-2" style="-ms-overflow-style:none;scrollbar-width:none">
+        <!-- Filled dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- ABSTRACT FIELD -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-2">Abstract</label>
+      <textarea id="post-abstract" rows="4" placeholder="Describe what you did, how you did it, and why it matters — in 3 sentences." class="field-input" oninput="onAbstractInput()"></textarea>
+      <div class="flex justify-between mt-1">
+        <p id="abstract-ai-hint" class="text-[11px] text-on-surface-variant"></p>
+        <p class="text-[11px] text-on-surface-variant" id="abstract-counter">0 chars</p>
+      </div>
+      <!-- AI domain detection strip -->
+      <div id="ai-strip" class="ai-strip items-center gap-2 mt-3">
+        <span class="material-symbols-outlined text-base fill-icon">auto_awesome</span>
+        <span id="ai-text" class="text-xs font-semibold flex-1">Domain detected...</span>
+        <div class="confidence-bar">
+          <div class="confidence-fill" id="ai-confidence-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY FIELD with formatting toolbar -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-2">Full content</label>
+      <div class="border-[1.5px] border-outline-variant rounded-xl overflow-hidden focus-within:border-primary transition-colors bg-white">
+        <!-- Toolbar -->
+        <div class="flex items-center gap-1 px-3 py-2 border-b border-outline-variant/40">
+          <button class="fmt-tool font-bold" id="fmt-bold" onclick="toggleFmt('bold')">B</button>
+          <button class="fmt-tool italic" id="fmt-italic" onclick="toggleFmt('italic')"><em>I</em></button>
+          <button class="fmt-tool font-mono text-xs" id="fmt-code" onclick="toggleFmt('code')">&lt;/&gt;</button>
+          <div class="w-px h-5 bg-outline-variant/50 mx-1"></div>
+          <button class="fmt-tool" onclick="showToast('Numbered list')">
+            <span class="material-symbols-outlined text-lg">format_list_numbered</span>
+          </button>
+          <button class="fmt-tool" onclick="showToast('Bullet list')">
+            <span class="material-symbols-outlined text-lg">format_list_bulleted</span>
+          </button>
+          <div class="w-px h-5 bg-outline-variant/50 mx-1"></div>
+          <button class="fmt-tool text-xs font-bold" onclick="showToast('LaTeX math mode')">∑</button>
+        </div>
+        <textarea id="post-body" rows="8" placeholder="Write your full research post here. Minimum 200 characters." class="w-full px-4 py-3 text-sm focus:outline-none resize-none leading-relaxed bg-white" oninput="onBodyInput()"></textarea>
+      </div>
+      <p class="counter" id="body-counter">0 / 200 minimum</p>
+    </div>
+
+    <!-- ATTACHMENT -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-2">Attachment <span class="text-on-surface-variant font-normal">(optional)</span></label>
+      <div id="attach-area" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors" onclick="document.getElementById('attach-input').click()">
+        <span class="material-symbols-outlined text-3xl text-outline mb-2">attach_file</span>
+        <p class="font-bold text-on-surface-variant text-sm">Tap to attach</p>
+        <p class="text-[11px] text-on-surface-variant mt-1">PDF · GitHub URL · Dataset URL</p>
+        <input type="file" id="attach-input" class="hidden" accept=".pdf,.zip,.csv,.json" onchange="handleAttach(this)" />
+      </div>
+      <div id="attach-preview" class="hidden flex items-center gap-3 bg-surface-container-low px-4 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-primary">description</span>
+        <span id="attach-name" class="text-sm font-bold text-primary flex-1 truncate"></span>
+        <button onclick="removeAttach()" class="text-on-surface-variant hover:text-error transition-colors ml-2">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PARALLEL TOGGLE -->
+    <div class="bg-surface-container-lowest rounded-xl p-4 flex items-start gap-4 border border-outline-variant/20">
+      <div class="flex-1">
+        <p class="font-bold text-primary text-sm mb-0.5">Open for Parallel?</p>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed" id="parallel-hint">Students from other institutions can request to contribute to this work.</p>
+      </div>
+      <button id="parallel-toggle" class="toggle-track shrink-0 mt-1" onclick="toggleParallel()">
+        <div class="toggle-thumb"></div>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Fixed Publish CTA -->
+  <div class="fixed bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-sm border-t border-outline-variant/10 px-5 py-4 z-50">
+    <p class="text-[11px] text-on-surface-variant text-center mb-3" id="cta-hint">Fill in title, domain, abstract, and body to publish.</p>
+    <button id="publish-btn" class="publish-btn inactive" onclick="publishPost()">Publish to Ledger →</button>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="success-screen">
+    <svg width="90" height="90" viewBox="0 0 90 90">
+      <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4" class="circle-anim"/>
+      <polyline points="27,45 39,57 63,33" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="check-anim"/>
+    </svg>
+    <h2 class="text-3xl font-black text-white mt-5 mb-2">Published to Ledger</h2>
+    <p class="text-on-primary-container text-sm mb-1" id="success-node">Node / Gradient · Domain verified 82%</p>
+    <p class="text-on-primary-container/60 text-xs mb-10">Your post is live. Scholars in your Node will see it now.</p>
+    <div class="w-full max-w-sm space-y-3">
+      <button onclick="viewPost()" class="w-full py-4 bg-white text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">View my post</button>
+      <a href="page-1.html" class="block w-full py-4 border-2 border-white/40 text-white rounded-xl font-bold text-sm active:scale-95 transition-transform text-center">Back to Ledger</a>
+    </div>
+  </div>
+
+  <!-- Info sheet -->
+  <div class="sheet-backdrop" id="info-backdrop" onclick="closeInfo()"></div>
+  <div class="bottom-sheet" id="info-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-xl mb-4">How publishing works</h3>
+      <div class="space-y-4 text-sm text-on-surface-variant leading-relaxed">
+        <p><strong class="text-on-surface">1. You fill in the form.</strong> Title, domain, Node, abstract, and body. All fields are required except attachment.</p>
+        <p><strong class="text-on-surface">2. AI classifies your post.</strong> An AI classifier reads your title and abstract and detects the domain. You'll see a strip showing the detected domain and confidence level.</p>
+        <p><strong class="text-on-surface">3. Post goes live.</strong> If confidence is above 70%, your post publishes immediately into your Node. If unclear, it's held for a brief human review — not rejected.</p>
+        <p><strong class="text-on-surface">4. Scholars can review it.</strong> Other Scholars in your Node can leave Clarity and Depth ratings. These scores appear on your Folio.</p>
+        <p><strong class="text-on-surface">5. Guides can Seal it.</strong> If a verified Guide finds your work exceptional, they can issue a Seal — the strongest signal of quality on Meridian.</p>
+      </div>
+      <button onclick="closeInfo()" class="w-full mt-6 py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Got it</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#002444;color:#fff;padding:10px 20px;border-radius:9999px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:all 250ms ease;pointer-events:none;white-space:nowrap" id="toast"></div>
+
+  <script>
+    const domainNodes = {
+      cs: [
+        { name: 'Gradient', mine: true }, { name: 'Dark Current', mine: true }, { name: 'Stack Trace', mine: false }, { name: 'Neural Fold', mine: false }
+      ],
+      ee: [
+        { name: 'Bare Metal', mine: true }, { name: 'Signal Chain', mine: false }, { name: 'Voltage', mine: false }
+      ],
+      bio: [
+        { name: 'Bio-Sys', mine: true }, { name: 'Cell Atlas', mine: false }, { name: 'Genome Lab', mine: false }
+      ],
+      hum: [
+        { name: 'Softer', mine: true }, { name: 'Margin Notes', mine: false }, { name: 'Lingua', mine: false }
+      ],
+      mech: [
+        { name: 'Torque', mine: false }, { name: 'Kinematics', mine: false }
+      ],
+      math: [
+        { name: 'Null Space', mine: false }, { name: 'Proof', mine: false }
+      ],
+      phys: [
+        { name: 'Bare Metal', mine: true }, { name: 'Photon', mine: false }
+      ],
+      env: [
+        { name: 'Terra', mine: false }, { name: 'Climate Lab', mine: false }
+      ]
+    };
+
+    const aiDetections = {
+      cs: { domain: 'Computer Science — Machine Learning', conf: 84, type: 'confident' },
+      ee: { domain: 'Electronics — Embedded Systems', conf: 78, type: 'confident' },
+      bio: { domain: 'Biological Sciences — Genomics', conf: 71, type: 'confident' },
+      hum: { domain: 'Humanities — Literary Studies', conf: 55, type: 'uncertain' },
+      mech: { domain: 'Mechanical Engineering — Robotics', conf: 66, type: 'uncertain' },
+      math: { domain: 'Mathematics — Pure Math', conf: 90, type: 'confident' },
+      phys: { domain: 'Physics — Quantum Mechanics', conf: 82, type: 'confident' },
+      env: { domain: 'Environmental Science', conf: 58, type: 'uncertain' }
+    };
+
+    let selectedNode = '';
+    let parallelOn = false;
+    let aiTimer = null;
+    let formattingActive = {};
+    let attachedFile = false;
+
+    function onTitleInput() {
+      const val = document.getElementById('post-title').value;
+      document.getElementById('title-counter').textContent = val.length + ' / 120';
+      document.getElementById('title-counter').style.color = val.length > 110 ? '#ba1a1a' : '';
+      checkPublishReady();
+    }
+
+    function onDomainChange() {
+      const domain = document.getElementById('domain-select').value;
+      const picker = document.getElementById('node-picker');
+      if (!domain) { picker.classList.add('hidden'); return; }
+      picker.classList.remove('hidden');
+      const chipContainer = picker.querySelector('div');
+      chipContainer.innerHTML = '';
+      (domainNodes[domain] || []).forEach(node => {
+        const chip = document.createElement('button');
+        chip.className = 'node-chip' + (node.mine ? ' mine' : '');
+        chip.textContent = (node.mine ? '● ' : '') + node.name;
+        chip.onclick = () => selectNode(node.name, chip, chipContainer);
+        chipContainer.appendChild(chip);
+      });
+      selectedNode = '';
+      checkPublishReady();
+    }
+
+    function selectNode(name, chip, container) {
+      container.querySelectorAll('.node-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedNode = name;
+      checkPublishReady();
+    }
+
+    function onAbstractInput() {
+      const val = document.getElementById('post-abstract').value;
+      document.getElementById('abstract-counter').textContent = val.length + ' chars';
+      clearTimeout(aiTimer);
+      const strip = document.getElementById('ai-strip');
+      strip.classList.remove('show', 'confident', 'uncertain');
+      if (val.trim().length > 30) {
+        aiTimer = setTimeout(() => showAIStrip(), 1500);
+      }
+      checkPublishReady();
+    }
+
+    function showAIStrip() {
+      const domain = document.getElementById('domain-select').value;
+      if (!domain) return;
+      const det = aiDetections[domain];
+      const strip = document.getElementById('ai-strip');
+      strip.classList.add('show', det.type);
+      document.getElementById('ai-text').textContent = det.type === 'confident'
+        ? `Domain detected: ${det.domain}`
+        : `Uncertain — post will be reviewed: ${det.domain}`;
+      const fill = document.getElementById('ai-confidence-fill');
+      fill.style.width = '0%';
+      setTimeout(() => fill.style.width = det.conf + '%', 50);
+    }
+
+    function onBodyInput() {
+      const val = document.getElementById('post-body').value;
+      const count = document.getElementById('body-counter');
+      count.textContent = val.length + ' / 200 minimum';
+      count.className = 'counter' + (val.length >= 200 ? ' reached' : '');
+      checkPublishReady();
+    }
+
+    function checkPublishReady() {
+      const title = document.getElementById('post-title').value.trim();
+      const domain = document.getElementById('domain-select').value;
+      const abstract = document.getElementById('post-abstract').value.trim();
+      const body = document.getElementById('post-body').value.length;
+      const ready = title.length > 5 && domain && selectedNode && abstract.length > 20 && body >= 200;
+      const btn = document.getElementById('publish-btn');
+      btn.className = 'publish-btn ' + (ready ? 'active' : 'inactive');
+      btn.disabled = !ready;
+      document.getElementById('cta-hint').textContent = ready
+        ? 'Looking good — ready to publish.'
+        : 'Fill in title, domain, node, abstract, and body to publish.';
+      document.getElementById('cta-hint').style.color = ready ? '#546a59' : '';
+
+      // Update step progress
+      const step1Done = title.length > 5 && domain && selectedNode;
+      const step2Done = step1Done && abstract.length > 20 && body >= 200;
+      updateStepProgress(step1Done, step2Done, ready);
+    }
+
+    function updateStepProgress(step1Done, step2Done, step3Done) {
+      const dot1 = document.getElementById('dot-1');
+      const dot2 = document.getElementById('dot-2');
+      const dot3 = document.getElementById('dot-3');
+      const line1 = document.getElementById('line-1');
+      const line2 = document.getElementById('line-2');
+
+      // Step 1
+      dot1.className = 'step-dot ' + (step1Done ? 'done' : 'active');
+      dot1.querySelector('span').textContent = step1Done ? '✓' : '1';
+      dot1.querySelector('span').className = step1Done ? 'text-white text-[10px] font-bold' : 'text-white text-[10px] font-bold';
+
+      // Line 1
+      line1.className = 'step-line ' + (step1Done ? 'done' : '');
+
+      // Step 2
+      dot2.className = 'step-dot ' + (step1Done ? (step2Done ? 'done' : 'active') : '');
+      dot2.querySelector('span').textContent = step2Done ? '✓' : '2';
+      dot2.querySelector('span').className = step1Done ? 'text-white text-[10px] font-bold' : 'text-on-surface-variant text-[10px]';
+
+      // Line 2
+      line2.className = 'step-line ' + (step2Done ? 'done' : '');
+
+      // Step 3
+      dot3.className = 'step-dot ' + (step2Done ? (step3Done ? 'done' : 'active') : '');
+      dot3.querySelector('span').textContent = step3Done ? '✓' : '3';
+      dot3.querySelector('span').className = step2Done ? 'text-white text-[10px] font-bold' : 'text-on-surface-variant text-[10px]';
+
+      // Label
+      const label = step3Done ? 'Step 3 of 3 · Ready to publish!'
+        : step2Done ? 'Step 3 of 3 · Review & publish'
+        : step1Done ? 'Step 2 of 3 · Write abstract and body'
+        : 'Step 1 of 3 · Post details';
+      document.getElementById('step-label').textContent = label;
+      document.getElementById('step-label').style.color = step3Done ? '#546a59' : '';
+    }
+
+    function toggleFmt(type) {
+      formattingActive[type] = !formattingActive[type];
+      const btnId = { bold: 'fmt-bold', italic: 'fmt-italic', code: 'fmt-code' };
+      document.getElementById(btnId[type])?.classList.toggle('active', formattingActive[type]);
+    }
+
+    function handleAttach(input) {
+      if (!input.files.length) return;
+      attachedFile = true;
+      document.getElementById('attach-name').textContent = input.files[0].name;
+      document.getElementById('attach-area').classList.add('hidden');
+      document.getElementById('attach-preview').classList.remove('hidden');
+    }
+
+    function removeAttach() {
+      attachedFile = false;
+      document.getElementById('attach-input').value = '';
+      document.getElementById('attach-area').classList.remove('hidden');
+      document.getElementById('attach-preview').classList.add('hidden');
+    }
+
+    function toggleParallel() {
+      parallelOn = !parallelOn;
+      const btn = document.getElementById('parallel-toggle');
+      btn.classList.toggle('on', parallelOn);
+      document.getElementById('parallel-hint').textContent = parallelOn
+        ? 'Your post will show ↔ Parallel. Students from other institutions can request to contribute.'
+        : 'Students from other institutions can request to contribute to this work.';
+    }
+
+    function publishPost() {
+      if (document.getElementById('publish-btn').classList.contains('inactive')) return;
+      const btn = document.getElementById('publish-btn');
+      btn.textContent = 'Classifying domain...';
+      btn.className = 'publish-btn active opacity-70';
+      setTimeout(() => {
+        btn.textContent = 'Publishing...';
+        const domain = document.getElementById('domain-select').value;
+        const det = aiDetections[domain] || { conf: 80 };
+        document.getElementById('success-node').textContent = `Node / ${selectedNode} · Domain verified ${det.conf}%`;
+        setTimeout(() => {
+          document.getElementById('success-screen').classList.add('show');
+        }, 1200);
+      }, 1800);
+    }
+
+    function viewPost() {
+      showToast('Your post is live on Ledger ✓');
+      setTimeout(() => window.location.href = 'page-1.html', 1500);
+    }
+
+    function openInfo() {
+      document.getElementById('info-backdrop').classList.add('open');
+      document.getElementById('info-sheet').classList.add('open');
+    }
+    function closeInfo() {
+      document.getElementById('info-backdrop').classList.remove('open');
+      document.getElementById('info-sheet').classList.remove('open');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2200);
+    }
+  </script>
+</body>
+</html>

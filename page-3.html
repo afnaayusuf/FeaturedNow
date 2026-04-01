@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Vault</title>
+  <meta name="description" content="Meridian Vault — your academic library of shared, attributed, permanent study materials." />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37","surface-container-lowest": "#ffffff","on-surface-variant": "#43474e","surface-variant": "#e1e3e4","on-primary": "#ffffff","on-primary-container": "#87a4cc","background": "#f8f9fa","secondary": "#4e6354","surface-container-highest": "#e1e3e4","on-tertiary-fixed-variant": "#7c2e10","secondary-fixed-dim": "#b5ccb9","tertiary-fixed": "#ffdbcf","primary-fixed-dim": "#abc9f2","on-secondary-container": "#546a59","on-error": "#ffffff","surface-container-high": "#e7e8e9","on-background": "#191c1d","primary": "#002444","on-secondary-fixed-variant": "#374c3d","tertiary-container": "#692003","surface-tint": "#436084","outline-variant": "#c3c6cf","on-error-container": "#93000a","surface": "#f8f9fa","tertiary": "#461100","primary-fixed": "#d2e4ff","on-tertiary-container": "#ef8661","outline": "#73777f","surface-bright": "#f8f9fa","surface-dim": "#d9dadb","error-container": "#ffdad6","secondary-container": "#d0e9d4","inverse-primary": "#abc9f2","surface-container": "#edeeef","inverse-on-surface": "#f0f1f2","on-secondary": "#ffffff","tertiary-fixed-dim": "#ffb59c","error": "#ba1a1a","primary-container": "#1a3a5c","on-tertiary": "#ffffff","surface-container-low": "#f3f4f5","on-secondary-fixed": "#0b1f13","on-primary-fixed-variant": "#2a486b","on-surface": "#191c1d","on-tertiary-fixed": "#390c00","inverse-surface": "#2e3132","secondary-fixed": "#d0e9d4","gold": "#C9922A"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+    .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
+    .card-press:active { transform: scale(0.97); }
+    /* Sheet */
+    .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 100; transition: background 300ms ease; pointer-events: none; }
+    .sheet-backdrop.open { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 92vh; overflow-y: auto; }
+    .bottom-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+    /* Storage meter */
+    .storage-bar { height: 6px; background: #edeeef; border-radius: 9999px; overflow: hidden; }
+    .storage-fill { height: 100%; background: #002444; border-radius: 9999px; transition: width 600ms ease; }
+    /* Toast */
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    /* bookmark star */
+    .star-bk { color: #c3c6cf; transition: color 150ms, transform 100ms; }
+    .star-bk.saved { color: #C9922A; }
+    .star-bk:active { transform: scale(1.3); }
+    /* Notification panel */
+    .notif-panel { position: fixed; top: 64px; right: 0; width: min(360px, 100vw); background: #fff; z-index: 150; transform: translateX(110%); transition: transform 300ms cubic-bezier(0.32,0.72,0,1); border-left: 1px solid #e1e3e4; box-shadow: -4px 0 24px rgba(0,0,0,0.08); max-height: calc(100dvh - 64px); overflow-y: auto; }
+    .notif-panel.open { transform: translateX(0); }
+    .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
+    .notif-overlay.open { pointer-events: auto; }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased min-h-screen pb-24">
+
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="flex items-center justify-between px-5 h-16 w-full max-w-7xl mx-auto">
+      <div class="flex items-center gap-3">
+        <button class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
+          <span class="material-symbols-outlined text-primary">menu</span>
+        </button>
+        <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white">JS</div>
+        <button class="relative p-2 hover:bg-slate-100 rounded-full" onclick="toggleNotifPanel()">
+          <span class="material-symbols-outlined text-primary">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-white" id="notif-dot"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-20 px-4 max-w-7xl mx-auto">
+
+    <!-- Header & Personal Metrics (per README) -->
+    <section class="mt-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <h1 class="text-4xl font-extrabold tracking-tight text-primary mb-1">Vault</h1>
+          <p class="text-on-surface-variant max-w-lg text-sm">Your academic library — shared, attributed, permanent.</p>
+        </div>
+        <!-- Personal metrics (not platform-wide) -->
+        <div class="flex gap-3">
+          <div class="bg-surface-container-low px-5 py-3 rounded-lg flex flex-col items-start min-w-[120px]">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Files saved</span>
+            <span class="text-2xl font-black text-primary">47</span>
+          </div>
+          <div class="bg-surface-container-low px-5 py-3 rounded-lg flex flex-col items-start min-w-[120px]">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Contributed</span>
+            <span class="text-2xl font-black text-primary">12</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search + Tabs -->
+    <section class="mb-8">
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <!-- Search -->
+        <div class="relative w-full md:flex-1">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+          <input id="vault-search" oninput="filterFiles()" class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl focus:ring-2 focus:ring-primary/40 transition-all text-sm" placeholder="Search files, subjects, contributors..." type="text" />
+        </div>
+        <!-- Tabs -->
+        <nav class="flex bg-surface-container-low p-1 rounded-xl w-full md:w-auto self-stretch" id="vault-tabs">
+          <button id="vtab-library" onclick="switchVaultTab('library')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm">Library</button>
+          <button id="vtab-citations" onclick="switchVaultTab('citations')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Citations</button>
+          <button id="vtab-offline" onclick="switchVaultTab('offline')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Offline</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Main Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- LIBRARY TAB -->
+      <section id="vault-library" class="lg:col-span-8">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-base font-bold tracking-tight flex items-center gap-2">
+            <span class="material-symbols-outlined fill-icon text-primary">folder_open</span>
+            From your Nodes
+          </h2>
+          <div class="flex gap-2">
+            <select id="sort-select" onchange="sortFiles()" class="text-xs font-bold text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-lg border-none focus:ring-1 focus:ring-primary/40">
+              <option value="forks">Most forked</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="file-grid">
+
+          <!-- File Card 1 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('DSP Lecture Notes — Sem 4','Arjun Mehta','Gradient','DSP FFT Signal-Processing','14','v2.3','2 days ago','PDF')" data-tags="dsp fft signal gradient">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+                <span class="material-symbols-outlined text-xl">description</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">DSP Lecture Notes — Sem 4</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Arjun Mehta <span style="color:#C9922A">✦</span> · NIT Calicut</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">DSP</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">FFT</span>
+              <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 14 forks</span>
+              <span>v2.3 · 2 days ago</span>
+            </div>
+          </div>
+
+          <!-- File Card 2 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('Quantum Gate Implementations — QASM','Elena Rossi','Bare Metal','Quantum QASM Hardware','22','v1.1','5 hours ago','Code')" data-tags="quantum qasm hardware bare metal">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
+                <span class="material-symbols-outlined text-xl">code</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl saved" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">Quantum Gate Implementations — QASM</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Elena Rossi <span style="color:#C9922A">✦</span> · CERN Theoretical</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Quantum</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">QASM</span>
+              <span class="px-2 py-0.5 bg-green-50 text-green-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 22 forks</span>
+              <span>v1.1 · 5h ago</span>
+            </div>
+          </div>
+
+          <!-- File Card 3 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('Feminist Theory Reading Pack','Priya Sharma','Softer','Literature Theory Gender','6','v1.0','1 week ago','PDF')" data-tags="literature theory gender softer humanities">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                <span class="material-symbols-outlined text-xl">book</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">Feminist Theory Reading Pack — Sem 6</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Priya Sharma · Delhi University</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Literature</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Theory</span>
+              <span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 6 forks</span>
+              <span>v1.0 · 1 week ago</span>
+            </div>
+          </div>
+
+          <!-- File Card 4 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('Embedded SPI Driver Implementations','Dev Iyer','Bare Metal','Embedded SPI UART Hardware','31','v3.0','3 hours ago','Code')" data-tags="embedded spi uart hardware bare metal firmware">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700">
+                <span class="material-symbols-outlined text-xl">memory</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">Embedded SPI Driver Implementations</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Dev Iyer <span style="color:#C9922A">✦</span> · IIT Madras</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Embedded</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">SPI</span>
+              <span class="px-2 py-0.5 bg-green-50 text-green-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 31 forks</span>
+              <span>v3.0 · 3h ago</span>
+            </div>
+          </div>
+
+          <!-- File Card 5 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('ML Model Evaluation Dataset','Riya Srivastava','Gradient','ML Dataset Benchmarking NLP','9','v1.5','Yesterday','Dataset')" data-tags="ml dataset benchmarking nlp gradient ai">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+                <span class="material-symbols-outlined text-xl">dataset</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">ML Model Evaluation Dataset — NLP Benchmarks</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Riya Srivastava · IIIT Hyderabad</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">ML</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">NLP</span>
+              <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 9 forks</span>
+              <span>v1.5 · Yesterday</span>
+            </div>
+          </div>
+
+          <!-- File Card 6 -->
+          <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow card-press border border-outline-variant/10" onclick="openFileDetail('BioSystems Lab Manual Sem 3','Anika Desai','Bio-Sys','Biology Lab Manual Experiments','4','v2.0','4 days ago','PDF')" data-tags="biology lab manual experiments bio-sys">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-700">
+                <span class="material-symbols-outlined text-xl">science</span>
+              </div>
+              <button class="star-bk material-symbols-outlined text-xl" onclick="event.stopPropagation(); toggleSave(this)">star</button>
+            </div>
+            <p class="font-bold text-primary text-sm mb-1 line-clamp-2 leading-snug">BioSystems Lab Manual — Sem 3</p>
+            <p class="text-[11px] text-on-surface-variant mb-2">Anika Desai · MAHE Manipal</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Biology</span>
+              <span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">Lab</span>
+              <span class="px-2 py-0.5 bg-red-50 text-red-700 rounded text-[10px] font-bold flex items-center gap-0.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-red-400"></span>Bio-Sys</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-on-surface-variant">
+              <span class="font-bold text-primary">↗ 4 forks</span>
+              <span>v2.0 · 4 days ago</span>
+            </div>
+          </div>
+
+        </div>
+        <!-- No results -->
+        <div id="no-results" class="hidden text-center py-16 text-on-surface-variant">
+          <span class="material-symbols-outlined text-5xl mb-3 block">search_off</span>
+          <p class="font-bold text-primary mb-1">No files found</p>
+          <p class="text-sm">Try different keywords.</p>
+        </div>
+      </section>
+
+      <!-- CITATIONS TAB (hidden) -->
+      <section id="vault-citations" class="hidden lg:col-span-8">
+        <div class="space-y-4">
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">DSP Lecture Notes — Sem 4</p>
+            <p class="font-bold text-primary text-sm mb-2 line-clamp-2">Referenced in: "OFDM Channel Estimation Using Pilot Insertion" by Suresh Kumar</p>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1 text-blue-50">
+                <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="text-[10px] font-bold text-blue-700">Gradient</span>
+              </div>
+              <span class="text-[10px] text-on-surface-variant">3 days ago</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press hover:shadow-md transition-shadow">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">DSP Lecture Notes — Sem 4</p>
+            <p class="font-bold text-primary text-sm mb-2 line-clamp-2">Referenced in: "Adaptive Filter Design for Noise Cancellation" by Meena Raghavan · 24 students used this file</p>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="text-[10px] font-bold text-blue-700">Gradient</span>
+              <span class="text-[10px] text-on-surface-variant">1 week ago</span>
+            </div>
+          </div>
+          <div class="text-center py-8 text-on-surface-variant">
+            <span class="material-symbols-outlined text-4xl mb-2 block">link</span>
+            <p class="text-sm font-semibold text-primary">Your files cited 14 times</p>
+            <p class="text-xs mt-1">across 3 Node communities</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFFLINE TAB (hidden) -->
+      <section id="vault-offline" class="hidden lg:col-span-8">
+        <!-- Storage meter -->
+        <div class="bg-surface-container-lowest rounded-lg p-5 mb-5 shadow-sm border border-outline-variant/10">
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-bold text-primary text-sm">Offline storage</p>
+            <p class="text-[11px] text-on-surface-variant">124 MB of 500 MB used</p>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-fill" style="width: 24.8%"></div>
+          </div>
+          <p class="text-[10px] text-on-surface-variant mt-2">375 MB remaining</p>
+        </div>
+        <div class="space-y-3">
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-blue-700 text-xl">description</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-primary text-sm truncate">DSP_Lecture_Notes_Sem4.pdf</p>
+              <p class="text-[11px] text-on-surface-variant">14.2 MB · Downloaded 5 Jan 2024</p>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" title="Available offline"></span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-green-700 text-xl">code</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-primary text-sm truncate">Quantum_Gate_QASM.zip</p>
+              <p class="text-[11px] text-on-surface-variant">2.8 MB · Downloaded 12 Jan 2024</p>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" title="Available offline"></span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-purple-700 text-xl">book</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-primary text-sm truncate">Feminist_Theory_Readings.pdf</p>
+              <p class="text-[11px] text-on-surface-variant">106.8 MB · Downloaded 20 Jan 2024</p>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 shrink-0" title="Last synced offline"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar: New in your Nodes (always visible) -->
+      <aside class="lg:col-span-4" id="vault-sidebar">
+        <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10">
+          <h3 class="font-bold text-primary text-sm mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-xl">new_releases</span>
+            New in your Nodes
+          </h3>
+          <div class="space-y-4">
+            <div class="flex items-center gap-3 p-2 hover:bg-surface rounded-lg transition-colors cursor-pointer group card-press">
+              <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-blue-700 text-lg">description</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-primary text-xs truncate group-hover:text-primary-container">FFT_Implementation_C.pdf</p>
+                <p class="text-[10px] text-on-surface-variant">Suresh K. · <span class="text-blue-700 font-medium">Gradient</span></p>
+              </div>
+              <span class="text-[9px] font-bold bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded-full shrink-0">New</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 hover:bg-surface rounded-lg transition-colors cursor-pointer group card-press">
+              <div class="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-green-700 text-lg">terminal</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-primary text-xs truncate group-hover:text-primary-container">RTOS_Task_Scheduler.c</p>
+                <p class="text-[10px] text-on-surface-variant">Dev I. · <span class="text-green-700 font-medium">Bare Metal</span></p>
+              </div>
+              <span class="text-[9px] font-bold bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded-full shrink-0">New</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 hover:bg-surface rounded-lg transition-colors cursor-pointer group card-press">
+              <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-purple-700 text-lg">book</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-primary text-xs truncate group-hover:text-primary-container">Postcolonial_Lit_Notes.pdf</p>
+                <p class="text-[10px] text-on-surface-variant">Priya S. · <span class="text-purple-700 font-medium">Softer</span></p>
+              </div>
+              <span class="text-[10px] text-on-surface-variant ml-auto">2h ago</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 hover:bg-surface rounded-lg transition-colors cursor-pointer group card-press">
+              <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-red-600 text-lg">science</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-primary text-xs truncate group-hover:text-primary-container">Cell_Culture_Protocol_v4.pdf</p>
+                <p class="text-[10px] text-on-surface-variant">Anika D. · <span class="text-red-600 font-medium">Bio-Sys</span></p>
+              </div>
+              <span class="text-[10px] text-on-surface-variant ml-auto">6h ago</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Notification Panel -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-primary text-base">Notifications</h3>
+      <button onclick="closeNotifPanel()" class="material-symbols-outlined text-on-surface-variant text-lg">close</button>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0">folder_open</span>
+        <div><p class="text-sm font-bold text-primary">Dev Iyer uploaded a new file</p><p class="text-[11px] text-on-surface-variant mt-0.5">RTOS_Task_Scheduler.c · Bare Metal</p></div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0">fork_right</span>
+        <div><p class="text-sm font-bold text-on-surface">Suresh Kumar forked your file</p><p class="text-[11px] text-on-surface-variant mt-0.5">DSP Lecture Notes — 14 forks now</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="md:hidden fixed bottom-0 w-full z-50 bg-white border-t border-slate-100 shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] flex justify-around items-center px-2 py-3 h-20 rounded-t-lg">
+    <a href="page-1.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Ledger</span>
+    </a>
+    <a href="page-6.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">hub</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Nodes</span>
+    </a>
+    <a href="page-5.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined text-3xl">add_circle</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Publish</span>
+    </a>
+    <a href="page-3.html" class="flex flex-col items-center justify-center text-primary bg-slate-100 rounded-xl px-3 py-1 active:scale-90 transition-transform">
+      <span class="material-symbols-outlined fill-icon">lock</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Vault</span>
+    </a>
+    <a href="page-2.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">style</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+    </a>
+  </nav>
+
+  <!-- Upload FAB -->
+  <button onclick="openUpload()" class="fixed bottom-24 right-5 md:bottom-8 md:right-8 flex items-center gap-2 px-5 py-3.5 rounded-full bg-primary text-white shadow-xl font-bold text-sm active:scale-95 transition-transform hover:bg-primary-container">
+    <span class="material-symbols-outlined text-xl">cloud_upload</span>
+    <span class="md:inline">Upload</span>
+  </button>
+
+  <!-- File Detail Bottom Sheet -->
+  <div class="sheet-backdrop" id="file-backdrop" onclick="closeFileDetail()"></div>
+  <div class="bottom-sheet" id="file-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <div class="flex items-start gap-4 mb-5">
+        <div id="file-icon-container" class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-blue-700 text-3xl">description</span>
+        </div>
+        <div class="flex-1">
+          <h3 id="file-name" class="font-bold text-primary text-base leading-tight mb-1">File name</h3>
+          <p id="file-meta" class="text-[11px] text-on-surface-variant">Contributor · Institution</p>
+          <div id="file-tags" class="flex flex-wrap gap-1 mt-2"></div>
+        </div>
+      </div>
+      <!-- Fork chain -->
+      <div class="bg-surface-container-low rounded-lg p-4 mb-5">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Attribution chain</p>
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full bg-on-surface-variant/30 flex items-center justify-center text-[9px] font-bold text-white">OG</div>
+          <p class="text-xs text-on-surface-variant">Original author</p>
+          <span class="material-symbols-outlined text-sm text-outline">arrow_forward</span>
+          <div class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[9px] font-bold text-white">JT</div>
+          <p class="text-xs font-semibold text-primary">Julian Thorne (fork)</p>
+        </div>
+      </div>
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p id="file-forks" class="text-xl font-black text-primary">0</p>
+          <p class="text-[10px] text-on-surface-variant">forks</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p id="file-version" class="text-xl font-black text-primary">v1.0</p>
+          <p class="text-[10px] text-on-surface-variant">version</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p id="file-updated" class="text-sm font-bold text-primary">—</p>
+          <p class="text-[10px] text-on-surface-variant">updated</p>
+        </div>
+      </div>
+      <button onclick="forkFile()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform mb-3 flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-lg">fork_right</span> Fork this file
+      </button>
+      <button onclick="downloadOffline()" class="w-full py-4 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-lg">download</span> Download for offline
+      </button>
+    </div>
+  </div>
+
+  <!-- Upload Sheet -->
+  <div class="sheet-backdrop" id="upload-backdrop" onclick="closeUpload()"></div>
+  <div class="bottom-sheet" id="upload-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-xl mb-5">Upload to Vault</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-on-surface mb-2 block">File title</label>
+          <input type="text" placeholder="e.g. DSP Lecture Notes — Sem 4" class="w-full px-4 py-3 bg-surface-container-low rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface mb-2 block">Subject</label>
+          <select class="w-full px-4 py-3 bg-surface-container-low rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 border-none">
+            <option>Digital Signal Processing</option><option>Machine Learning</option><option>Quantum Computing</option><option>Embedded Systems</option><option>Literature Studies</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface mb-2 block">Brief description <span class="font-normal text-on-surface-variant">(50–200 chars)</span></label>
+          <textarea rows="2" placeholder="What does this file contain and who is it for?" class="w-full px-4 py-3 bg-surface-container-low rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
+        </div>
+        <div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors" onclick="document.getElementById('file-input').click()">
+          <span class="material-symbols-outlined text-4xl text-outline mb-2">cloud_upload</span>
+          <p class="font-bold text-on-surface-variant text-sm mb-1">Tap to browse or drop file</p>
+          <p class="text-[11px] text-on-surface-variant">PDF, ZIP, dataset — max 100 MB</p>
+          <input type="file" id="file-input" class="hidden" />
+        </div>
+        <button onclick="submitUpload()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Upload to Vault</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Tab switching
+    function switchVaultTab(tab) {
+      ['library','citations','offline'].forEach(t => {
+        document.getElementById('vault-' + t).classList.add('hidden');
+        const btn = document.getElementById('vtab-' + t);
+        btn.classList.remove('bg-white','text-primary','shadow-sm');
+        btn.classList.add('text-on-surface-variant');
+      });
+      document.getElementById('vault-' + tab).classList.remove('hidden');
+      const activeBtn = document.getElementById('vtab-' + tab);
+      activeBtn.classList.remove('text-on-surface-variant');
+      activeBtn.classList.add('bg-white','text-primary','shadow-sm');
+    }
+
+    // Search filter
+    function filterFiles() {
+      const q = document.getElementById('vault-search').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('#file-grid [data-tags]');
+      let visible = 0;
+      cards.forEach(card => {
+        const tags = card.dataset.tags + ' ' + card.querySelector('p.font-bold').textContent.toLowerCase();
+        const match = !q || tags.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      document.getElementById('no-results').classList.toggle('hidden', visible > 0);
+    }
+
+    // Bookmark/save toggle
+    function toggleSave(btn) {
+      btn.classList.toggle('saved');
+      showToast(btn.classList.contains('saved') ? 'Saved to Vault' : 'Removed from saved');
+    }
+
+    // File detail sheet
+    function openFileDetail(name, contributor, node, tagsStr, forks, version, updated, type) {
+      document.getElementById('file-name').textContent = name;
+      document.getElementById('file-meta').textContent = contributor + ' · ' + node + ' Node';
+      document.getElementById('file-forks').textContent = forks;
+      document.getElementById('file-version').textContent = version;
+      document.getElementById('file-updated').textContent = updated;
+
+      const tagsEl = document.getElementById('file-tags');
+      tagsEl.innerHTML = tagsStr.split(' ').map(t => `<span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] font-bold text-on-surface-variant">${t}</span>`).join('');
+
+      document.getElementById('file-backdrop').classList.add('open');
+      document.getElementById('file-sheet').classList.add('open');
+    }
+    function closeFileDetail() {
+      document.getElementById('file-backdrop').classList.remove('open');
+      document.getElementById('file-sheet').classList.remove('open');
+    }
+    function forkFile() {
+      closeFileDetail();
+      showToast('Forked — file added to your Vault');
+    }
+    function downloadOffline() {
+      closeFileDetail();
+      showToast('Downloading for offline access...');
+    }
+
+    // Upload sheet
+    function openUpload() {
+      document.getElementById('upload-backdrop').classList.add('open');
+      document.getElementById('upload-sheet').classList.add('open');
+    }
+    function closeUpload() {
+      document.getElementById('upload-backdrop').classList.remove('open');
+      document.getElementById('upload-sheet').classList.remove('open');
+    }
+    function submitUpload() {
+      closeUpload();
+      showToast('File uploaded to Vault ✓');
+    }
+
+    // Sort files
+    function sortFiles() {
+      const sort = document.getElementById('sort-select').value;
+      const grid = document.getElementById('file-grid');
+      const cards = Array.from(grid.querySelectorAll('[data-tags]'));
+      cards.sort((a, b) => {
+        if (sort === 'forks') {
+          const fa = parseInt(a.querySelector('.font-bold.text-primary')?.textContent) || 0;
+          const fb = parseInt(b.querySelector('.font-bold.text-primary')?.textContent) || 0;
+          return fb - fa;
+        } else if (sort === 'newest') {
+          const order = ['5h ago','3h ago','Yesterday','2 days ago','4 days ago','1 week ago'];
+          const ta = a.querySelector('span:last-child')?.textContent || '';
+          const tb = b.querySelector('span:last-child')?.textContent || '';
+          return order.indexOf(ta) - order.indexOf(tb);
+        } else {
+          const order = ['5h ago','3h ago','Yesterday','2 days ago','4 days ago','1 week ago'];
+          const ta = a.querySelector('span:last-child')?.textContent || '';
+          const tb = b.querySelector('span:last-child')?.textContent || '';
+          return order.indexOf(tb) - order.indexOf(ta);
+        }
+      });
+      cards.forEach(c => grid.appendChild(c));
+      showToast('Sorted: ' + document.getElementById('sort-select').options[document.getElementById('sort-select').selectedIndex].text);
+    }
+
+    // Notification panel
+    function toggleNotifPanel() {
+      document.getElementById('notif-panel').classList.toggle('open');
+      document.getElementById('notif-overlay').classList.toggle('open');
+      document.getElementById('notif-dot').style.display = 'none';
+    }
+    function closeNotifPanel() {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-overlay').classList.remove('open');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>

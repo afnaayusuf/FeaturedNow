@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MERIDIAN — Nodes</title>
+  <meta name="description"
+    content="Meridian Nodes — discover and join discipline communities. Each Node has a founding Charter and is moderated by domain." />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001c37", "surface-container-lowest": "#ffffff", "on-surface-variant": "#43474e", "surface-variant": "#e1e3e4", "on-primary": "#ffffff", "on-primary-container": "#87a4cc", "background": "#f8f9fa", "secondary": "#4e6354", "surface-container-highest": "#e1e3e4", "on-tertiary-fixed-variant": "#7c2e10", "secondary-fixed-dim": "#b5ccb9", "tertiary-fixed": "#ffdbcf", "primary-fixed-dim": "#abc9f2", "on-secondary-container": "#546a59", "on-error": "#ffffff", "surface-container-high": "#e7e8e9", "on-background": "#191c1d", "primary": "#002444", "on-secondary-fixed-variant": "#374c3d", "tertiary-container": "#692003", "surface-tint": "#436084", "outline-variant": "#c3c6cf", "on-error-container": "#93000a", "surface": "#f8f9fa", "tertiary": "#461100", "primary-fixed": "#d2e4ff", "on-tertiary-container": "#ef8661", "outline": "#73777f", "surface-bright": "#f8f9fa", "surface-dim": "#d9dadb", "error-container": "#ffdad6", "secondary-container": "#d0e9d4", "inverse-primary": "#abc9f2", "surface-container": "#edeeef", "inverse-on-surface": "#f0f1f2", "on-secondary": "#ffffff", "tertiary-fixed-dim": "#ffb59c", "error": "#ba1a1a", "primary-container": "#1a3a5c", "on-tertiary": "#ffffff", "surface-container-low": "#f3f4f5", "on-secondary-fixed": "#0b1f13", "on-primary-fixed-variant": "#2a486b", "on-surface": "#191c1d", "on-tertiary-fixed": "#390c00", "inverse-surface": "#2e3132", "secondary-fixed": "#d0e9d4", "gold": "#C9922A"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100dvh;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .card-press {
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      cursor: pointer;
+    }
+
+    .card-press:active {
+      transform: scale(0.97);
+    }
+
+    /* Sheet */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      z-index: 100;
+      transition: background 300ms ease;
+      pointer-events: none;
+    }
+
+    .sheet-backdrop.open {
+      background: rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+    }
+
+    .full-sheet {
+      position: fixed;
+      inset: 0;
+      background: #f8f9fa;
+      z-index: 101;
+      transform: translateX(100%);
+      transition: transform 350ms cubic-bezier(0.32, 0.72, 0, 1);
+      overflow-y: auto;
+    }
+
+    .full-sheet.open {
+      transform: translateX(0);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #002444;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 300;
+      opacity: 0;
+      transition: all 250ms ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Charter collapse */
+    .charter-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .charter-text.expanded {
+      display: block;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+    }
+    /* Join state */
+    .join-btn.joined { color: #546a59; border-color: transparent; background: transparent; }
+    /* Notification panel */
+    .notif-panel { position: fixed; top: 64px; right: 0; width: min(360px, 100vw); background: #fff; z-index: 150; transform: translateX(110%); transition: transform 300ms cubic-bezier(0.32,0.72,0,1); border-left: 1px solid #e1e3e4; box-shadow: -4px 0 24px rgba(0,0,0,0.08); max-height: calc(100dvh - 64px); overflow-y: auto; }
+    .notif-panel.open { transform: translateX(0); }
+    .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
+    .notif-overlay.open { pointer-events: auto; }
+    /* Cohort rule tag */
+    .rule-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; }
+    .rule-can-post { background: #d0e9d4; color: #374c3d; }
+    .rule-can-review { background: #dbeafe; color: #1e40af; }
+    .rule-sealed { background: #fef3c7; color: #92400e; }
+    .rule-observer { background: #f3f4f5; color: #43474e; }
+    .rule-parallel { background: #ede9fe; color: #4338ca; }
+    .toggle-pill { position: relative; width: 44px; height: 24px; background: #c3c6cf; border-radius: 9999px; cursor: pointer; transition: background 200ms; flex-shrink: 0; }
+    .toggle-pill.on { background: #002444; }
+    .toggle-pill::after { content:''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 200ms; }
+    .toggle-pill.on::after { transform: translateX(20px); }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface pb-24">
+
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="flex items-center justify-between px-5 h-16 max-w-3xl mx-auto">
+      <div class="flex items-center gap-3">
+        <a href="page-1.html" class="p-2 hover:bg-slate-100 rounded-full active:scale-95">
+          <span class="material-symbols-outlined text-primary">arrow_back</span>
+        </a>
+        <span class="text-lg font-black tracking-tighter text-primary">MERIDIAN</span>
+      </div>
+      <button onclick="toggleNotifPanel()" class="relative p-2 hover:bg-slate-100 rounded-full active:scale-95">
+        <span class="material-symbols-outlined text-primary">notifications</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-white" id="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="pt-20 px-4 max-w-3xl mx-auto">
+
+    <!-- Search bar -->
+    <div class="relative mb-6">
+      <span
+        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+      <input id="node-search" oninput="filterNodes()" type="text"
+        placeholder="Search nodes by name, domain, or Charter..."
+        class="w-full pl-12 pr-4 py-3.5 bg-white border border-outline-variant/50 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
+    </div>
+
+    <!-- My Nodes -->
+    <section class="mb-8">
+      <h2 class="text-xs font-black text-primary tracking-widest uppercase mb-4">My Nodes</h2>
+      <div class="flex overflow-x-auto gap-3 pb-2">
+        <!-- My Node Card: Gradient -->
+        <div
+          class="flex-none w-36 bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/20 card-press relative"
+          onclick="openNodeDetail('gradient')">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0"></span>
+            <span class="font-bold text-primary text-xs truncate">Gradient</span>
+            <!-- Active guide green dot -->
+            <span class="w-2 h-2 rounded-full bg-green-500 ml-auto shrink-0" title="Guide active"></span>
+          </div>
+          <p class="text-[10px] text-on-surface-variant">CS / AI</p>
+          <span
+            class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container text-[9px] font-bold px-1.5 py-0.5 rounded-full">12
+            new</span>
+        </div>
+        <!-- Bare Metal -->
+        <div
+          class="flex-none w-36 bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/20 card-press relative"
+          onclick="openNodeDetail('baremetal')">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0"></span>
+            <span class="font-bold text-primary text-xs truncate">Bare Metal</span>
+          </div>
+          <p class="text-[10px] text-on-surface-variant">Electronics / EE</p>
+          <span
+            class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container text-[9px] font-bold px-1.5 py-0.5 rounded-full">5
+            new</span>
+        </div>
+        <!-- Softer -->
+        <div
+          class="flex-none w-36 bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/20 card-press relative"
+          onclick="openNodeDetail('softer')">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+            <span class="font-bold text-primary text-xs truncate">Softer</span>
+          </div>
+          <p class="text-[10px] text-on-surface-variant">Humanities</p>
+        </div>
+        <!-- Dark Current -->
+        <div
+          class="flex-none w-36 bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/20 card-press relative"
+          onclick="openNodeDetail('darkcurrent')">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0"></span>
+            <span class="font-bold text-primary text-xs truncate">Dark Current</span>
+            <span class="w-2 h-2 rounded-full bg-green-500 ml-auto shrink-0" title="Guide active"></span>
+          </div>
+          <p class="text-[10px] text-on-surface-variant">CS / Networks</p>
+          <span
+            class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container text-[9px] font-bold px-1.5 py-0.5 rounded-full">3
+            new</span>
+        </div>
+        <!-- Bio-Sys -->
+        <div
+          class="flex-none w-36 bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/20 card-press relative"
+          onclick="openNodeDetail('biosys')">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-400 shrink-0"></span>
+            <span class="font-bold text-primary text-xs truncate">Bio-Sys</span>
+          </div>
+          <p class="text-[10px] text-on-surface-variant">Biology</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Discover -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xs font-black text-primary tracking-widest uppercase">Discover</h2>
+        <span class="text-[10px] text-on-surface-variant font-semibold">42 Nodes available</span>
+      </div>
+      <div class="space-y-3" id="node-list">
+
+        <!-- Node: Neural Fold -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="neural fold" data-domain="cs ai machine learning"
+          data-charter="posts about deep learning architectures">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-blue-700 text-2xl fill-icon">psychology</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('neuralFold')" style="cursor:pointer">
+              <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                <p class="font-bold text-primary text-sm">Neural Fold</p>
+              </div>
+              <p class="text-[11px] text-on-surface-variant mb-1">CS / AI · Machine Learning</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Posts must be original
+                experiments, reproductions, or documented failures on neural architectures — no opinion pieces.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">847 members · 38 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-neuralFold" onclick="toggleJoin('neuralFold', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Signal Chain -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="signal chain" data-domain="electronics ee analog signal"
+          data-charter="analog and mixed-signal circuit design">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-green-700 text-2xl fill-icon">graphic_eq</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('signalChain')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Signal Chain</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Electronics / EE · Analog & RF</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Original PCB designs,
+                measurement results, or documented analog circuit debugging sessions only.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">312 members · 14 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-signalChain" onclick="toggleJoin('signalChain', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Lingua -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="lingua" data-domain="humanities linguistics language" data-charter="computational linguistics">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-purple-700 text-2xl fill-icon">translate</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('lingua')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Lingua</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Humanities · Linguistics</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Posts must analyze an actual
+                language sample — no pure theory essays without evidence.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">524 members · 22 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-lingua" onclick="toggleJoin('lingua', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Torque -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="torque" data-domain="mechanical robotics mechatronics"
+          data-charter="mechanical and robotics systems">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-yellow-700 text-2xl fill-icon">settings</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('torque')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Torque</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Mechanical / Robotics</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Mechanical design, simulation
+                results, and field test data for physical systems only. CAD files encouraged as Vault attachments.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">198 members · 9 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-torque" onclick="toggleJoin('torque', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Null Space -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="null space" data-domain="mathematics statistics pure math"
+          data-charter="pure and applied mathematics">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-slate-600 text-2xl fill-icon">functions</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('nullSpace')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Null Space</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Mathematics · Pure & Applied</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Proofs, derivations, and
+                problem sets. All LaTeX-formatted. No calculators — show your working.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">672 members · 47 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-nullSpace" onclick="toggleJoin('nullSpace', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Photon -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="photon" data-domain="physics quantum optics" data-charter="quantum and optical physics">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-700 text-2xl fill-icon">wb_twilight</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('photon')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Photon</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Physics · Quantum & Optics</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Experimental and theoretical
+                physics posts. Reference paper links required. Speculation must be labelled clearly.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">441 members · 16 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-photon" onclick="toggleJoin('photon', this)">Join</button>
+          </div>
+        </div>
+
+        <!-- Node: Terra -->
+        <div
+          class="node-item bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow"
+          data-name="terra" data-domain="environment climate ecology"
+          data-charter="environmental science and climate research">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-teal-700 text-2xl fill-icon">eco</span>
+            </div>
+            <div class="flex-1 min-w-0" onclick="openNodeDetail('terra')" style="cursor:pointer">
+              <p class="font-bold text-primary text-sm mb-0.5">Terra</p>
+              <p class="text-[11px] text-on-surface-variant mb-1">Environmental Science · Climate</p>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-1">Field data, climate models,
+                and environmental impact studies. Dataset uploads to Vault strongly encouraged.</p>
+              <p class="text-[10px] text-on-surface-variant mt-2">263 members · 11 posts this month</p>
+            </div>
+            <button
+              class="join-btn shrink-0 px-3 py-1.5 border border-primary text-primary rounded-full text-[11px] font-bold hover:bg-primary/5 transition-all active:scale-95"
+              id="join-terra" onclick="toggleJoin('terra', this)">Join</button>
+          </div>
+        </div>
+
+      </div>
+      <!-- No results -->
+      <div id="no-nodes" class="hidden text-center py-16 text-on-surface-variant">
+        <span class="material-symbols-outlined text-5xl mb-3 block">search_off</span>
+        <p class="font-bold text-primary mb-1">No Nodes found</p>
+        <p class="text-sm">Try a different search term.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav
+    class="fixed bottom-0 w-full z-50 rounded-t-lg bg-white shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] border-t border-slate-100 flex justify-around items-center px-2 py-3 h-20">
+    <a href="page-1.html"
+      class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Ledger</span>
+    </a>
+    <a href="page-6.html"
+      class="flex flex-col items-center justify-center text-primary bg-slate-100 rounded-xl px-3 py-1 active:scale-90 transition-transform">
+      <span class="material-symbols-outlined fill-icon">hub</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Nodes</span>
+    </a>
+    <a href="page-5.html"
+      class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined text-3xl">add_circle</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Publish</span>
+    </a>
+    <a href="page-3.html"
+      class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">lock</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Vault</span>
+    </a>
+    <a href="page-2.html"
+      class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">style</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+    </a>
+  </nav>
+
+  <!-- Notification Panel -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotifPanel()"></div>
+  <div class="notif-panel" id="notif-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-primary text-base">Notifications</h3>
+      <button onclick="closeNotifPanel()" class="material-symbols-outlined text-on-surface-variant text-lg">close</button>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10" onclick="closeNotifPanel(); openNodeDetail('gradient')">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0">hub</span>
+        <div><p class="text-sm font-bold text-primary">12 new posts in Gradient</p><p class="text-[11px] text-on-surface-variant mt-0.5">Tap to open Node</p></div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 bg-primary/5 cursor-pointer hover:bg-primary/10" onclick="closeNotifPanel(); openNodeDetail('baremetal')">
+        <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0">hub</span>
+        <div><p class="text-sm font-bold text-primary">5 new posts in Bare Metal</p><p class="text-[11px] text-on-surface-variant mt-0.5">Tap to open Node</p></div>
+      </div>
+      <div class="px-5 py-4 flex gap-3 cursor-pointer hover:bg-slate-50" onclick="closeNotifPanel(); openNodeDetail('darkcurrent')">
+        <span class="material-symbols-outlined text-on-surface-variant text-xl shrink-0">hub</span>
+        <div><p class="text-sm font-bold text-on-surface">3 new posts in Dark Current</p><p class="text-[11px] text-on-surface-variant mt-0.5">Tap to open Node</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Node Detail Full Screen -->
+  <div class="full-sheet" id="node-detail">
+    <!-- Top bar -->
+    <div
+      class="flex items-center justify-between px-5 h-14 border-b border-outline-variant/20 sticky top-0 bg-white/90 backdrop-blur-md z-10">
+      <button onclick="closeNodeDetail()"
+        class="flex items-center gap-1 text-on-surface-variant font-semibold text-sm hover:text-on-surface transition-colors active:scale-95">
+        <span class="material-symbols-outlined">arrow_back</span> Back
+      </button>
+      <span class="font-black text-primary text-sm uppercase tracking-widest" id="detail-node-name">Node</span>
+      <button onclick="toggleJoinFromDetail()" id="detail-join-btn"
+        class="px-4 py-2 border border-primary text-primary rounded-full text-xs font-bold hover:bg-primary/5 transition-all active:scale-95">Join</button>
+    </div>
+
+    <div class="px-5 py-6 max-w-2xl mx-auto">
+      <!-- Node badge -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center" id="detail-icon-container">
+          <span class="material-symbols-outlined text-3xl fill-icon" id="detail-icon">hub</span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-extrabold text-primary" id="detail-title">Node Name</h2>
+          <p class="text-[11px] text-on-surface-variant" id="detail-domain">Domain</p>
+        </div>
+      </div>
+
+      <!-- Charter -->
+      <div class="bg-surface-container-lowest rounded-xl p-5 mb-6 border border-outline-variant/20">
+        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Charter</p>
+        <p id="detail-charter" class="charter-text text-sm text-on-surface-variant leading-relaxed">
+          Charter text goes here.
+        </p>
+        <button id="charter-toggle" onclick="expandCharter()"
+          class="text-primary text-xs font-bold mt-2 hover:underline">Read full Charter</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p id="detail-members" class="text-xl font-black text-primary">0</p>
+          <p class="text-[10px] text-on-surface-variant">members</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p id="detail-posts" class="text-xl font-black text-primary">0</p>
+          <p class="text-[10px] text-on-surface-variant">posts this month</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-3 text-center">
+          <p class="text-xl font-black text-on-secondary-container">✦</p>
+          <p class="text-[10px] text-on-surface-variant">Guide active</p>
+        </div>
+      </div>
+
+      <!-- Node sections tab row -->
+      <div class="flex gap-1 bg-surface-container-low p-1 rounded-xl mb-5">
+        <button id="dtab-posts" onclick="switchDetailTab('posts')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-white text-primary shadow-sm">Posts</button>
+        <button id="dtab-cohorts" onclick="switchDetailTab('cohorts')" class="flex-1 py-2 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-primary">Cohorts</button>
+        <button id="dtab-charter" onclick="switchDetailTab('charter')" class="flex-1 py-2 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-primary">Charter</button>
+      </div>
+
+      <!-- Posts tab -->
+      <div id="detail-tab-posts">
+        <!-- Node feed preview -->
+        <h3 class="text-xs font-black text-primary tracking-widest uppercase mb-4">Recent posts</h3>
+        <div id="detail-feed" class="space-y-3 mb-10">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- Cohorts tab -->
+      <div id="detail-tab-cohorts" class="hidden">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-black text-primary uppercase tracking-widest">Node Cohorts</h3>
+          <button onclick="openNodeCreateCohort()" class="flex items-center gap-1 text-[11px] font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-full hover:bg-primary/5 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-sm">add</span> New
+          </button>
+        </div>
+        <div class="space-y-3" id="node-cohorts-list"></div>
+      </div>
+
+      <!-- Charter tab -->
+      <div id="detail-tab-charter" class="hidden">
+        <div class="bg-surface-container-lowest rounded-xl p-5 mb-6 border border-outline-variant/20">
+          <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Charter</p>
+          <p id="detail-charter" class="charter-text text-sm text-on-surface-variant leading-relaxed">
+            Charter text goes here.
+          </p>
+          <button id="charter-toggle" onclick="expandCharter()"
+            class="text-primary text-xs font-bold mt-2 hover:underline">Read full Charter</button>
+        </div>
+      </div>
+
+      <!-- Post to Node FAB -->
+      <a href="page-5.html"
+        class="fixed bottom-8 right-6 flex items-center gap-2 px-5 py-3.5 bg-primary text-white rounded-full shadow-xl font-bold text-sm active:scale-95 transition-transform hover:bg-primary-container">
+        <span class="material-symbols-outlined text-xl">edit</span>
+        Post to Node
+      </a>
+    </div>
+  </div>
+
+  <!-- Node Create Cohort sheet -->
+  <div class="sheet-backdrop" id="nc-backdrop" onclick="closeNodeCreateCohort()"></div>
+  <div class="bottom-sheet" id="nc-sheet" style="max-height:92vh;z-index:320">
+    <div class="sheet-handle"></div>
+    <div class="px-5 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-lg mb-1">New Node Cohort</h3>
+      <p class="text-[11px] text-on-surface-variant mb-5" id="nc-node-label">Sub-group under this Node</p>
+      <label class="text-[10px] font-black text-primary uppercase tracking-widest mb-1.5 block">Name</label>
+      <input id="nc-name-input" type="text" maxlength="40" placeholder="e.g. Team Alpha, Reviewers, Judges..." class="w-full border border-outline-variant/40 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 mb-5" />
+      <div class="flex items-center justify-between mb-5 bg-surface-container-low rounded-xl px-4 py-3">
+        <div><p class="text-sm font-bold text-on-surface" id="nc-privacy-label">Private</p><p class="text-[10px] text-on-surface-variant mt-0.5">Only members know this cohort exists</p></div>
+        <div class="toggle-pill on" id="nc-privacy-toggle" onclick="toggleNodePrivacy()"></div>
+      </div>
+      <label class="text-[10px] font-black text-primary uppercase tracking-widest mb-3 block">Access rules</label>
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">edit</span><p class="text-sm font-semibold">Can Post</p></div><div class="toggle-pill" id="nc-toggle-can_post" onclick="toggleNodeRule('can_post')"></div></div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">rate_review</span><p class="text-sm font-semibold">Can Review</p></div><div class="toggle-pill" id="nc-toggle-can_review" onclick="toggleNodeRule('can_review')"></div></div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm" style="color:#C9922A">verified</span><p class="text-sm font-semibold">Sealed Access</p></div><div class="toggle-pill" id="nc-toggle-sealed" onclick="toggleNodeRule('sealed')"></div></div>
+        <div class="flex items-center justify-between px-4 py-3 bg-surface-container-low rounded-xl"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">visibility</span><p class="text-sm font-semibold">Observer Only</p></div><div class="toggle-pill" id="nc-toggle-observer" onclick="toggleNodeRule('observer')"></div></div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeNodeCreateCohort()" class="flex-1 py-3.5 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Cancel</button>
+        <button onclick="saveNodeCohort()" class="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const nodes = {
+      gradient: {
+        name: 'Gradient', domain: 'CS / AI · Machine Learning', icon: 'psychology', iconBg: 'bg-blue-100', iconColor: 'text-blue-700', dotColor: 'bg-blue-500',
+        charter: 'Gradient is the Machine Learning and Artificial Intelligence Node on Meridian. Posts must be original experiments, reproductions, or documented failures on neural architectures, language models, or AI systems. No opinion pieces, blog-style content, or posts without measurable results. Industry datasets allowed only when paired with your own analysis. Sealed posts from Guides are pinned at the top.',
+        members: '1,247', posts: '52', joined: true,
+        feed: [
+          { title: 'Semantic Entropy in Synthetic Dataset Generation', node: 'Gradient', sealed: true, clarity: 4.3, depth: 4.7, reviews: 9 },
+          { title: 'RLHF Reward Collapse: A Documented Failure', node: 'Gradient', sealed: false, clarity: 4.6, depth: 4.4, reviews: 5 }
+        ]
+      },
+      baremetal: {
+        name: 'Bare Metal', domain: 'Electronics / EE · Embedded Systems', icon: 'memory', iconBg: 'bg-green-100', iconColor: 'text-green-700', dotColor: 'bg-green-500',
+        charter: 'Bare Metal is the Embedded Systems and Hardware Engineering Node. Posts must involve actual hardware — microcontrollers, FPGAs, PCBs, or firmware. Simulation-only posts are held for review. Every post should include: what you built, what failed, what worked. Schematics, code snippets, and oscilloscope screenshots are welcome as Vault attachments.',
+        members: '892', posts: '31', joined: true,
+        feed: [
+          { title: 'Quantum Advantage in Sub-linear Search Algorithms', node: 'Bare Metal', sealed: true, clarity: 4.8, depth: 5.0, reviews: 22 },
+          { title: 'SPI DMA Transfer on STM32 — Race Condition Debug', node: 'Bare Metal', sealed: false, clarity: 4.2, depth: 4.6, reviews: 8 }
+        ]
+      },
+      softer: {
+        name: 'Softer', domain: 'Humanities · Literary & Cultural Studies', icon: 'menu_book', iconBg: 'bg-purple-100', iconColor: 'text-purple-700', dotColor: 'bg-purple-500',
+        charter: 'Softer is the Humanities, Literature, and Cultural Theory Node. Posts must engage with a primary text or cultural artifact — no pure philosophical speculation without textual evidence. Citation style: MLA or Chicago. Cross-disciplinary posts (e.g., computational analysis of literature) are explicitly welcomed and elevated.',
+        members: '634', posts: '18', joined: true,
+        feed: [
+          { title: 'The Architecture of Silence: Minimalist Urbanism in Post-War Japan', node: 'Softer', sealed: false, clarity: 4.1, depth: 4.5, reviews: 6 }
+        ]
+      },
+      darkcurrent: {
+        name: 'Dark Current', domain: 'CS / Networks · Distributed Systems', icon: 'hub', iconBg: 'bg-orange-100', iconColor: 'text-orange-700', dotColor: 'bg-orange-500',
+        charter: 'Dark Current covers distributed systems, networking, and protocol design. Posts must include reproducible results — measurement data, packet captures, or proof-of-concept implementations. Theoretical papers without empirical backing are routed to review. GitHub repository links in Vault are mandatory for code-based posts.',
+        members: '477', posts: '24', joined: true,
+        feed: [
+          { title: 'Byzantine Fault Tolerance in Peer-to-Peer Academic Networks', node: 'Dark Current', sealed: true, clarity: 4.7, depth: 4.8, reviews: 20 }
+        ]
+      },
+      biosys: {
+        name: 'Bio-Sys', domain: 'Biology · Biosystems & Genomics', icon: 'biotech', iconBg: 'bg-red-100', iconColor: 'text-red-700', dotColor: 'bg-red-400',
+        charter: 'Bio-Sys is the biological sciences Node covering genomics, cell biology, and biosystems. Lab reports must include methodology, controls, and raw data in Vault. Clinical data must be anonymised. Replication studies are highly valued — negative results are welcome and will not lower peer review scores.',
+        members: '381', posts: '14', joined: true,
+        feed: []
+      },
+      neuralFold: {
+        name: 'Neural Fold', domain: 'CS / AI · Deep Learning', icon: 'psychology', iconBg: 'bg-blue-100', iconColor: 'text-blue-700', dotColor: 'bg-blue-500',
+        charter: 'Neural Fold is a deep learning specialization Node. Posts must be original experiments, reproductions, or documented failures on neural architectures — no opinion pieces or survey papers without original contribution. All benchmark results must include hardware specs and random seeds.',
+        members: '847', posts: '38', joined: false,
+        feed: []
+      },
+      signalChain: {
+        name: 'Signal Chain', domain: 'Electronics / EE · Analog & RF', icon: 'graphic_eq', iconBg: 'bg-green-100', iconColor: 'text-green-700', dotColor: 'bg-green-500',
+        charter: 'Signal Chain covers analog electronics, RF systems, and mixed-signal design. Original PCB designs, measurement results, and documented analog debugging sessions. LTspice simulation files accepted as Vault attachments. Posts must include scope captures or simulation plots.',
+        members: '312', posts: '14', joined: false,
+        feed: []
+      },
+      lingua: {
+        name: 'Lingua', domain: 'Humanities · Linguistics', icon: 'translate', iconBg: 'bg-purple-100', iconColor: 'text-purple-700', dotColor: 'bg-purple-500',
+        charter: 'Lingua is the linguistics Node. Every post must analyze an actual language sample — no pure theory essays without textual or spoken evidence. Corpus data, phonemic transcriptions, and syntax trees are welcome. Computational linguistics posts (NLP intersection) are prominent here.',
+        members: '524', posts: '22', joined: false,
+        feed: []
+      }
+    };
+
+    let currentNodeId = null;
+    const joined = JSON.parse(localStorage.getItem('meridian_joined') || '{}');
+
+    // Restore join state on load
+    Object.keys(joined).forEach(id => {
+      if (joined[id]) {
+        const btn = document.getElementById('join-' + id);
+        if (btn) setJoinedUI(btn);
+      }
+    });
+
+    function toggleJoin(id, btn) {
+      if (btn.classList.contains('joined')) return; // can't unjoin from here
+      joined[id] = true;
+      localStorage.setItem('meridian_joined', JSON.stringify(joined));
+      setJoinedUI(btn);
+      showToast('Joined ' + btn.closest('.node-item')?.querySelector('.font-bold')?.textContent || id);
+    }
+
+    function setJoinedUI(btn) {
+      btn.textContent = 'Joined ✓';
+      btn.classList.add('joined');
+      btn.style.color = '#546a59';
+      btn.style.borderColor = 'transparent';
+    }
+
+    function openNodeDetail(id) {
+      const node = nodes[id];
+      if (!node) return;
+      currentNodeId = id;
+
+      document.getElementById('detail-node-name').textContent = node.name;
+      document.getElementById('detail-title').textContent = node.name;
+      document.getElementById('detail-domain').textContent = node.domain;
+      document.getElementById('detail-icon').textContent = node.icon;
+      document.getElementById('detail-icon-container').className = 'w-14 h-14 rounded-xl flex items-center justify-center ' + node.iconBg;
+      document.getElementById('detail-icon').className = 'material-symbols-outlined text-3xl fill-icon ' + node.iconColor;
+      document.getElementById('detail-members').textContent = node.members;
+      document.getElementById('detail-posts').textContent = node.posts;
+      document.getElementById('detail-charter').textContent = node.charter;
+      document.getElementById('detail-charter').classList.remove('expanded');
+      document.getElementById('charter-toggle').textContent = 'Read full Charter';
+
+      // Join button state
+      const joinBtn = document.getElementById('detail-join-btn');
+      if (node.joined || joined[id]) {
+        joinBtn.textContent = 'Joined ✓';
+        joinBtn.style.color = '#546a59';
+        joinBtn.style.borderColor = 'transparent';
+      } else {
+        joinBtn.textContent = 'Join';
+        joinBtn.style.color = '';
+        joinBtn.style.borderColor = '';
+      }
+
+      // Feed
+      const feedEl = document.getElementById('detail-feed');
+      if (node.feed && node.feed.length) {
+        feedEl.innerHTML = node.feed.map(post => `
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-outline-variant/10 card-press">
+            ${post.sealed ? '<span class="text-[10px] font-bold bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded mb-2 inline-block">✦ Sealed</span>' : ''}
+            <p class="font-bold text-primary text-sm mb-2 leading-snug">${post.title}</p>
+            <div class="flex items-center gap-2">
+              <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold">Clarity ${post.clarity}</span>
+              <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold">Depth ${post.depth}</span>
+              <span class="text-on-surface-variant text-[10px]">${post.reviews} reviews</span>
+            </div>
+          </div>`).join('');
+      } else {
+        feedEl.innerHTML = '<div class="text-center py-8 text-on-surface-variant"><span class="material-symbols-outlined text-4xl mb-2 block">inbox</span><p class="text-sm">No posts yet — be the first to publish.</p></div>';
+      }
+
+      document.getElementById('node-detail').classList.add('open');
+      switchDetailTab('posts');
+    }
+
+    function closeNodeDetail() {
+      document.getElementById('node-detail').classList.remove('open');
+      currentNodeId = null;
+    }
+
+    function toggleJoinFromDetail() {
+      if (!currentNodeId) return;
+      const node = nodes[currentNodeId];
+      const btn = document.getElementById('detail-join-btn');
+      if (node.joined || joined[currentNodeId]) { showToast('Already in ' + node.name); return; }
+      joined[currentNodeId] = true;
+      localStorage.setItem('meridian_joined', JSON.stringify(joined));
+      btn.textContent = 'Joined ✓';
+      btn.style.color = '#546a59';
+      btn.style.borderColor = 'transparent';
+      // Also update list button
+      const listBtn = document.getElementById('join-' + currentNodeId);
+      if (listBtn) setJoinedUI(listBtn);
+      showToast('Joined ' + node.name + ' ✓');
+    }
+
+    function expandCharter() {
+      const el = document.getElementById('detail-charter');
+      const btn = document.getElementById('charter-toggle');
+      el.classList.toggle('expanded');
+      btn.textContent = el.classList.contains('expanded') ? 'Collapse' : 'Read full Charter';
+    }
+
+    // Search filter
+    function filterNodes() {
+      const q = document.getElementById('node-search').value.toLowerCase().trim();
+      const items = document.querySelectorAll('.node-item');
+      let vis = 0;
+      items.forEach(item => {
+        const text = item.dataset.name + ' ' + item.dataset.domain + ' ' + item.dataset.charter;
+        const show = !q || text.includes(q);
+        item.style.display = show ? '' : 'none';
+        if (show) vis++;
+      });
+      document.getElementById('no-nodes').classList.toggle('hidden', vis > 0);
+    }
+
+    // Notification panel
+    function toggleNotifPanel() {
+      document.getElementById('notif-panel').classList.toggle('open');
+      document.getElementById('notif-overlay').classList.toggle('open');
+      document.getElementById('notif-dot').style.display = 'none';
+    }
+    function closeNotifPanel() {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-overlay').classList.remove('open');
+    }
+
+    // ─── NODE DETAIL TABS ────────────────────────────────────────────────────
+    function switchDetailTab(tab) {
+      ['posts','cohorts','charter'].forEach(t => {
+        document.getElementById('detail-tab-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('dtab-' + t);
+        btn.classList.toggle('bg-white', t === tab);
+        btn.classList.toggle('text-primary', t === tab);
+        btn.classList.toggle('shadow-sm', t === tab);
+        btn.classList.toggle('text-on-surface-variant', t !== tab);
+      });
+      if (tab === 'cohorts') renderNodeCohorts();
+    }
+
+    // ─── NODE COHORTS ────────────────────────────────────────────────────────
+    const NC_RULE_META = [
+      { key: 'can_post',   label: 'Can Post',      cls: 'rule-can-post' },
+      { key: 'can_review', label: 'Can Review',    cls: 'rule-can-review' },
+      { key: 'sealed',     label: 'Sealed Access', cls: 'rule-sealed' },
+      { key: 'observer',   label: 'Observer Only', cls: 'rule-observer' },
+    ];
+    const NC_DEFAULTS = {
+      gradient:    [ { id:'g1', name:'ML Authors',   privacy:'private', members:34,  rules:['can_post','can_review','sealed'] },
+                     { id:'g2', name:'Peer Reviewers', privacy:'public',members:121, rules:['can_review'] },
+                     { id:'g3', name:'Spectators',   privacy:'public',  members:892, rules:['observer'] } ],
+      baremetal:   [ { id:'b1', name:'Core Team',    privacy:'private', members:12,  rules:['can_post','can_review','sealed'] },
+                     { id:'b2', name:'Observers',    privacy:'public',  members:680, rules:['observer'] } ],
+      darkcurrent: [ { id:'d1', name:'Team Alpha',   privacy:'private', members:6,   rules:['can_post','can_review'] },
+                     { id:'d2', name:'Team Beta',    privacy:'private', members:5,   rules:['can_post','can_review'] },
+                     { id:'d3', name:'Judges',       privacy:'private', members:3,   rules:['sealed'] } ],
+    };
+    function getNodeCohorts(nodeId) {
+      const key = 'meridian_nc_' + nodeId;
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : (NC_DEFAULTS[nodeId] || []);
+    }
+    function saveNodeCohorts(nodeId, list) {
+      localStorage.setItem('meridian_nc_' + nodeId, JSON.stringify(list));
+    }
+    function renderNodeCohorts() {
+      if (!currentNodeId) return;
+      const list = getNodeCohorts(currentNodeId);
+      const el = document.getElementById('node-cohorts-list');
+      if (!list.length) {
+        el.innerHTML = '<p class="text-sm text-on-surface-variant">No cohorts yet. Create the first one.</p>';
+        return;
+      }
+      el.innerHTML = list.map(c => {
+        const rules = c.rules.map(r => { const m = NC_RULE_META.find(x => x.key === r); return m ? `<span class="rule-tag ${m.cls}">${m.label}</span>` : ''; }).join('');
+        const privBadge = c.privacy === 'private'
+          ? `<span class="text-[10px] font-bold text-on-surface-variant flex items-center gap-0.5"><span class="material-symbols-outlined" style="font-size:11px">lock</span>Private</span>`
+          : `<span class="text-[10px] font-bold text-green-700 flex items-center gap-0.5"><span class="material-symbols-outlined" style="font-size:11px">public</span>Public</span>`;
+        return `<div class="bg-white rounded-xl p-4 border border-outline-variant/20 shadow-sm" id="nc-${c.id}">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <p class="font-bold text-primary text-sm">${c.name}</p>
+            <div class="flex flex-col items-end gap-1">${privBadge}<span class="text-[11px] text-on-surface-variant font-bold">${c.members} members</span></div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-3">${rules}</div>
+          <div class="flex gap-2">
+            <button onclick="inviteNodeCohort('${c.id}','${c.name}')" class="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-full text-[11px] font-bold active:scale-95"><span class="material-symbols-outlined" style="font-size:12px">person_add</span>Invite</button>
+            <button onclick="removeNodeCohort('${currentNodeId}','${c.id}')" class="flex items-center gap-1 px-3 py-1.5 border border-error/40 text-error rounded-full text-[11px] font-bold active:scale-95"><span class="material-symbols-outlined" style="font-size:12px">delete</span>Remove</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function removeNodeCohort(nodeId, cid) {
+      const list = getNodeCohorts(nodeId).filter(c => c.id !== cid);
+      saveNodeCohorts(nodeId, list);
+      document.getElementById('nc-' + cid)?.remove();
+      showToast('Cohort removed');
+    }
+    function inviteNodeCohort(id, name) {
+      navigator.clipboard.writeText('https://meridian.app/node-cohort/' + id + '/join').catch(() => {});
+      showToast('Invite link copied for "' + name + '"');
+    }
+
+    // Node Create Cohort sheet
+    let ncRules = {};
+    let ncPrivate = true;
+    function openNodeCreateCohort() {
+      ncRules = {}; ncPrivate = true;
+      document.getElementById('nc-name-input').value = '';
+      document.getElementById('nc-node-label').textContent = 'Sub-group under ' + (nodes[currentNodeId]?.name || 'this Node');
+      ['can_post','can_review','sealed','observer'].forEach(k => document.getElementById('nc-toggle-' + k)?.classList.remove('on'));
+      document.getElementById('nc-privacy-toggle').classList.add('on');
+      document.getElementById('nc-privacy-label').textContent = 'Private';
+      document.getElementById('nc-backdrop').classList.add('open');
+      document.getElementById('nc-sheet').classList.add('open');
+    }
+    function closeNodeCreateCohort() {
+      document.getElementById('nc-backdrop').classList.remove('open');
+      document.getElementById('nc-sheet').classList.remove('open');
+    }
+    function toggleNodePrivacy() {
+      ncPrivate = !ncPrivate;
+      document.getElementById('nc-privacy-toggle').classList.toggle('on', ncPrivate);
+      document.getElementById('nc-privacy-label').textContent = ncPrivate ? 'Private' : 'Public';
+    }
+    function toggleNodeRule(key) {
+      const el = document.getElementById('nc-toggle-' + key);
+      if (ncRules[key]) { delete ncRules[key]; el.classList.remove('on'); }
+      else {
+        ncRules[key] = true; el.classList.add('on');
+        if (key === 'observer') { ['can_post','can_review','sealed'].forEach(k => { delete ncRules[k]; document.getElementById('nc-toggle-'+k)?.classList.remove('on'); }); }
+        else { delete ncRules['observer']; document.getElementById('nc-toggle-observer')?.classList.remove('on'); }
+      }
+    }
+    function saveNodeCohort() {
+      const name = document.getElementById('nc-name-input').value.trim();
+      if (!name) { showToast('Give this cohort a name'); return; }
+      const rules = Object.keys(ncRules);
+      if (!rules.length) { showToast('Set at least one rule'); return; }
+      const list = getNodeCohorts(currentNodeId);
+      list.push({ id: 'nc' + Date.now(), name, privacy: ncPrivate ? 'private' : 'public', members: 0, rules });
+      saveNodeCohorts(currentNodeId, list);
+      closeNodeCreateCohort();
+      renderNodeCohorts();
+      showToast('Cohort "' + name + '" created ✓');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+
+</html>
