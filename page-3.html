@@ -6,7 +6,6 @@
   <title>RAINFONT — Vault</title>
   <meta name="description" content="Rainfont Vault — your academic library of shared, attributed, permanent study materials." />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script id="tailwind-config">
     tailwind.config = {
@@ -16,14 +15,14 @@
           colors: {
             "on-primary-fixed": "#001c37","surface-container-lowest": "#ffffff","on-surface-variant": "#43474e","surface-variant": "#e1e3e4","on-primary": "#ffffff","on-primary-container": "#87a4cc","background": "#f8f9fa","secondary": "#4e6354","surface-container-highest": "#e1e3e4","on-tertiary-fixed-variant": "#7c2e10","secondary-fixed-dim": "#b5ccb9","tertiary-fixed": "#ffdbcf","primary-fixed-dim": "#abc9f2","on-secondary-container": "#546a59","on-error": "#ffffff","surface-container-high": "#e7e8e9","on-background": "#191c1d","primary": "#002444","on-secondary-fixed-variant": "#374c3d","tertiary-container": "#692003","surface-tint": "#436084","outline-variant": "#c3c6cf","on-error-container": "#93000a","surface": "#f8f9fa","tertiary": "#461100","primary-fixed": "#d2e4ff","on-tertiary-container": "#ef8661","outline": "#73777f","surface-bright": "#f8f9fa","surface-dim": "#d9dadb","error-container": "#ffdad6","secondary-container": "#d0e9d4","inverse-primary": "#abc9f2","surface-container": "#edeeef","inverse-on-surface": "#f0f1f2","on-secondary": "#ffffff","tertiary-fixed-dim": "#ffb59c","error": "#ba1a1a","primary-container": "#1a3a5c","on-tertiary": "#ffffff","surface-container-low": "#f3f4f5","on-secondary-fixed": "#0b1f13","on-primary-fixed-variant": "#2a486b","on-surface": "#191c1d","on-tertiary-fixed": "#390c00","inverse-surface": "#2e3132","secondary-fixed": "#d0e9d4","gold": "#C9922A"
           },
-          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Plus Jakarta Sans"], "label": ["Plus Jakarta Sans"] },
+          fontFamily: { "headline": ["Space Grotesk"], "body": ["Space Grotesk"], "label": ["Space Grotesk"] },
           borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
         },
       },
     }
   </script>
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); }
+    body { font-family: 'Space Grotesk', sans-serif; min-height: max(884px, 100dvh); }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     ::-webkit-scrollbar { display: none; }
@@ -51,30 +50,31 @@
     .notif-panel.open { transform: translateX(0); }
     .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
     .notif-overlay.open { pointer-events: auto; }
-  
-    /* Bismuth Hopper Crystal background */
+  </style>
+
+  <style id="rainfont-theme">
+    /* Space Grotesk — local */
+    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+    /* Bismuth x Interstellar — hyper-dimensional line grid */
     body {
-      background:
-        radial-gradient(ellipse 90% 70% at 0% 0%,    rgba(160, 40, 220, 0.50) 0%, transparent 48%),
-        radial-gradient(ellipse 70% 90% at 100% 0%,  rgba(20,  80, 220, 0.45) 0%, transparent 48%),
-        radial-gradient(ellipse 80% 70% at 100% 100%,rgba(0,  210, 185, 0.38) 0%, transparent 48%),
-        radial-gradient(ellipse 90% 60% at 0%  100%, rgba(230,165,  10, 0.32) 0%, transparent 48%),
-        radial-gradient(ellipse 55% 75% at 50%  50%, rgba(110, 20, 185, 0.22) 0%, transparent 62%),
-        linear-gradient(135deg, #060511 0%, #0b091a 25%, #070d17 50%, #0d070f 75%, #060511 100%);
-      background-attachment: fixed;
-    }
-    /* Bismuth crystalline scale overlay */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
+      background-color: #09080f;
       background-image:
-        repeating-linear-gradient(-45deg, transparent 0px, transparent 17px, rgba(190,130,255,0.045) 17px, rgba(190,130,255,0.045) 18px),
-        repeating-linear-gradient( 45deg, transparent 0px, transparent 17px, rgba(60,170,255,0.035) 17px, rgba(60,170,255,0.035) 18px);
-      pointer-events: none;
-      z-index: -1;
+        repeating-linear-gradient(0deg,    transparent 0, transparent 29px, rgba(80,118,255,0.065) 29px,  rgba(80,118,255,0.065) 30px),
+        repeating-linear-gradient(90deg,   transparent 0, transparent 29px, rgba(205,148,50,0.050) 29px,  rgba(205,148,50,0.050) 30px),
+        repeating-linear-gradient(-52deg,  transparent 0, transparent 58px, rgba(138,68,230,0.040) 58px,  rgba(138,68,230,0.040) 59px),
+        repeating-linear-gradient( 52deg,  transparent 0, transparent 58px, rgba(48,188,220,0.035) 58px,  rgba(48,188,220,0.035) 59px),
+        repeating-linear-gradient(0deg,    transparent 0, transparent 89px, rgba(80,118,255,0.035) 89px,  rgba(80,118,255,0.035) 90px),
+        repeating-linear-gradient(90deg,   transparent 0, transparent 89px, rgba(205,148,50,0.028) 89px,  rgba(205,148,50,0.028) 90px);
+      background-attachment: fixed;
+      font-family: 'Space Grotesk', sans-serif !important;
     }
-</style>
+  </style>
+
 </head>
 
 <body class="text-on-surface antialiased min-h-screen pb-24">
