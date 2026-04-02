@@ -20,11 +20,15 @@
       return;
     }
 
-    // Fetch full profile
-    const { data: profile } = await window._sb.from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
+    // Fetch full profile (gracefully handles missing table or row)
+    let profile = null;
+    try {
+      const { data } = await window._sb.from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      profile = data;
+    } catch (_) {}
 
     // Inject name + institution into standard UI slots
     _fillUserUI(session, profile);
@@ -40,16 +44,19 @@
 
   // ── Fill standard UI elements ──
   function _fillUserUI(session, profile) {
-    if (!profile) return;
-    const initials = _initials(profile.full_name || session.user.email);
-    const inst = profile.institution || '';
-    const year = profile.year || '';
+    // Fall back to auth metadata if profile row is missing
+    const meta = session.user.user_metadata || {};
+    const name = (profile && profile.full_name) || meta.full_name || session.user.email || '';
+    const inst = (profile && profile.institution) || meta.institution || '';
+    const year = (profile && profile.year) || meta.year || '';
+
+    const initials = _initials(name);
 
     // Avatar initials — any element with data-user-initials
     document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
 
     // Full name — data-user-name
-    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = profile.full_name || '');
+    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = name);
 
     // Institution + year — data-user-meta
     document.querySelectorAll('[data-user-meta]').forEach(el => {
