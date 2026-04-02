@@ -345,8 +345,7 @@
         email,
         password,
         options: {
-          data: { full_name: name, institution, year, domain: selectedDomain, folio_slug: slug },
-          emailRedirectTo: window.location.origin + '/page-1.html'
+          data: { full_name: name, institution, year, domain: selectedDomain, folio_slug: slug }
         }
       });
 
@@ -358,16 +357,23 @@
       }
 
       // If signup succeeded and we have a user, join selected nodes
-      if (data.user && selectedNodes.length > 0) {
-        // Fetch node IDs for selected names
+      const userId = data.user?.id;
+      if (userId && selectedNodes.length > 0) {
         const { data: nodeRows } = await _sb.from('nodes').select('id, name').in('name', selectedNodes);
         if (nodeRows && nodeRows.length > 0) {
           await _sb.from('node_members').insert(
-            nodeRows.map(n => ({ user_id: data.user.id, node_id: n.id }))
+            nodeRows.map(n => ({ user_id: userId, node_id: n.id }))
           );
         }
       }
 
+      // If email confirmation is disabled in Supabase, session exists immediately — go straight in
+      if (data.session) {
+        window.location.href = 'page-1.html';
+        return;
+      }
+
+      // Fallback: show verify screen (only reached if email confirmation is still on)
       document.getElementById('verify-email-text').textContent =
         `We sent a verification link to ${email}. Click it to activate your Rainfont account.`;
       goToStep(4);
