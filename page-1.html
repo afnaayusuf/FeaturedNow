@@ -132,6 +132,7 @@
     .notif-overlay.open { pointer-events: auto; }
 
     /* Intent type tags */
+    .badge-hypothesis, .badge-milestone, .badge-directive, .badge-consensus, .badge-inquiry { display: inline-flex; align-items: center; gap: 3px; }
     .badge-hypothesis { background: #dbeafe; color: #1e40af; }
     .badge-milestone { background: #fef3c7; color: #92400e; }
     .badge-directive { background: #ede9fe; color: #4338ca; }
@@ -224,7 +225,7 @@
           <span class="material-symbols-outlined fill-icon text-white text-9xl">auto_awesome</span>
         </div>
         <div class="flex items-center gap-2 mb-4 flex-wrap">
-          <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">✦ Sealed</span>
+          <span class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"><span class="material-symbols-outlined fill-icon" style="font-size:11px;line-height:1">verified</span>Sealed</span>
           <span class="text-[12px] font-semibold" style="color:#C9922A">✦ by Dr. Aris Thorne</span>
           <span class="text-on-primary-container/60 text-xs font-medium ml-auto">2h ago</span>
         </div>
@@ -259,13 +260,13 @@
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-1">
           <div class="flex justify-between items-start mb-3">
             <div class="flex gap-2 flex-wrap">
-              <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient
+              <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Gradient
               </span>
-              <span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">
-                ✦ Sealed
+              <span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">
+                <span class="material-symbols-outlined fill-icon" style="font-size:11px;line-height:1">verified</span>Sealed
               </span>
-              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
+              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">lightbulb</span>Hypothesis</span>
             </div>
             <button id="bk-1" onclick="toggleBookmark(1)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -317,10 +318,10 @@
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-2">
           <div class="flex justify-between items-start mb-3">
             <div class="flex gap-2 flex-wrap">
-              <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer
+              <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Softer
               </span>
-              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
+              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">lightbulb</span>Hypothesis</span>
             </div>
             <button id="bk-2" onclick="toggleBookmark(2)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -367,10 +368,10 @@
         <article class="milestone-card bg-surface-container-lowest rounded-lg p-5 card-press" id="post-3">
           <div class="flex justify-between items-start mb-3">
             <div class="flex gap-2 flex-wrap">
-              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Bare Metal
               </span>
-              <span class="badge-milestone px-2 py-1 rounded text-[10px] font-black">[Milestone]</span>
+              <span class="badge-milestone px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">flag</span>Milestone</span>
             </div>
             <button id="bk-3" onclick="toggleBookmark(3)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -414,10 +415,10 @@
         <article class="consensus-card rounded-lg p-5 shadow-md card-press" id="post-4">
           <div class="flex justify-between items-start mb-3">
             <div class="flex gap-2 flex-wrap">
-              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Bare Metal
               </span>
-              <span class="badge-consensus px-2 py-1 rounded text-[10px] font-black">[Consensus]</span>
+              <span class="badge-consensus px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">groups</span>Consensus</span>
             </div>
             <button id="bk-4" onclick="toggleBookmark(4)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -475,10 +476,10 @@
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-5">
           <div class="flex justify-between items-start mb-3">
             <div class="flex gap-2 flex-wrap">
-              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Bare Metal
               </span>
-              <span class="badge-inquiry px-2 py-1 rounded text-[10px] font-black">[Inquiry]</span>
+              <span class="badge-inquiry px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">forum</span>Inquiry</span>
             </div>
             <span class="text-on-surface-variant text-[10px] mt-1">6h ago</span>
           </div>
@@ -532,8 +533,8 @@
       <div class="space-y-4">
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
           <div class="flex gap-2 mb-3">
-            <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>Gradient</span>
-            <span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>
+            <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Gradient</span>
+            <span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined fill-icon" style="font-size:11px;line-height:1">verified</span>Sealed</span>
           </div>
           <h3 class="text-base font-bold text-on-background mb-2">Semantic Entropy in Synthetic Dataset Generation</h3>
           <div class="flex items-center gap-2">
@@ -550,7 +551,7 @@
       <div class="space-y-4">
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
           <div class="flex gap-2 mb-3">
-            <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal</span>
+            <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Bare Metal</span>
           </div>
           <h3 class="text-base font-bold text-on-background mb-2">Quantum Advantage in Sub-linear Search Algorithms</h3>
           <div class="flex items-center gap-2">
@@ -567,7 +568,7 @@
       <div class="space-y-4">
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press">
           <div class="flex gap-2 mb-3">
-            <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer</span>
+            <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Softer</span>
           </div>
           <h3 class="text-base font-bold text-on-background mb-2">The Architecture of Silence: Minimalist Urbanism in Post-War Japan</h3>
           <div class="flex items-center gap-2">
@@ -1034,7 +1035,7 @@
       document.getElementById('post-sheet-body').textContent = body;
       document.getElementById('post-sheet-author-name').textContent = author + ' ✦';
       document.getElementById('post-sheet-author-inst').textContent = inst + ' · Guide';
-      document.getElementById('post-sheet-badges').innerHTML = `<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span><span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded">${node}</span>`;
+      document.getElementById('post-sheet-badges').innerHTML = `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined fill-icon" style="font-size:11px;line-height:1">verified</span>Sealed</span><span class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>${node}</span>`;
       document.getElementById('post-sheet-scores').innerHTML = `<span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${clarity}</span><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth ${depth}</span><span class="text-on-surface-variant text-[10px]">${reviews} reviews</span>`;
       document.getElementById('post-backdrop').classList.add('open');
       document.getElementById('post-sheet').classList.add('open');
@@ -1053,10 +1054,10 @@
           <article class="retracted-post bg-surface-container-lowest rounded-lg p-5 shadow-sm card-press relative" id="post-retracted">
             <div class="flex items-center justify-between mb-3">
               <div class="flex gap-2 flex-wrap">
-                <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
-                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer
+                <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                  <span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>Softer
                 </span>
-                <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
+                <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black"><span class="material-symbols-outlined" style="font-size:11px">lightbulb</span>Hypothesis</span>
               </div>
               <span class="bg-error text-white text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-widest">RETRACTED</span>
             </div>
@@ -1280,22 +1281,21 @@
       const ago = _ago(p.created_at);
       const isOwn = p.author_id === _user.id;
 
-      const intentColors = {
-        hypothesis: { bg:'#dbeafe', color:'#1e40af' },
-        milestone:  { bg:'#fef3c7', color:'#92400e' },
-        directive:  { bg:'#ede9fe', color:'#4338ca' },
-        consensus:  { bg:'#d0e9d4', color:'#374c3d' },
-        inquiry:    { bg:'#ffedd5', color:'#9a3412' },
+      const intentMeta = {
+        hypothesis: { bg:'#dbeafe', color:'#1e40af', icon:'lightbulb' },
+        milestone:  { bg:'#fef3c7', color:'#92400e', icon:'flag' },
+        directive:  { bg:'#ede9fe', color:'#4338ca', icon:'gavel' },
+        consensus:  { bg:'#d0e9d4', color:'#374c3d', icon:'groups' },
+        inquiry:    { bg:'#ffedd5', color:'#9a3412', icon:'forum' },
       };
-      const ic = intentColors[p.intent] || intentColors.hypothesis;
-      const intentBadge = `<span class="px-2 py-1 rounded text-[10px] font-black" style="background:${ic.bg};color:${ic.color}">[${_cap(p.intent)}]</span>`;
+      const ic = intentMeta[p.intent] || intentMeta.hypothesis;
+      const intentBadge = `<span class="inline-flex items-center gap-0.5 px-2 py-1 rounded text-[10px] font-black" style="background:${ic.bg};color:${ic.color}"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">${ic.icon}</span>${_cap(p.intent)}</span>`;
 
-      const nodeDot = node.color ? `<span class="inline-block w-1.5 h-1.5 rounded-full mr-1" style="background:${node.color}"></span>` : '';
-      const nodeBadge = `<span class="flex items-center px-2 py-1 rounded text-[10px] font-bold" style="background:${node.color}18;color:${node.color}">${nodeDot}${node.name || ''}</span>`;
+      const nodeBadge = `<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold" style="background:${node.color}18;color:${node.color}"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">hub</span>${node.name || ''}</span>`;
 
-      const sealBadge = p.guide_sealed ? `<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>` : '';
+      const sealBadge = p.guide_sealed ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined fill-icon" style="font-size:11px;line-height:1">verified</span>Sealed</span>` : '';
       const vaultBadge = p.vault_filename ? `<span class="vault-badge"><span class="material-symbols-outlined text-xs">lock</span>Vault artifact</span>` : '';
-      const parallelBadge = p.is_parallel ? `<span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">↔ Parallel</span>` : '';
+      const parallelBadge = p.is_parallel ? `<span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold"><span class="material-symbols-outlined" style="font-size:11px;line-height:1">device_hub</span>Parallel</span>` : '';
 
       const scorePills = clarity ? `
         <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${clarity}</span>

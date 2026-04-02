@@ -94,7 +94,7 @@
     .intent-btn { width: 100%; text-align: left; border: 1.5px solid #e1e3e4; border-radius: 0.75rem; padding: 12px 14px; cursor: pointer; transition: all 150ms; background: white; font-family: inherit; display: flex; align-items: flex-start; gap: 12px; }
     .intent-btn:hover { border-color: #87a4cc; background: #f8f9fa; }
     .intent-btn.selected { border-color: #002444; background: #e8f0fb; }
-    .intent-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; flex-shrink: 0; margin-top: 3px; }
+    .intent-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; flex-shrink: 0; margin-top: 3px; }
     .badge-hypothesis { background: #dbeafe; color: #1e40af; }
     .badge-milestone { background: #fef3c7; color: #92400e; }
     .badge-directive { background: #ede9fe; color: #4338ca; }
@@ -156,35 +156,35 @@
       <p class="text-[11px] text-on-surface-variant mb-3">Choose what kind of post this is. Your choice sets the evidence and sign-off requirements.</p>
       <div class="space-y-2" id="intent-grid">
         <button class="intent-btn" id="intent-hypothesis" onclick="selectIntent('hypothesis')">
-          <span class="intent-badge badge-hypothesis">[Hypothesis]</span>
+          <span class="intent-badge badge-hypothesis"><span class="material-symbols-outlined" style="font-size:12px;line-height:1">lightbulb</span>Hypothesis</span>
           <div>
             <p class="text-sm font-bold text-on-surface">Hypothesis</p>
             <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">An idea or concept being tested. Vault optional. No sign-offs required.</p>
           </div>
         </button>
         <button class="intent-btn" id="intent-milestone" onclick="selectIntent('milestone')">
-          <span class="intent-badge badge-milestone">[Milestone]</span>
+          <span class="intent-badge badge-milestone"><span class="material-symbols-outlined" style="font-size:12px;line-height:1">flag</span>Milestone</span>
           <div>
             <p class="text-sm font-bold text-on-surface">Milestone</p>
             <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A real, completed achievement. Vault artifact required. 1 peer sign-off required.</p>
           </div>
         </button>
         <button class="intent-btn" id="intent-directive" onclick="selectIntent('directive')">
-          <span class="intent-badge badge-directive">[Directive]</span>
+          <span class="intent-badge badge-directive"><span class="material-symbols-outlined" style="font-size:12px;line-height:1">gavel</span>Directive</span>
           <div>
             <p class="text-sm font-bold text-on-surface">Directive <span class="text-[10px] text-on-surface-variant font-normal">(Guides &amp; institution accounts only)</span></p>
             <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">Issue guidance to your Node. Vault optional but visible if absent. 2 sign-offs required.</p>
           </div>
         </button>
         <button class="intent-btn" id="intent-consensus" onclick="selectIntent('consensus')">
-          <span class="intent-badge badge-consensus">[Consensus]</span>
+          <span class="intent-badge badge-consensus"><span class="material-symbols-outlined" style="font-size:12px;line-height:1">groups</span>Consensus</span>
           <div>
             <p class="text-sm font-bold text-on-surface">Consensus</p>
             <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A group finding. Vault required + 3 named domain-verified signatories. All permanently attributed.</p>
           </div>
         </button>
         <button class="intent-btn" id="intent-inquiry" onclick="selectIntent('inquiry')">
-          <span class="intent-badge badge-inquiry">[Inquiry]</span>
+          <span class="intent-badge badge-inquiry"><span class="material-symbols-outlined" style="font-size:12px;line-height:1">forum</span>Inquiry</span>
           <div>
             <p class="text-sm font-bold text-on-surface">Inquiry</p>
             <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A public question to your Node. Structured responses (Support / Challenge / Extend). No Vault required.</p>
