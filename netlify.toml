@@ -1,6 +1,6 @@
 [build]
-  publish = "dist"
-  command = "mkdir dist && cp *.html dist/ && cp -r static dist/ 2>/dev/null || true"
+  publish = "."
+  command = ""
 
 [[redirects]]
   from = "/"
