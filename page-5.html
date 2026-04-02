@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>RAINFONT — Publish to Ledger</title>
+  <title>Rainfont. — Publish to Ledger</title>
   <meta name="description" content="Publish a new post to the Rainfont Ledger. Your work, attributed, permanent." />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_auth.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -15,14 +17,15 @@
           colors: {
             "on-primary-fixed": "#001c37","surface-container-lowest": "#ffffff","on-surface-variant": "#43474e","surface-variant": "#e1e3e4","on-primary": "#ffffff","on-primary-container": "#87a4cc","background": "#f8f9fa","secondary": "#4e6354","surface-container-highest": "#e1e3e4","on-tertiary-fixed-variant": "#7c2e10","secondary-fixed-dim": "#b5ccb9","tertiary-fixed": "#ffdbcf","primary-fixed-dim": "#abc9f2","on-secondary-container": "#546a59","on-error": "#ffffff","surface-container-high": "#e7e8e9","on-background": "#191c1d","primary": "#002444","on-secondary-fixed-variant": "#374c3d","tertiary-container": "#692003","surface-tint": "#436084","outline-variant": "#c3c6cf","on-error-container": "#93000a","surface": "#f8f9fa","tertiary": "#461100","primary-fixed": "#d2e4ff","on-tertiary-container": "#ef8661","outline": "#73777f","surface-bright": "#f8f9fa","surface-dim": "#d9dadb","error-container": "#ffdad6","secondary-container": "#d0e9d4","inverse-primary": "#abc9f2","surface-container": "#edeeef","inverse-on-surface": "#f0f1f2","on-secondary": "#ffffff","tertiary-fixed-dim": "#ffb59c","error": "#ba1a1a","primary-container": "#1a3a5c","on-tertiary": "#ffffff","surface-container-low": "#f3f4f5","on-secondary-fixed": "#0b1f13","on-primary-fixed-variant": "#2a486b","on-surface": "#191c1d","on-tertiary-fixed": "#390c00","inverse-surface": "#2e3132","secondary-fixed": "#d0e9d4","gold": "#C9922A"
           },
-          fontFamily: { "headline": ["Space Grotesk"], "body": ["Space Grotesk"], "label": ["Space Grotesk"] },
+          fontFamily: { "headline": ["DM Sans"], "body": ["DM Sans"], "label": ["DM Sans"] },
           borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
         },
       },
     }
   </script>
   <style>
-    body { font-family: 'Space Grotesk', sans-serif; min-height: 100dvh; background: #f8f9fa; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100dvh; background: #f8f9fa; }
+    h1, h2, h3 { font-family: 'DM Sans', sans-serif; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
     .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
@@ -86,96 +89,31 @@
     .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 1.5rem 1.5rem 0 0; z-index: 101; transform: translateY(100%); transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1); max-height: 80vh; overflow-y: auto; }
     .bottom-sheet.open { transform: translateY(0); }
     .sheet-handle { width: 36px; height: 4px; background: #c3c6cf; border-radius: 9999px; margin: 12px auto 0; }
+
+    /* Intent declaration */
+    .intent-btn { width: 100%; text-align: left; border: 1.5px solid #e1e3e4; border-radius: 0.75rem; padding: 12px 14px; cursor: pointer; transition: all 150ms; background: white; font-family: inherit; display: flex; align-items: flex-start; gap: 12px; }
+    .intent-btn:hover { border-color: #87a4cc; background: #f8f9fa; }
+    .intent-btn.selected { border-color: #002444; background: #e8f0fb; }
+    .intent-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; flex-shrink: 0; margin-top: 3px; }
+    .badge-hypothesis { background: #dbeafe; color: #1e40af; }
+    .badge-milestone { background: #fef3c7; color: #92400e; }
+    .badge-directive { background: #ede9fe; color: #4338ca; }
+    .badge-consensus { background: #d0e9d4; color: #374c3d; }
+    .badge-inquiry { background: #ffedd5; color: #9a3412; }
+    /* Vault requirement banners */
+    .vault-req-banner { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: #d2e4ff; border-radius: 0.5rem; border: 1px solid #87a4cc; margin-bottom: 12px; }
+    .vault-req-banner.show { display: flex; }
+    .vault-absent-banner { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: white; border-radius: 0.5rem; border: 1.5px dashed #c3c6cf; margin-bottom: 12px; }
+    .vault-absent-banner.show { display: flex; }
+    /* Sign-off slots */
+    .signoff-slot { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f3f4f5; border-radius: 0.75rem; border: 1.5px dashed #c3c6cf; }
+    .signoff-slot.filled { background: #d0e9d4; border-style: solid; border-color: #546a59; }
   </style>
 
   <style id="rainfont-theme">
-    /* Space Grotesk — local */
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
-
-    body { font-family: 'Space Grotesk', sans-serif !important; background: #ffffff !important; }
-
-    /* ── Bismuth hopper crystal: stepped coiling echo on elements ──
-       Each 1px offset shifts through the full iridescent oxide spectrum
-       (violet → blue → teal → gold → amber → back), reading as one
-       continuous stepped spiral — not separate outlines.           */
-
-    :root {
-      --bsm-1: rgba(108, 52, 228, 0.52);
-      --bsm-2: rgba(72, 108, 245, 0.44);
-      --bsm-3: rgba(32, 172, 230, 0.36);
-      --bsm-4: rgba(18, 210, 190, 0.29);
-      --bsm-5: rgba(72, 205, 112, 0.22);
-      --bsm-6: rgba(168, 200, 44, 0.17);
-      --bsm-7: rgba(218, 168, 38, 0.13);
-      --bsm-8: rgba(232, 118, 62, 0.09);
-      --bsm-9: rgba(200, 62, 148, 0.06);
-      --bsm-10: rgba(148, 38, 218, 0.03);
-    }
-
-    /* Cards */
-    .card-press {
-      border: 1.5px solid var(--bsm-1) !important;
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6),
-        6px 6px 0 var(--bsm-7),
-        7px 7px 0 var(--bsm-8),
-        8px 8px 0 var(--bsm-9),
-        9px 9px 0 var(--bsm-10) !important;
-      transition: transform 120ms ease, box-shadow 180ms ease !important;
-    }
-    .card-press:hover {
-      box-shadow:
-        1px 1px 0 rgba(108, 52, 228, 0.65),
-        2px 2px 0 rgba(72, 108, 245, 0.56),
-        3px 3px 0 rgba(32, 172, 230, 0.46),
-        4px 4px 0 rgba(18, 210, 190, 0.37),
-        5px 5px 0 rgba(72, 205, 112, 0.29),
-        6px 6px 0 rgba(168, 200, 44, 0.22),
-        7px 7px 0 rgba(218, 168, 38, 0.17),
-        8px 8px 0 rgba(232, 118, 62, 0.12),
-        9px 9px 0 rgba(200, 62, 148, 0.08),
-        10px 10px 0 rgba(148, 38, 218, 0.05) !important;
-    }
-
-    /* Tab pills */
-    .tab-pill {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6) !important;
-    }
-
-    /* Labels / badges / rule-tags */
-    .rule-tag, [class*="rounded-full"][class*="text-"][class*="bg-"],
-    span[class*="rounded"][class*="text-"][class*="bg-"],
-    .outcome-winner, .outcome-finalist, .outcome-participant {
-      box-shadow:
-        1px 1px 0 var(--bsm-1),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-5),
-        4px 4px 0 var(--bsm-7) !important;
-    }
-
-    /* Primary action buttons */
-    button[class*="bg-primary"]:not([class*="hover"]),
-    a[class*="bg-primary"] {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-7) !important;
-    }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+    body { font-family: 'DM Sans', sans-serif !important; }
   </style>
 
 </head>
@@ -211,6 +149,49 @@
   </div>
 
   <main class="pt-32 pb-32 px-5 max-w-2xl mx-auto space-y-6">
+
+    <!-- INTENT DECLARATION -->
+    <div>
+      <label class="text-sm font-bold text-on-surface block mb-1">Intent Declaration</label>
+      <p class="text-[11px] text-on-surface-variant mb-3">Choose what kind of post this is. Your choice sets the evidence and sign-off requirements.</p>
+      <div class="space-y-2" id="intent-grid">
+        <button class="intent-btn" id="intent-hypothesis" onclick="selectIntent('hypothesis')">
+          <span class="intent-badge badge-hypothesis">[Hypothesis]</span>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Hypothesis</p>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">An idea or concept being tested. Vault optional. No sign-offs required.</p>
+          </div>
+        </button>
+        <button class="intent-btn" id="intent-milestone" onclick="selectIntent('milestone')">
+          <span class="intent-badge badge-milestone">[Milestone]</span>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Milestone</p>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A real, completed achievement. Vault artifact required. 1 peer sign-off required.</p>
+          </div>
+        </button>
+        <button class="intent-btn" id="intent-directive" onclick="selectIntent('directive')">
+          <span class="intent-badge badge-directive">[Directive]</span>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Directive <span class="text-[10px] text-on-surface-variant font-normal">(Guides &amp; institution accounts only)</span></p>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">Issue guidance to your Node. Vault optional but visible if absent. 2 sign-offs required.</p>
+          </div>
+        </button>
+        <button class="intent-btn" id="intent-consensus" onclick="selectIntent('consensus')">
+          <span class="intent-badge badge-consensus">[Consensus]</span>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Consensus</p>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A group finding. Vault required + 3 named domain-verified signatories. All permanently attributed.</p>
+          </div>
+        </button>
+        <button class="intent-btn" id="intent-inquiry" onclick="selectIntent('inquiry')">
+          <span class="intent-badge badge-inquiry">[Inquiry]</span>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Inquiry</p>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mt-0.5">A public question to your Node. Structured responses (Support / Challenge / Extend). No Vault required.</p>
+          </div>
+        </button>
+      </div>
+    </div>
 
     <!-- TITLE FIELD -->
     <div>
@@ -290,7 +271,16 @@
 
     <!-- ATTACHMENT -->
     <div>
-      <label class="text-sm font-bold text-on-surface block mb-2">Attachment <span class="text-on-surface-variant font-normal">(optional)</span></label>
+      <label class="text-sm font-bold text-on-surface block mb-2">Vault Artifact <span id="vault-label-suffix" class="text-on-surface-variant font-normal">(optional)</span></label>
+      <!-- Vault requirement banners -->
+      <div id="vault-req-banner" class="vault-req-banner">
+        <span class="material-symbols-outlined text-primary text-base">lock</span>
+        <p class="text-xs font-bold text-primary flex-1">Required for this post type. Attach the Vault artifact before publishing.</p>
+      </div>
+      <div id="vault-absent-banner" class="vault-absent-banner">
+        <span class="material-symbols-outlined text-on-surface-variant text-base">lock_open</span>
+        <p class="text-xs font-semibold text-on-surface-variant flex-1">No Vault artifact attached. This absence is visible to readers — a Directive with documentation is structurally stronger than one without.</p>
+      </div>
       <div id="attach-area" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors" onclick="document.getElementById('attach-input').click()">
         <span class="material-symbols-outlined text-3xl text-outline mb-2">attach_file</span>
         <p class="font-bold text-on-surface-variant text-sm">Tap to attach</p>
@@ -314,6 +304,19 @@
       </div>
       <button id="parallel-toggle" class="toggle-track shrink-0 mt-1" onclick="toggleParallel()">
         <div class="toggle-thumb"></div>
+      </button>
+    </div>
+
+    <!-- SIGN-OFFS (shown based on intent type) -->
+    <div id="signoffs-section" class="hidden">
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-sm font-bold text-on-surface">Peer Sign-offs</label>
+        <span id="signoff-count-label" class="text-[11px] font-bold text-on-surface-variant">0 collected</span>
+      </div>
+      <p class="text-[11px] text-on-surface-variant mb-3" id="signoff-description">Signatories must be domain-verified. Their names and institutions appear permanently on this post.</p>
+      <div class="space-y-2" id="signoff-slots"></div>
+      <button onclick="requestSignoff()" class="mt-3 w-full py-3 border-2 border-primary/30 text-primary text-xs font-bold rounded-xl hover:bg-primary/5 transition-colors active:scale-95 flex items-center justify-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">person_add</span>Request sign-off from a peer
       </button>
     </div>
 
@@ -361,49 +364,91 @@
   <div style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#002444;color:#fff;padding:10px 20px;border-radius:9999px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:all 250ms ease;pointer-events:none;white-space:nowrap" id="toast"></div>
 
   <script>
-    const domainNodes = {
-      cs: [
-        { name: 'Gradient', mine: true }, { name: 'Dark Current', mine: true }, { name: 'Stack Trace', mine: false }, { name: 'Neural Fold', mine: false }
-      ],
-      ee: [
-        { name: 'Bare Metal', mine: true }, { name: 'Signal Chain', mine: false }, { name: 'Voltage', mine: false }
-      ],
-      bio: [
-        { name: 'Bio-Sys', mine: true }, { name: 'Cell Atlas', mine: false }, { name: 'Genome Lab', mine: false }
-      ],
-      hum: [
-        { name: 'Softer', mine: true }, { name: 'Margin Notes', mine: false }, { name: 'Lingua', mine: false }
-      ],
-      mech: [
-        { name: 'Torque', mine: false }, { name: 'Kinematics', mine: false }
-      ],
-      math: [
-        { name: 'Null Space', mine: false }, { name: 'Proof', mine: false }
-      ],
-      phys: [
-        { name: 'Bare Metal', mine: true }, { name: 'Photon', mine: false }
-      ],
-      env: [
-        { name: 'Terra', mine: false }, { name: 'Climate Lab', mine: false }
-      ]
-    };
+    // All nodes loaded from DB, keyed by domain
+    let allNodes = {};   // { cs: [{id, name, mine}, ...], ... }
+    let myNodeIds = new Set();
 
     const aiDetections = {
-      cs: { domain: 'Computer Science — Machine Learning', conf: 84, type: 'confident' },
-      ee: { domain: 'Electronics — Embedded Systems', conf: 78, type: 'confident' },
-      bio: { domain: 'Biological Sciences — Genomics', conf: 71, type: 'confident' },
-      hum: { domain: 'Humanities — Literary Studies', conf: 55, type: 'uncertain' },
-      mech: { domain: 'Mechanical Engineering — Robotics', conf: 66, type: 'uncertain' },
-      math: { domain: 'Mathematics — Pure Math', conf: 90, type: 'confident' },
-      phys: { domain: 'Physics — Quantum Mechanics', conf: 82, type: 'confident' },
-      env: { domain: 'Environmental Science', conf: 58, type: 'uncertain' }
+      cs:   { domain: 'Computer Science — Machine Learning', conf: 84, type: 'confident' },
+      ee:   { domain: 'Electronics — Embedded Systems',      conf: 78, type: 'confident' },
+      bio:  { domain: 'Biological Sciences — Genomics',      conf: 71, type: 'confident' },
+      hum:  { domain: 'Humanities — Literary Studies',       conf: 55, type: 'uncertain' },
+      mech: { domain: 'Mechanical Engineering — Robotics',   conf: 66, type: 'uncertain' },
+      math: { domain: 'Mathematics — Pure Math',             conf: 90, type: 'confident' },
+      phys: { domain: 'Physics — Quantum Mechanics',         conf: 82, type: 'confident' },
+      env:  { domain: 'Environmental Science',               conf: 58, type: 'uncertain' }
     };
 
     let selectedNode = '';
+    let selectedNodeId = null;
     let parallelOn = false;
     let aiTimer = null;
     let formattingActive = {};
-    let attachedFile = false;
+    let attachedFile = null;
+    let selectedIntent = '';
+    let vaultAttached = false;
+    let _user = null;
+    let _newPostId = null;
+
+    const intentSignoffs = { hypothesis: 0, milestone: 1, directive: 2, consensus: 3, inquiry: 0 };
+    const intentVaultRequired = { hypothesis: false, milestone: true, directive: false, consensus: true, inquiry: false };
+    const intentVaultWeakSignal = { hypothesis: false, milestone: false, directive: true, consensus: false, inquiry: false };
+
+    function selectIntent(type) {
+      selectedIntent = type;
+      document.querySelectorAll('.intent-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('intent-' + type).classList.add('selected');
+
+      const reqBanner = document.getElementById('vault-req-banner');
+      const absBanner = document.getElementById('vault-absent-banner');
+      const suffix = document.getElementById('vault-label-suffix');
+      reqBanner.classList.remove('show');
+      absBanner.classList.remove('show');
+      if (intentVaultRequired[type]) {
+        suffix.textContent = '(required)';
+        suffix.style.color = '#ba1a1a';
+        if (!vaultAttached) reqBanner.classList.add('show');
+      } else if (intentVaultWeakSignal[type]) {
+        suffix.textContent = '(optional — absence is visible)';
+        suffix.style.color = '#92400e';
+        if (!vaultAttached) absBanner.classList.add('show');
+      } else {
+        suffix.textContent = '(optional)';
+        suffix.style.color = '';
+      }
+
+      const signoffsSection = document.getElementById('signoffs-section');
+      const count = intentSignoffs[type];
+      if (count > 0) {
+        signoffsSection.classList.remove('hidden');
+        document.getElementById('signoff-count-label').textContent = '0 / ' + count + ' collected';
+        const descs = {
+          milestone: '1 peer sign-off required. The signatory\'s name, institution, and domain appear permanently on this post.',
+          directive: '2 sign-offs required from verified peers or co-authors.',
+          consensus: '3 named domain-verified signatories required. Full credentials appear on the published post.'
+        };
+        document.getElementById('signoff-description').textContent = descs[type] || '';
+        renderSignoffSlots(count);
+      } else {
+        signoffsSection.classList.add('hidden');
+      }
+      checkPublishReady();
+    }
+
+    function renderSignoffSlots(count) {
+      const container = document.getElementById('signoff-slots');
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'signoff-slot';
+        slot.innerHTML = `<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-surface-variant text-sm">person</span></div><div class="flex-1"><p class="text-xs font-bold text-on-surface-variant">Signatory ${i + 1} — pending</p><p class="text-[10px] text-on-surface-variant mt-0.5">Awaiting domain-verified peer</p></div>`;
+        container.appendChild(slot);
+      }
+    }
+
+    function requestSignoff() {
+      showToast('Sign-off request sent to your Node');
+    }
 
     function onTitleInput() {
       const val = document.getElementById('post-title').value;
@@ -419,21 +464,23 @@
       picker.classList.remove('hidden');
       const chipContainer = picker.querySelector('div');
       chipContainer.innerHTML = '';
-      (domainNodes[domain] || []).forEach(node => {
+      (allNodes[domain] || []).forEach(node => {
         const chip = document.createElement('button');
         chip.className = 'node-chip' + (node.mine ? ' mine' : '');
         chip.textContent = (node.mine ? '● ' : '') + node.name;
-        chip.onclick = () => selectNode(node.name, chip, chipContainer);
+        chip.onclick = () => selectNode(node.id, node.name, chip, chipContainer);
         chipContainer.appendChild(chip);
       });
       selectedNode = '';
+      selectedNodeId = null;
       checkPublishReady();
     }
 
-    function selectNode(name, chip, container) {
+    function selectNode(id, name, chip, container) {
       container.querySelectorAll('.node-chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       selectedNode = name;
+      selectedNodeId = id;
       checkPublishReady();
     }
 
@@ -476,17 +523,22 @@
       const domain = document.getElementById('domain-select').value;
       const abstract = document.getElementById('post-abstract').value.trim();
       const body = document.getElementById('post-body').value.length;
-      const ready = title.length > 5 && domain && selectedNode && abstract.length > 20 && body >= 200;
+      const vaultOk = !selectedIntent || !intentVaultRequired[selectedIntent] || vaultAttached;
+      const ready = selectedIntent && title.length > 5 && domain && selectedNode && abstract.length > 20 && body >= 200 && vaultOk;
       const btn = document.getElementById('publish-btn');
       btn.className = 'publish-btn ' + (ready ? 'active' : 'inactive');
       btn.disabled = !ready;
-      document.getElementById('cta-hint').textContent = ready
-        ? 'Looking good — ready to publish.'
-        : 'Fill in title, domain, node, abstract, and body to publish.';
+      let hint = 'Choose an intent type, then fill in title, domain, and body.';
+      if (selectedIntent && title.length > 5 && domain && selectedNode && abstract.length > 20 && body >= 200) {
+        if (!vaultOk) hint = 'Attach a Vault artifact — required for ' + selectedIntent + ' posts.';
+        else hint = 'Looking good — ready to publish.';
+      } else if (!selectedIntent) {
+        hint = 'Choose an intent type above to begin.';
+      }
+      document.getElementById('cta-hint').textContent = hint;
       document.getElementById('cta-hint').style.color = ready ? '#546a59' : '';
 
-      // Update step progress
-      const step1Done = title.length > 5 && domain && selectedNode;
+      const step1Done = selectedIntent && title.length > 5 && domain && selectedNode;
       const step2Done = step1Done && abstract.length > 20 && body >= 200;
       updateStepProgress(step1Done, step2Done, ready);
     }
@@ -536,17 +588,28 @@
 
     function handleAttach(input) {
       if (!input.files.length) return;
-      attachedFile = true;
+      attachedFile = input.files[0];
+      vaultAttached = true;
       document.getElementById('attach-name').textContent = input.files[0].name;
       document.getElementById('attach-area').classList.add('hidden');
       document.getElementById('attach-preview').classList.remove('hidden');
+      document.getElementById('vault-req-banner').classList.remove('show');
+      document.getElementById('vault-absent-banner').classList.remove('show');
+      checkPublishReady();
     }
 
     function removeAttach() {
-      attachedFile = false;
+      attachedFile = null;
+      vaultAttached = false;
       document.getElementById('attach-input').value = '';
       document.getElementById('attach-area').classList.remove('hidden');
       document.getElementById('attach-preview').classList.add('hidden');
+      if (selectedIntent && intentVaultRequired[selectedIntent]) {
+        document.getElementById('vault-req-banner').classList.add('show');
+      } else if (selectedIntent && intentVaultWeakSignal[selectedIntent]) {
+        document.getElementById('vault-absent-banner').classList.add('show');
+      }
+      checkPublishReady();
     }
 
     function toggleParallel() {
@@ -558,25 +621,81 @@
         : 'Students from other institutions can request to contribute to this work.';
     }
 
-    function publishPost() {
+    async function publishPost() {
       if (document.getElementById('publish-btn').classList.contains('inactive')) return;
       const btn = document.getElementById('publish-btn');
       btn.textContent = 'Classifying domain...';
       btn.className = 'publish-btn active opacity-70';
-      setTimeout(() => {
+      btn.disabled = true;
+
+      const domain = document.getElementById('domain-select').value;
+      const det = aiDetections[domain] || { conf: 80 };
+
+      try {
+        // 1. Upload vault file if attached
+        let vaultPath = null;
+        let vaultFilename = null;
+        if (attachedFile) {
+          const ext = attachedFile.name.split('.').pop();
+          vaultPath = `${_user.id}/${Date.now()}.${ext}`;
+          const { error: upErr } = await window._sb.storage.from('vault').upload(vaultPath, attachedFile, { upsert: false });
+          if (upErr) throw new Error('Vault upload failed: ' + upErr.message);
+          vaultFilename = attachedFile.name;
+        }
+
         btn.textContent = 'Publishing...';
-        const domain = document.getElementById('domain-select').value;
-        const det = aiDetections[domain] || { conf: 80 };
+
+        // 2. Insert post
+        const { data: post, error: postErr } = await window._sb.from('posts').insert({
+          author_id:     _user.id,
+          node_id:       selectedNodeId,
+          title:         document.getElementById('post-title').value.trim(),
+          abstract:      document.getElementById('post-abstract').value.trim(),
+          body:          document.getElementById('post-body').value.trim(),
+          intent:        selectedIntent,
+          is_parallel:   parallelOn,
+          vault_artifact: vaultPath,
+          vault_filename: vaultFilename,
+          ai_domain_conf: det.conf,
+          status:        'live'
+        }).select('id').single();
+
+        if (postErr) throw new Error(postErr.message);
+        _newPostId = post.id;
+
+        // 3. Insert vault_files record if file was uploaded
+        if (vaultPath) {
+          await window._sb.from('vault_files').insert({
+            uploader_id:  _user.id,
+            node_id:      selectedNodeId,
+            post_id:      post.id,
+            filename:     vaultFilename,
+            storage_path: vaultPath,
+            file_size:    attachedFile.size
+          });
+        }
+
+        // 4. Create pending signoff slots
+        const slotCount = { milestone: 1, directive: 2, consensus: 3 }[selectedIntent] || 0;
+        if (slotCount > 0) {
+          const slots = Array.from({ length: slotCount }, () => ({ post_id: post.id, status: 'pending' }));
+          await window._sb.from('signoffs').insert(slots);
+        }
+
         document.getElementById('success-node').textContent = `Node / ${selectedNode} · Domain verified ${det.conf}%`;
-        setTimeout(() => {
-          document.getElementById('success-screen').classList.add('show');
-        }, 1200);
-      }, 1800);
+        document.getElementById('success-screen').classList.add('show');
+
+      } catch (err) {
+        btn.textContent = 'Publish to Ledger →';
+        btn.className = 'publish-btn active';
+        btn.disabled = false;
+        showToast('Error: ' + err.message);
+      }
     }
 
     function viewPost() {
-      showToast('Your post is live on Ledger ✓');
-      setTimeout(() => window.location.href = 'page-1.html', 1500);
+      const url = _newPostId ? `page-1.html#post-${_newPostId}` : 'page-1.html';
+      window.location.href = url;
     }
 
     function openInfo() {
@@ -595,6 +714,36 @@
       t.style.transform = 'translateX(-50%) translateY(0)';
       setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2200);
     }
+
+    // ── Auth init ──
+    initAuth(async function(session, profile) {
+      _user = session.user;
+
+      // Load all nodes + which ones the user belongs to
+      const [{ data: nodes }, { data: memberships }] = await Promise.all([
+        window._sb.from('nodes').select('id, name, domain').order('name'),
+        window._sb.from('node_members').select('node_id').eq('user_id', _user.id)
+      ]);
+
+      myNodeIds = new Set((memberships || []).map(m => m.node_id));
+
+      // Group nodes by domain; mine bubble to top
+      allNodes = {};
+      (nodes || []).forEach(n => {
+        if (!allNodes[n.domain]) allNodes[n.domain] = [];
+        allNodes[n.domain].push({ id: n.id, name: n.name, mine: myNodeIds.has(n.id) });
+      });
+      // Sort: mine first within each domain
+      Object.values(allNodes).forEach(arr => arr.sort((a, b) => (b.mine - a.mine) || a.name.localeCompare(b.name)));
+    });
   </script>
+
+  
+
+  
+
+
+
+
 </body>
 </html>

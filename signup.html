@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rainfont. — Create account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+    * { font-family: 'DM Sans', sans-serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    body { background: #f8f9fa; min-height: 100dvh; display: flex; flex-direction: column; }
+
+    /* Field */
+    .field { width: 100%; background: #fff; border: 1.5px solid #c3c6cf; border-radius: 0.75rem; padding: 14px 16px; font-size: 15px; font-family: inherit; transition: border-color 200ms; outline: none; color: #191c1d; }
+    .field:focus { border-color: #002444; }
+    .field.error { border-color: #ba1a1a; }
+    select.field { height: 52px; cursor: pointer; }
+
+    /* Buttons */
+    .btn-primary { width: 100%; height: 52px; background: #002444; color: #fff; border: none; border-radius: 1.5rem; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 150ms; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost { width: 100%; height: 44px; background: transparent; color: #43474e; border: 1.5px solid #c3c6cf; border-radius: 1.5rem; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 150ms; }
+    .btn-ghost:hover { border-color: #002444; color: #002444; }
+
+    /* Step dots */
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #c3c6cf; transition: all 250ms; }
+    .step-dot.active { background: #002444; width: 20px; border-radius: 9999px; }
+    .step-dot.done { background: #002444; }
+
+    /* Node chip */
+    .node-chip { padding: 8px 16px; border-radius: 9999px; border: 1.5px solid #c3c6cf; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 150ms; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; background: white; }
+    .node-chip:hover { border-color: #87a4cc; }
+    .node-chip.selected { background: #002444; color: #fff; border-color: #002444; }
+
+    /* Step panels */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Slide transition */
+    @keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+    .step-panel.active { animation: slideIn 220ms ease; }
+
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 22px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: #ba1a1a; }
+
+    /* Verify banner */
+    .verify-banner { background: #d2e4ff; border-radius: 1.5rem; padding: 32px 24px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <header class="flex items-center justify-between px-6 py-4">
+    <a href="index.html" class="text-xl font-black text-[#002444] tracking-tight">Rainfont.</a>
+    <a href="login.html" class="text-sm font-semibold text-[#43474e] hover:text-[#002444] transition-colors">Sign in →</a>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center px-5 py-8">
+    <div class="w-full max-w-sm">
+
+      <!-- Step progress dots -->
+      <div class="flex items-center justify-center gap-2 mb-8" id="step-dots">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+        <div class="step-dot" id="dot-4"></div>
+      </div>
+
+      <!-- ── Step 1: Who you are ── -->
+      <div class="step-panel active" id="step-1">
+        <h1 class="text-3xl font-black text-[#002444] mb-2 leading-tight">Who are you?</h1>
+        <p class="text-[#43474e] text-sm mb-6 leading-relaxed">Rainfont is for real students. Every account is tied to an institution.</p>
+
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Full name</label>
+            <input id="s1-name" type="text" class="field" placeholder="Arjun Mehta" oninput="checkStep1()" />
+          </div>
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Institution</label>
+            <input id="s1-institution" type="text" class="field" placeholder="IIT Bombay" list="institutions-list" oninput="checkStep1()" />
+            <datalist id="institutions-list">
+              <option value="IIT Bombay"><option value="IIT Delhi"><option value="IIT Madras">
+              <option value="IIT Kanpur"><option value="IIT Kharagpur"><option value="IIT Roorkee">
+              <option value="NIT Calicut"><option value="NIT Trichy"><option value="NIT Warangal">
+              <option value="BITS Pilani"><option value="BITS Goa"><option value="BITS Hyderabad">
+              <option value="University of Delhi"><option value="Jadavpur University">
+              <option value="Anna University"><option value="VIT Vellore">
+              <option value="MIT (Massachusetts)"><option value="Stanford University">
+              <option value="IIT Bombay"><option value="Politehnica Bucharest">
+            </datalist>
+          </div>
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Year / Role</label>
+            <select id="s1-year" class="field" onchange="checkStep1()">
+              <option value="">Select...</option>
+              <option value="1st yr">1st year</option>
+              <option value="2nd yr">2nd year</option>
+              <option value="3rd yr">3rd year</option>
+              <option value="4th yr">4th year</option>
+              <option value="Masters">Masters</option>
+              <option value="PhD">PhD candidate</option>
+              <option value="PostDoc">Post-doc</option>
+              <option value="Guide">Guide (faculty / mentor)</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="s1-next" onclick="goToStep(2)" disabled class="btn-primary mt-6">Continue →</button>
+      </div>
+
+      <!-- ── Step 2: Your domain ── -->
+      <div class="step-panel" id="step-2">
+        <h1 class="text-3xl font-black text-[#002444] mb-2 leading-tight">Your domain.</h1>
+        <p class="text-[#43474e] text-sm mb-6 leading-relaxed">This determines which Nodes you'll see first. You can join more later.</p>
+
+        <div class="mb-5">
+          <label class="text-sm font-bold text-[#191c1d] block mb-3">Primary discipline</label>
+          <div class="grid grid-cols-2 gap-2" id="domain-grid">
+            <button onclick="selectDomain('cs')" data-domain="cs" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Computer Science</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">AI · Systems · Crypto</p>
+            </button>
+            <button onclick="selectDomain('ee')" data-domain="ee" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Electronics</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Embedded · Signal</p>
+            </button>
+            <button onclick="selectDomain('bio')" data-domain="bio" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Biological Sciences</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Genomics · Bio-Sys</p>
+            </button>
+            <button onclick="selectDomain('hum')" data-domain="hum" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Humanities</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Literature · Social</p>
+            </button>
+            <button onclick="selectDomain('mech')" data-domain="mech" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Mechanical</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Robotics · Thermal</p>
+            </button>
+            <button onclick="selectDomain('math')" data-domain="math" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Mathematics</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Pure · Statistics</p>
+            </button>
+            <button onclick="selectDomain('phys')" data-domain="phys" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Physics</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Quantum · Condensed</p>
+            </button>
+            <button onclick="selectDomain('env')" data-domain="env" class="domain-btn text-left p-3 rounded-xl border-2 border-[#c3c6cf] bg-white hover:border-[#87a4cc] transition-all">
+              <p class="font-bold text-[#002444] text-sm">Environmental</p>
+              <p class="text-[11px] text-[#43474e] mt-0.5">Climate · Ecology</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Node picker (shown after domain select) -->
+        <div id="node-picker" class="hidden mb-5">
+          <label class="text-sm font-bold text-[#191c1d] block mb-3">Join your first Nodes <span class="font-normal text-[#43474e]">(pick up to 3)</span></label>
+          <div class="flex flex-wrap gap-2" id="node-chips"></div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button onclick="goToStep(1)" class="btn-ghost w-auto px-6">← Back</button>
+          <button id="s2-next" onclick="goToStep(3)" disabled class="btn-primary flex-1">Continue →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Create account ── -->
+      <div class="step-panel" id="step-3">
+        <h1 class="text-3xl font-black text-[#002444] mb-2 leading-tight">Your account.</h1>
+        <p class="text-[#43474e] text-sm mb-6 leading-relaxed">Use your institution email. We'll verify it before your account is active.</p>
+
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Institution email</label>
+            <input id="s3-email" type="email" class="field" placeholder="you@iitb.ac.in" autocomplete="email" oninput="checkStep3()" />
+            <p id="s3-email-err" class="text-[11px] text-[#ba1a1a] mt-1 hidden"></p>
+          </div>
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Password</label>
+            <div class="relative">
+              <input id="s3-password" type="password" class="field pr-12" placeholder="Minimum 8 characters" oninput="checkStep3()" />
+              <button type="button" onclick="togglePassVis('s3-password','eye2')" class="absolute right-4 top-1/2 -translate-y-1/2 text-[#73777f]">
+                <span id="eye2" class="material-symbols-outlined text-xl">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-bold text-[#191c1d] block mb-2">Confirm password</label>
+            <input id="s3-confirm" type="password" class="field" placeholder="Repeat password" oninput="checkStep3()" />
+            <p id="s3-pass-err" class="text-[11px] text-[#ba1a1a] mt-1 hidden">Passwords don't match.</p>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-[#43474e] mt-4 leading-relaxed">By creating an account you agree that your posts, reviews, and Vault contributions are attributed to your real identity and are permanent.</p>
+
+        <div class="flex gap-3 mt-6">
+          <button onclick="goToStep(2)" class="btn-ghost w-auto px-6">← Back</button>
+          <button id="s3-submit" onclick="submitSignup()" disabled class="btn-primary flex-1">Create account →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Verify email ── -->
+      <div class="step-panel" id="step-4">
+        <div class="verify-banner mb-6">
+          <span class="material-symbols-outlined text-5xl text-[#002444] mb-3 block" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 48">mark_email_read</span>
+          <h2 class="text-2xl font-black text-[#002444] mb-2">Verify your email</h2>
+          <p class="text-[#374c3d] text-sm leading-relaxed" id="verify-email-text">We sent a verification link to your email. Click it to activate your account.</p>
+        </div>
+        <div class="space-y-3">
+          <p class="text-sm font-semibold text-[#002444] text-center">Once verified, sign in here:</p>
+          <a href="login.html" class="btn-primary flex items-center justify-center no-underline" style="text-decoration:none">Go to sign in →</a>
+        </div>
+        <p class="text-center text-[11px] text-[#73777f] mt-5 leading-relaxed">Didn't receive it? Check your spam folder, or <button onclick="resendVerification()" class="font-bold text-[#002444] underline bg-transparent border-none cursor-pointer text-[11px]">resend the link</button>.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const { createClient } = supabase;
+    const _sb = createClient('https://fialnacztirjsnbxwbmk.supabase.co', 'sb_publishable_HaboOwr9ZOFGcKpHK5cCjQ_By0uh4rF');
+
+    // Redirect if already logged in
+    (async () => {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) window.location.href = 'page-1.html';
+    })();
+
+    // State
+    let currentStep = 1;
+    let selectedDomain = '';
+    let selectedNodes = [];
+    let signupEmail = '';
+
+    const nodesByDomain = {
+      cs:   [{ name: 'Gradient', color: '#3b82f6' }, { name: 'Dark Current', color: '#f97316' }, { name: 'Neural Fold', color: '#8b5cf6' }],
+      ee:   [{ name: 'Bare Metal', color: '#22c55e' }, { name: 'Signal Chain', color: '#06b6d4' }],
+      bio:  [{ name: 'Bio-Sys', color: '#ef4444' }],
+      hum:  [{ name: 'Softer', color: '#a855f7' }],
+      math: [{ name: 'Null Space', color: '#64748b' }],
+      phys: [{ name: 'Bare Metal', color: '#22c55e' }],
+      mech: [{ name: 'Torque', color: '#f59e0b' }],
+      env:  [{ name: 'Terra', color: '#10b981' }],
+    };
+
+    // ── Step navigation ──
+    function goToStep(n) {
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = n;
+      document.getElementById(`step-${n}`).classList.add('active');
+      updateDots();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateDots() {
+      for (let i = 1; i <= 4; i++) {
+        const d = document.getElementById(`dot-${i}`);
+        d.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      }
+    }
+
+    // ── Step 1 validation ──
+    function checkStep1() {
+      const name = document.getElementById('s1-name').value.trim();
+      const inst = document.getElementById('s1-institution').value.trim();
+      const year = document.getElementById('s1-year').value;
+      document.getElementById('s1-next').disabled = !(name.length > 1 && inst.length > 2 && year);
+    }
+
+    // ── Step 2: Domain + Node selection ──
+    function selectDomain(domain) {
+      selectedDomain = domain;
+      selectedNodes = [];
+      document.querySelectorAll('.domain-btn').forEach(b => {
+        const isSelected = b.dataset.domain === domain;
+        b.className = `domain-btn text-left p-3 rounded-xl border-2 transition-all ${isSelected ? 'border-[#002444] bg-[#002444]' : 'border-[#c3c6cf] bg-white hover:border-[#87a4cc]'}`;
+        b.querySelector('p').style.color = isSelected ? '#fff' : '#002444';
+        b.querySelectorAll('p')[1].style.color = isSelected ? '#abc9f2' : '#43474e';
+      });
+
+      // Show node chips
+      const picker = document.getElementById('node-picker');
+      const chips = document.getElementById('node-chips');
+      chips.innerHTML = '';
+      (nodesByDomain[domain] || []).forEach(node => {
+        const chip = document.createElement('button');
+        chip.className = 'node-chip';
+        chip.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${node.color};flex-shrink:0"></span>${node.name}`;
+        chip.onclick = () => toggleNode(node.name, chip);
+        chips.appendChild(chip);
+      });
+      picker.classList.remove('hidden');
+      document.getElementById('s2-next').disabled = false;
+    }
+
+    function toggleNode(name, chip) {
+      if (selectedNodes.includes(name)) {
+        selectedNodes = selectedNodes.filter(n => n !== name);
+        chip.classList.remove('selected');
+      } else if (selectedNodes.length < 3) {
+        selectedNodes.push(name);
+        chip.classList.add('selected');
+      } else {
+        showToast('Pick up to 3 Nodes for now — you can join more later');
+      }
+    }
+
+    // ── Step 3 validation ──
+    function checkStep3() {
+      const email = document.getElementById('s3-email').value.trim();
+      const pass = document.getElementById('s3-password').value;
+      const confirm = document.getElementById('s3-confirm').value;
+      const errEl = document.getElementById('s3-pass-err');
+      const passMatch = pass === confirm || confirm === '';
+      errEl.classList.toggle('hidden', passMatch || confirm === '');
+      document.getElementById('s3-submit').disabled = !(
+        email.includes('@') && email.includes('.') && pass.length >= 8 && pass === confirm
+      );
+    }
+
+    // ── Final submission ──
+    async function submitSignup() {
+      const btn = document.getElementById('s3-submit');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      const name = document.getElementById('s1-name').value.trim();
+      const institution = document.getElementById('s1-institution').value.trim();
+      const year = document.getElementById('s1-year').value;
+      const email = document.getElementById('s3-email').value.trim();
+      const password = document.getElementById('s3-password').value;
+      signupEmail = email;
+
+      // Generate folio slug
+      const slug = name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 9000 + 1000);
+
+      const { data, error } = await _sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name, institution, year, domain: selectedDomain, folio_slug: slug },
+          emailRedirectTo: window.location.origin + '/page-1.html'
+        }
+      });
+
+      if (error) {
+        showToast(error.message, true);
+        btn.disabled = false;
+        btn.textContent = 'Create account →';
+        return;
+      }
+
+      // If signup succeeded and we have a user, join selected nodes
+      if (data.user && selectedNodes.length > 0) {
+        // Fetch node IDs for selected names
+        const { data: nodeRows } = await _sb.from('nodes').select('id, name').in('name', selectedNodes);
+        if (nodeRows && nodeRows.length > 0) {
+          await _sb.from('node_members').insert(
+            nodeRows.map(n => ({ user_id: data.user.id, node_id: n.id }))
+          );
+        }
+      }
+
+      document.getElementById('verify-email-text').textContent =
+        `We sent a verification link to ${email}. Click it to activate your Rainfont account.`;
+      goToStep(4);
+    }
+
+    async function resendVerification() {
+      if (!signupEmail) { showToast('Sign up first', true); return; }
+      const { error } = await _sb.auth.resend({ type: 'signup', email: signupEmail });
+      if (error) showToast(error.message, true);
+      else showToast('Verification email resent');
+    }
+
+    function togglePassVis(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') { input.type = 'text'; icon.textContent = 'visibility_off'; }
+      else { input.type = 'password'; icon.textContent = 'visibility'; }
+    }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.className = 'toast' + (isError ? ' error' : ''), 3000);
+    }
+  </script>
+</body>
+</html>

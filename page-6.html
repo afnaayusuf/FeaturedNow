@@ -4,11 +4,12 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>RAINFONT — Nodes</title>
+  <title>Rainfont. — Nodes</title>
   <meta name="description"
     content="Rainfont Nodes — discover and join discipline communities. Each Node has a founding Charter and is moderated by domain." />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_auth.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -18,7 +19,7 @@
           colors: {
             "on-primary-fixed": "#001c37", "surface-container-lowest": "#ffffff", "on-surface-variant": "#43474e", "surface-variant": "#e1e3e4", "on-primary": "#ffffff", "on-primary-container": "#87a4cc", "background": "#f8f9fa", "secondary": "#4e6354", "surface-container-highest": "#e1e3e4", "on-tertiary-fixed-variant": "#7c2e10", "secondary-fixed-dim": "#b5ccb9", "tertiary-fixed": "#ffdbcf", "primary-fixed-dim": "#abc9f2", "on-secondary-container": "#546a59", "on-error": "#ffffff", "surface-container-high": "#e7e8e9", "on-background": "#191c1d", "primary": "#002444", "on-secondary-fixed-variant": "#374c3d", "tertiary-container": "#692003", "surface-tint": "#436084", "outline-variant": "#c3c6cf", "on-error-container": "#93000a", "surface": "#f8f9fa", "tertiary": "#461100", "primary-fixed": "#d2e4ff", "on-tertiary-container": "#ef8661", "outline": "#73777f", "surface-bright": "#f8f9fa", "surface-dim": "#d9dadb", "error-container": "#ffdad6", "secondary-container": "#d0e9d4", "inverse-primary": "#abc9f2", "surface-container": "#edeeef", "inverse-on-surface": "#f0f1f2", "on-secondary": "#ffffff", "tertiary-fixed-dim": "#ffb59c", "error": "#ba1a1a", "primary-container": "#1a3a5c", "on-tertiary": "#ffffff", "surface-container-low": "#f3f4f5", "on-secondary-fixed": "#0b1f13", "on-primary-fixed-variant": "#2a486b", "on-surface": "#191c1d", "on-tertiary-fixed": "#390c00", "inverse-surface": "#2e3132", "secondary-fixed": "#d0e9d4", "gold": "#C9922A"
           },
-          fontFamily: { "headline": ["Space Grotesk"], "body": ["Space Grotesk"], "label": ["Space Grotesk"] },
+          fontFamily: { "headline": ["DM Sans"], "body": ["DM Sans"], "label": ["DM Sans"] },
           borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
         },
       },
@@ -26,7 +27,7 @@
   </script>
   <style>
     body {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       min-height: 100dvh;
     }
 
@@ -143,93 +144,10 @@
   </style>
 
   <style id="rainfont-theme">
-    /* Space Grotesk — local */
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
-
-    body { font-family: 'Space Grotesk', sans-serif !important; background: #ffffff !important; }
-
-    /* ── Bismuth hopper crystal: stepped coiling echo on elements ──
-       Each 1px offset shifts through the full iridescent oxide spectrum
-       (violet → blue → teal → gold → amber → back), reading as one
-       continuous stepped spiral — not separate outlines.           */
-
-    :root {
-      --bsm-1: rgba(108, 52, 228, 0.52);
-      --bsm-2: rgba(72, 108, 245, 0.44);
-      --bsm-3: rgba(32, 172, 230, 0.36);
-      --bsm-4: rgba(18, 210, 190, 0.29);
-      --bsm-5: rgba(72, 205, 112, 0.22);
-      --bsm-6: rgba(168, 200, 44, 0.17);
-      --bsm-7: rgba(218, 168, 38, 0.13);
-      --bsm-8: rgba(232, 118, 62, 0.09);
-      --bsm-9: rgba(200, 62, 148, 0.06);
-      --bsm-10: rgba(148, 38, 218, 0.03);
-    }
-
-    /* Cards */
-    .card-press {
-      border: 1.5px solid var(--bsm-1) !important;
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6),
-        6px 6px 0 var(--bsm-7),
-        7px 7px 0 var(--bsm-8),
-        8px 8px 0 var(--bsm-9),
-        9px 9px 0 var(--bsm-10) !important;
-      transition: transform 120ms ease, box-shadow 180ms ease !important;
-    }
-    .card-press:hover {
-      box-shadow:
-        1px 1px 0 rgba(108, 52, 228, 0.65),
-        2px 2px 0 rgba(72, 108, 245, 0.56),
-        3px 3px 0 rgba(32, 172, 230, 0.46),
-        4px 4px 0 rgba(18, 210, 190, 0.37),
-        5px 5px 0 rgba(72, 205, 112, 0.29),
-        6px 6px 0 rgba(168, 200, 44, 0.22),
-        7px 7px 0 rgba(218, 168, 38, 0.17),
-        8px 8px 0 rgba(232, 118, 62, 0.12),
-        9px 9px 0 rgba(200, 62, 148, 0.08),
-        10px 10px 0 rgba(148, 38, 218, 0.05) !important;
-    }
-
-    /* Tab pills */
-    .tab-pill {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6) !important;
-    }
-
-    /* Labels / badges / rule-tags */
-    .rule-tag, [class*="rounded-full"][class*="text-"][class*="bg-"],
-    span[class*="rounded"][class*="text-"][class*="bg-"],
-    .outcome-winner, .outcome-finalist, .outcome-participant {
-      box-shadow:
-        1px 1px 0 var(--bsm-1),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-5),
-        4px 4px 0 var(--bsm-7) !important;
-    }
-
-    /* Primary action buttons */
-    button[class*="bg-primary"]:not([class*="hover"]),
-    a[class*="bg-primary"] {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-7) !important;
-    }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+    body { font-family: 'DM Sans', sans-serif !important; }
+    h1, h2, h3 { font-family: 'DM Sans', sans-serif; }
   </style>
 
 </head>
@@ -243,7 +161,7 @@
         <a href="page-1.html" class="p-2 hover:bg-slate-100 rounded-full active:scale-95">
           <span class="material-symbols-outlined text-primary">arrow_back</span>
         </a>
-        <span class="text-lg font-black tracking-tighter text-primary">RAINFONT</span>
+        <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
       </div>
       <button onclick="toggleNotifPanel()" class="relative p-2 hover:bg-slate-100 rounded-full active:scale-95">
         <span class="material-symbols-outlined text-primary">notifications</span>
@@ -1004,7 +922,20 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2200);
     }
+
+    // ── Auth init ──
+    initAuth(function(session, profile) {
+      // Page is authenticated — user data already injected by _auth.js
+    });
   </script>
+
+  
+
+  
+
+
+
+
 </body>
 
 </html>

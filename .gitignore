@@ -3,3 +3,5 @@ cf.log
 meridian-app/node_modules/
 meridian-app/dist/
 *.log
+supabasepass.txt
+.claude/

@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>RAINFONT — Folio · Julian Thorne</title>
+  <title>Rainfont. — Folio · Julian Thorne</title>
   <meta name="description" content="Julian Thorne's academic Folio on Rainfont — published research, Vault contributions, and Convene history." />
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_auth.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -38,14 +40,15 @@
             "on-tertiary-fixed": "#390c00", "inverse-surface": "#2e3132",
             "secondary-fixed": "#d0e9d4", "gold": "#C9922A"
           },
-          fontFamily: { "headline": ["Space Grotesk"], "body": ["Space Grotesk"], "label": ["Space Grotesk"] },
+          fontFamily: { "headline": ["DM Sans"], "body": ["DM Sans"], "label": ["DM Sans"] },
           borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
         },
       },
     }
   </script>
   <style>
-    body { font-family: 'Space Grotesk', sans-serif; min-height: max(884px, 100dvh); }
+    body { font-family: 'DM Sans', sans-serif; min-height: max(884px, 100dvh); }
+    h1, h2, h3 { font-family: 'DM Sans', sans-serif; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
     .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     ::-webkit-scrollbar { display: none; }
@@ -88,93 +91,9 @@
   </style>
 
   <style id="rainfont-theme">
-    /* Space Grotesk — local */
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
-
-    body { font-family: 'Space Grotesk', sans-serif !important; background: #ffffff !important; }
-
-    /* ── Bismuth hopper crystal: stepped coiling echo on elements ──
-       Each 1px offset shifts through the full iridescent oxide spectrum
-       (violet → blue → teal → gold → amber → back), reading as one
-       continuous stepped spiral — not separate outlines.           */
-
-    :root {
-      --bsm-1: rgba(108, 52, 228, 0.52);
-      --bsm-2: rgba(72, 108, 245, 0.44);
-      --bsm-3: rgba(32, 172, 230, 0.36);
-      --bsm-4: rgba(18, 210, 190, 0.29);
-      --bsm-5: rgba(72, 205, 112, 0.22);
-      --bsm-6: rgba(168, 200, 44, 0.17);
-      --bsm-7: rgba(218, 168, 38, 0.13);
-      --bsm-8: rgba(232, 118, 62, 0.09);
-      --bsm-9: rgba(200, 62, 148, 0.06);
-      --bsm-10: rgba(148, 38, 218, 0.03);
-    }
-
-    /* Cards */
-    .card-press {
-      border: 1.5px solid var(--bsm-1) !important;
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6),
-        6px 6px 0 var(--bsm-7),
-        7px 7px 0 var(--bsm-8),
-        8px 8px 0 var(--bsm-9),
-        9px 9px 0 var(--bsm-10) !important;
-      transition: transform 120ms ease, box-shadow 180ms ease !important;
-    }
-    .card-press:hover {
-      box-shadow:
-        1px 1px 0 rgba(108, 52, 228, 0.65),
-        2px 2px 0 rgba(72, 108, 245, 0.56),
-        3px 3px 0 rgba(32, 172, 230, 0.46),
-        4px 4px 0 rgba(18, 210, 190, 0.37),
-        5px 5px 0 rgba(72, 205, 112, 0.29),
-        6px 6px 0 rgba(168, 200, 44, 0.22),
-        7px 7px 0 rgba(218, 168, 38, 0.17),
-        8px 8px 0 rgba(232, 118, 62, 0.12),
-        9px 9px 0 rgba(200, 62, 148, 0.08),
-        10px 10px 0 rgba(148, 38, 218, 0.05) !important;
-    }
-
-    /* Tab pills */
-    .tab-pill {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6) !important;
-    }
-
-    /* Labels / badges / rule-tags */
-    .rule-tag, [class*="rounded-full"][class*="text-"][class*="bg-"],
-    span[class*="rounded"][class*="text-"][class*="bg-"],
-    .outcome-winner, .outcome-finalist, .outcome-participant {
-      box-shadow:
-        1px 1px 0 var(--bsm-1),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-5),
-        4px 4px 0 var(--bsm-7) !important;
-    }
-
-    /* Primary action buttons */
-    button[class*="bg-primary"]:not([class*="hover"]),
-    a[class*="bg-primary"] {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-7) !important;
-    }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+    body { font-family: 'DM Sans', sans-serif !important; }
   </style>
 
 </head>
@@ -188,7 +107,7 @@
         <a href="page-1.html" class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
           <span class="material-symbols-outlined text-primary">arrow_back</span>
         </a>
-        <span class="text-lg font-black tracking-tighter text-primary">RAINFONT</span>
+        <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
       </div>
       <div class="flex items-center gap-2">
         <nav class="hidden md:flex gap-5 mr-4">
@@ -263,6 +182,54 @@
       <div class="bg-surface-container-low p-4 rounded-lg card-press">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nodes Active</p>
         <p class="text-2xl font-black text-primary">5</p>
+      </div>
+    </section>
+
+    <!-- Credibility Stack -->
+    <section class="mb-8">
+      <div class="flex items-center justify-between mb-4 px-1">
+        <h2 class="text-xs font-black text-primary tracking-widest uppercase">Credibility Stack</h2>
+        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">permanent · ungameable</span>
+      </div>
+      <!-- Post type breakdown -->
+      <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 mb-3">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">142 posts by intent</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#dbeafe;color:#1e40af">[Hypothesis]</span>
+            <span class="text-lg font-black text-primary">94</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#fef3c7;color:#92400e">[Milestone]</span>
+            <span class="text-lg font-black text-primary">28</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#d0e9d4;color:#374c3d">[Consensus]</span>
+            <span class="text-lg font-black text-primary">12</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#ffedd5;color:#9a3412">[Inquiry]</span>
+            <span class="text-lg font-black text-primary">8</span>
+          </div>
+        </div>
+      </div>
+      <!-- Evidence and sign-offs -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Vault-tethered</p>
+          <p class="text-2xl font-black text-primary">40</p>
+          <p class="text-[10px] text-on-surface-variant mt-0.5">of 142 posts</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Sign-offs given</p>
+          <p class="text-2xl font-black text-primary">23</p>
+          <p class="text-[10px] text-on-surface-variant mt-0.5">to peers</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Named signatory</p>
+          <p class="text-2xl font-black text-primary">8</p>
+          <p class="text-[10px] text-on-surface-variant mt-0.5">Consensus posts</p>
+        </div>
       </div>
     </section>
 
@@ -904,6 +871,19 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2200);
     }
+
+    // ── Auth init ──
+    initAuth(function(session, profile) {
+      // Page is authenticated — user data already injected by _auth.js
+    });
   </script>
+
+  
+
+  
+
+
+
+
 </body>
 </html>

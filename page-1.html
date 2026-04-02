@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>RAINFONT — Ledger</title>
+  <title>Rainfont. — Ledger</title>
   <meta name="description" content="Rainfont Ledger — your academic feed of peer-reviewed posts from your Nodes." />
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_auth.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -63,9 +65,9 @@
             "gold": "#C9922A"
           },
           fontFamily: {
-            "headline": ["Space Grotesk"],
-            "body": ["Space Grotesk"],
-            "label": ["Space Grotesk"]
+            "headline": ["DM Sans"],
+            "body": ["DM Sans"],
+            "label": ["DM Sans"]
           },
           borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px" },
         },
@@ -73,7 +75,8 @@
     }
   </script>
   <style>
-    body { font-family: 'Space Grotesk', sans-serif; min-height: max(884px, 100dvh); }
+    body { font-family: 'DM Sans', sans-serif; min-height: max(884px, 100dvh); }
+    h1, h2, h3 { font-family: 'DM Sans', sans-serif; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     ::-webkit-scrollbar { display: none; }
@@ -127,96 +130,29 @@
     .notif-panel.open { transform: translateX(0); }
     .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
     .notif-overlay.open { pointer-events: auto; }
+
+    /* Intent type tags */
+    .badge-hypothesis { background: #dbeafe; color: #1e40af; }
+    .badge-milestone { background: #fef3c7; color: #92400e; }
+    .badge-directive { background: #ede9fe; color: #4338ca; }
+    .badge-consensus { background: #d0e9d4; color: #374c3d; }
+    .badge-inquiry { background: #ffedd5; color: #9a3412; }
+    /* Vault indicators */
+    .vault-badge { display: inline-flex; align-items: center; gap: 3px; background: #d2e4ff; color: #002444; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; }
+    .vault-absent { display: inline-flex; align-items: center; gap: 3px; color: #73777f; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; border: 1px dashed #c3c6cf; background: white; }
+    /* Milestone card */
+    .milestone-card { border: 1.5px solid rgba(201,146,42,0.3) !important; box-shadow: 0 4px 20px rgba(201,146,42,0.10) !important; }
+    .milestone-card:hover { box-shadow: 0 8px 28px rgba(201,146,42,0.18) !important; }
+    /* Consensus card */
+    .consensus-card { border: 1.5px solid #002444 !important; background: #f8fafe !important; }
+    /* Retracted post */
+    .retracted-post { opacity: 0.85; border: 1px solid rgba(186,26,26,0.2) !important; }
   </style>
 
   <style id="rainfont-theme">
-    /* Space Grotesk — local */
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
-    @font-face { font-family: 'Space Grotesk'; src: url('/static/SpaceGrotesk-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
-
-    body { font-family: 'Space Grotesk', sans-serif !important; background: #ffffff !important; }
-
-    /* ── Bismuth hopper crystal: stepped coiling echo on elements ──
-       Each 1px offset shifts through the full iridescent oxide spectrum
-       (violet → blue → teal → gold → amber → back), reading as one
-       continuous stepped spiral — not separate outlines.           */
-
-    :root {
-      --bsm-1: rgba(108, 52, 228, 0.52);
-      --bsm-2: rgba(72, 108, 245, 0.44);
-      --bsm-3: rgba(32, 172, 230, 0.36);
-      --bsm-4: rgba(18, 210, 190, 0.29);
-      --bsm-5: rgba(72, 205, 112, 0.22);
-      --bsm-6: rgba(168, 200, 44, 0.17);
-      --bsm-7: rgba(218, 168, 38, 0.13);
-      --bsm-8: rgba(232, 118, 62, 0.09);
-      --bsm-9: rgba(200, 62, 148, 0.06);
-      --bsm-10: rgba(148, 38, 218, 0.03);
-    }
-
-    /* Cards */
-    .card-press {
-      border: 1.5px solid var(--bsm-1) !important;
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6),
-        6px 6px 0 var(--bsm-7),
-        7px 7px 0 var(--bsm-8),
-        8px 8px 0 var(--bsm-9),
-        9px 9px 0 var(--bsm-10) !important;
-      transition: transform 120ms ease, box-shadow 180ms ease !important;
-    }
-    .card-press:hover {
-      box-shadow:
-        1px 1px 0 rgba(108, 52, 228, 0.65),
-        2px 2px 0 rgba(72, 108, 245, 0.56),
-        3px 3px 0 rgba(32, 172, 230, 0.46),
-        4px 4px 0 rgba(18, 210, 190, 0.37),
-        5px 5px 0 rgba(72, 205, 112, 0.29),
-        6px 6px 0 rgba(168, 200, 44, 0.22),
-        7px 7px 0 rgba(218, 168, 38, 0.17),
-        8px 8px 0 rgba(232, 118, 62, 0.12),
-        9px 9px 0 rgba(200, 62, 148, 0.08),
-        10px 10px 0 rgba(148, 38, 218, 0.05) !important;
-    }
-
-    /* Tab pills */
-    .tab-pill {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-6) !important;
-    }
-
-    /* Labels / badges / rule-tags */
-    .rule-tag, [class*="rounded-full"][class*="text-"][class*="bg-"],
-    span[class*="rounded"][class*="text-"][class*="bg-"],
-    .outcome-winner, .outcome-finalist, .outcome-participant {
-      box-shadow:
-        1px 1px 0 var(--bsm-1),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-5),
-        4px 4px 0 var(--bsm-7) !important;
-    }
-
-    /* Primary action buttons */
-    button[class*="bg-primary"]:not([class*="hover"]),
-    a[class*="bg-primary"] {
-      box-shadow:
-        1px 1px 0 var(--bsm-2),
-        2px 2px 0 var(--bsm-3),
-        3px 3px 0 var(--bsm-4),
-        4px 4px 0 var(--bsm-5),
-        5px 5px 0 var(--bsm-7) !important;
-    }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+    body { font-family: 'DM Sans', sans-serif !important; }
   </style>
 
 </head>
@@ -227,7 +163,7 @@
   <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm flex items-center justify-between px-5 h-16">
     <div class="flex items-center gap-3">
       <button onclick="openSidebar()" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95 duration-200">menu</button>
-      <span class="text-lg font-black tracking-tighter text-primary">RAINFONT</span>
+      <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
     </div>
     <div class="flex items-center gap-1">
       <nav class="hidden md:flex gap-6 mr-4">
@@ -239,7 +175,7 @@
       <button onclick="toggleNotifPanel()" class="relative material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95 duration-200" id="notif-btn">notifications
         <span class="notif-dot" id="notif-dot"></span>
       </button>
-      <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white ml-1">JT</div>
+      <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white ml-1" data-user-initials>JT</div>
     </div>
   </header>
 
@@ -329,6 +265,7 @@
               <span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">
                 ✦ Sealed
               </span>
+              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
             </div>
             <button id="bk-1" onclick="toggleBookmark(1)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -345,13 +282,14 @@
             <span class="text-on-surface-variant text-[10px]">9 reviews</span>
           </div>
           <!-- Attachments -->
-          <div class="flex gap-2 mb-3 flex-wrap">
+          <div class="flex gap-2 mb-3 flex-wrap items-center">
             <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
               <span class="material-symbols-outlined text-sm">dataset</span><span>dataset_v2.json · 2.1 MB</span>
             </div>
             <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
               <span class="material-symbols-outlined text-sm">description</span><span>methodology.pdf</span>
             </div>
+            <span class="vault-badge"><span class="material-symbols-outlined text-xs">lock</span>Vault artifact</span>
           </div>
           <div class="flex items-center justify-between pt-3 border-t border-surface-container">
             <div class="flex items-center gap-2">
@@ -378,10 +316,11 @@
         <!-- Card 2 — Softer node (humanities) -->
         <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-2">
           <div class="flex justify-between items-start mb-3">
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
               <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer
               </span>
+              <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
             </div>
             <button id="bk-2" onclick="toggleBookmark(2)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -396,10 +335,11 @@
             <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 4.5</span>
             <span class="text-on-surface-variant text-[10px]">6 reviews</span>
           </div>
-          <div class="flex gap-2 mb-3">
+          <div class="flex gap-2 mb-3 items-center">
             <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container-low rounded text-xs font-medium text-on-surface">
               <span class="material-symbols-outlined text-sm">image</span><span>site_photos.zip · 14 MB</span>
             </div>
+            <span class="vault-absent"><span class="material-symbols-outlined text-xs">lock_open</span>No Vault artifact</span>
           </div>
           <div class="flex items-center justify-between pt-3 border-t border-surface-container">
             <div class="flex items-center gap-2">
@@ -423,16 +363,14 @@
           </div>
         </article>
 
-        <!-- Card 3 — Bare Metal node (replaces CRITICAL NODE / 142 CITATIONS) -->
-        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-3">
+        <!-- Card 3 — Milestone -->
+        <article class="milestone-card bg-surface-container-lowest rounded-lg p-5 card-press" id="post-3">
           <div class="flex justify-between items-start mb-3">
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
               <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
               </span>
-              <span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">
-                ↔ Parallel · 3 institutions
-              </span>
+              <span class="badge-milestone px-2 py-1 rounded text-[10px] font-black">[Milestone]</span>
             </div>
             <button id="bk-3" onclick="toggleBookmark(3)" class="text-outline hover:text-primary transition-colors p-1">
               <span class="material-symbols-outlined text-xl">bookmark</span>
@@ -442,10 +380,16 @@
           <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">
             Proof of concept for a novel quantum circuit that achieves a 14% speedup over traditional Grover's algorithm for unstructured database queries...
           </p>
-          <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
             <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity 4.8</span>
             <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth 5.0</span>
             <span class="text-on-surface-variant text-[10px]">22 reviews</span>
+            <span class="vault-badge ml-auto"><span class="material-symbols-outlined text-xs">lock</span>Vault artifact</span>
+          </div>
+          <!-- Signatory -->
+          <div class="bg-surface-container-low rounded-lg px-3 py-2 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm text-on-surface-variant shrink-0">verified_user</span>
+            <p class="text-[11px] text-on-surface-variant leading-snug"><span class="font-bold text-on-surface">Reviewed by Dr. Pasha Kovalenko</span> — CERN, Quantum Computing · <span style="color:#C9922A">✦</span> signed</p>
           </div>
           <div class="flex items-center justify-between pt-3 border-t border-surface-container">
             <div class="flex items-center gap-2">
@@ -453,7 +397,7 @@
                 <img alt="Elena Rossi" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfsoQr5cj_nkrNR13UhaO5S-Nj2zMF-PCoj7o6zBF8LD2M1ZCPeTij0V1SrSWl3-xBo_lPFaUuBfCeHODiv-4MGQsFNxi0Y7pt2uD3VaLO6qqYWGepeCpU1aIAfoPOEt1HjykI2J5cCQUpT89PS7lzyDz3XL08bLXAMAEUWJYrIo8nCanLmiQFO7kX4j5U3fV4KRD9sXqBsHRihwr26yE_sTzIMBjL7S1yAK98J_r5MB7C5_mCDnY7X5kQpbWqYQQnxeVCdB9mznOn" />
               </div>
               <div>
-                <p class="text-on-surface text-xs font-bold leading-tight">Elena Rossi <span style="color:#C9922A">✦</span></p>
+                <p class="text-on-surface text-xs font-extrabold leading-tight">Elena Rossi <span style="color:#C9922A">✦</span></p>
                 <p class="text-on-surface-variant text-[10px]">CERN Theoretical Group · PhD</p>
               </div>
             </div>
@@ -461,17 +405,113 @@
               <button id="review-btn-3" onclick="openReview('post-3','Elena Rossi','Bare Metal','Quantum Advantage in Sub-linear Search')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
                 <span class="material-symbols-outlined text-sm">rate_review</span> Review
               </button>
-              <button onclick="openParallel()" class="flex items-center gap-1 px-3 py-1.5 hover:bg-surface-container-low rounded text-xs font-bold text-primary transition-colors">
-                <span class="material-symbols-outlined text-sm">account_tree</span> Parallel
-              </button>
-              <span class="text-on-surface-variant text-[10px] ml-2">1d ago</span>
+              <span class="text-[10px] font-bold ml-2" style="color:#C9922A">Recorded · 1d ago</span>
             </div>
           </div>
         </article>
 
-        <!-- Load more -->
-        <div class="flex justify-center pt-2 pb-4" id="load-more-btn">
-          <button onclick="loadMore()" class="px-8 py-2.5 bg-surface-container text-primary text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors active:scale-95">Load more posts</button>
+        <!-- Card 4 — Consensus -->
+        <article class="consensus-card rounded-lg p-5 shadow-md card-press" id="post-4">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex gap-2 flex-wrap">
+              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              </span>
+              <span class="badge-consensus px-2 py-1 rounded text-[10px] font-black">[Consensus]</span>
+            </div>
+            <button id="bk-4" onclick="toggleBookmark(4)" class="text-outline hover:text-primary transition-colors p-1">
+              <span class="material-symbols-outlined text-xl">bookmark</span>
+            </button>
+          </div>
+          <div class="border-l-4 border-primary/40 pl-3 mb-3">
+            <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Group Consensus · Embedded Systems Node</p>
+            <h3 class="text-base font-bold text-on-background leading-snug line-clamp-2">Standardised Testing Protocol for Real-Time OS Latency in Safety-Critical Embedded Systems</h3>
+          </div>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">
+            Following six months of parallel benchmarking across three institutions, we declare a consensus on a minimum testing protocol for RTOS latency measurement in safety-critical applications...
+          </p>
+          <div class="flex gap-2 mb-3 items-center flex-wrap">
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-container rounded text-xs font-medium text-on-surface">
+              <span class="material-symbols-outlined text-sm">description</span><span>consensus_protocol_v3.pdf · 1.8 MB</span>
+            </div>
+            <span class="vault-badge"><span class="material-symbols-outlined text-xs">lock</span>Vault artifact</span>
+          </div>
+          <!-- Signatories panel -->
+          <div class="bg-surface-container rounded-lg p-3 mb-3">
+            <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Signatories · 3 domain-verified</p>
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-[8px] font-bold text-white shrink-0">AM</div>
+                <p class="text-[11px] font-bold text-primary">Arjun Mehta <span class="font-normal text-on-surface-variant">— IIT Bombay · Embedded Systems</span></p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-secondary flex items-center justify-center text-[8px] font-bold text-white shrink-0">PN</div>
+                <p class="text-[11px] font-bold text-primary">Priya Nair <span class="font-normal text-on-surface-variant">— NIT Calicut · Signal Processing</span></p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-tertiary flex items-center justify-center text-[8px] font-bold text-white shrink-0">MO</div>
+                <p class="text-[11px] font-bold text-primary">Mihail Oprea <span class="font-normal text-on-surface-variant">— Politehnica Bucharest · Control Systems</span></p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white shrink-0">AM</div>
+              <div>
+                <p class="text-on-surface text-xs font-bold leading-tight">Arjun Mehta <span style="color:#C9922A">✦</span></p>
+                <p class="text-on-surface-variant text-[10px]">IIT Bombay · PhD candidate</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="openReview('post-4','Arjun Mehta','Bare Metal','Standardised Testing Protocol for RTOS Latency')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
+                <span class="material-symbols-outlined text-sm">rate_review</span> Review
+              </button>
+              <span class="text-on-surface-variant text-[10px] ml-2">3d ago</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 5 — Inquiry -->
+        <article class="bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" id="post-5">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex gap-2 flex-wrap">
+              <span class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Bare Metal
+              </span>
+              <span class="badge-inquiry px-2 py-1 rounded text-[10px] font-black">[Inquiry]</span>
+            </div>
+            <span class="text-on-surface-variant text-[10px] mt-1">6h ago</span>
+          </div>
+          <h3 class="text-base font-bold text-on-background mb-2 leading-snug">Persistent memory leak in STM32 HAL UART DMA — 3 hours in, exhausted all docs</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-4 line-clamp-3">
+            Working on a LoRa mesh node. DMA UART transfer works for the first ~200 packets then crashes silently. I've checked cache coherency and disabled all interrupts in the callback. Anyone in the Embedded Systems Node with STM32 HAL DMA experience?
+          </p>
+          <!-- Structured response -->
+          <div class="bg-surface-container-low rounded-lg p-3 mb-3">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Respond to this Inquiry</p>
+            <div class="flex gap-2">
+              <button onclick="showToast('Support response filed')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-secondary-container/40 text-on-secondary-container transition-colors">Support</button>
+              <button onclick="showToast('Challenge filed')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container hover:text-primary text-on-surface-variant transition-colors">Challenge</button>
+              <button onclick="showToast('Extension filed')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container hover:text-primary text-on-surface-variant transition-colors">Extend</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-on-surface-variant">RK</div>
+              <div>
+                <p class="text-on-surface text-xs font-bold leading-tight">Ravi Kumar</p>
+                <p class="text-on-surface-variant text-[10px]">BITS Pilani · 3rd yr</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">forum</span> 3 responses
+            </span>
+          </div>
+        </article>
+
+        <!-- Load more (injected by JS) -->
+        <div class="flex justify-center pt-2 pb-4 hidden" id="load-more-btn">
+          <button onclick="loadMorePosts()" class="px-8 py-2.5 bg-surface-container text-primary text-xs font-bold rounded-full hover:bg-surface-container-high transition-colors active:scale-95">Load more posts</button>
         </div>
       </div>
     </section>
@@ -576,15 +616,15 @@
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
   <div class="sidebar" id="sidebar">
     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-      <span class="text-lg font-black tracking-tighter text-primary">RAINFONT</span>
+      <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
       <button onclick="closeSidebar()" class="material-symbols-outlined text-on-surface-variant p-1 hover:bg-slate-100 rounded-full">close</button>
     </div>
     <div class="px-4 py-4">
       <div class="flex items-center gap-3 mb-6 p-3 bg-surface-container-low rounded-xl">
-        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-sm font-bold text-white">JT</div>
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-sm font-bold text-white" data-user-initials>JT</div>
         <div>
-          <p class="font-bold text-primary text-sm">Julian Thorne</p>
-          <p class="text-[11px] text-on-surface-variant">Stanford · Scholar ✦</p>
+          <p class="font-bold text-primary text-sm" data-user-name>Julian Thorne</p>
+          <p class="text-[11px] text-on-surface-variant" data-user-meta>Stanford · Scholar</p>
         </div>
       </div>
       <nav class="space-y-1">
@@ -595,6 +635,9 @@
         <a href="page-4.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">groups</span>Convene</a>
         <a href="page-2.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 text-on-surface rounded-lg font-semibold text-sm"><span class="material-symbols-outlined text-lg">style</span>Folio</a>
       </nav>
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <button onclick="signOut()" class="flex items-center gap-3 px-3 py-2.5 w-full text-left hover:bg-red-50 text-[#ba1a1a] rounded-lg font-semibold text-sm transition-colors"><span class="material-symbols-outlined text-lg">logout</span>Sign out</button>
+      </div>
       <div class="mt-6 pt-5 border-t border-slate-100">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Inquiry quota</p>
         <div class="bg-error/10 rounded-lg p-3">
@@ -666,9 +709,29 @@
       <div class="bg-surface-container-low rounded-xl p-4 mb-5">
         <p class="text-sm leading-relaxed text-on-surface" id="post-sheet-body"></p>
       </div>
-      <div class="flex gap-3">
+      <div class="flex gap-3 mb-4">
         <button onclick="closePostDetail()" class="flex-1 py-3.5 border-2 border-primary text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Close</button>
         <button onclick="closePostDetail(); showToast('Opening in full view...')" class="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">Open in full ↗</button>
+      </div>
+      <!-- Addendum example -->
+      <div class="addendum-block border-t border-outline-variant/40 pt-4 mb-4">
+        <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">add_notes</span>Addendum filed 14 Mar 2026</p>
+        <div class="bg-surface-container-low rounded-lg p-3">
+          <p class="text-xs leading-relaxed text-on-surface">Follow-up: We re-ran benchmarks with an additional 12-node configuration. Throughput parity drops to 68% at this scale — the gossip protocol shows congestion under dense peer graphs. Updated results and revised charts uploaded to the Vault artifact.</p>
+        </div>
+      </div>
+      <!-- Post actions -->
+      <div class="border-t border-surface-container pt-4">
+        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Your post actions</p>
+        <div class="flex gap-2">
+          <button onclick="closePostDetail(); openAddendum()" class="flex-1 py-2.5 border border-primary/30 text-primary rounded-xl font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1.5 hover:bg-primary/5">
+            <span class="material-symbols-outlined text-sm">add_notes</span>File Addendum
+          </button>
+          <button onclick="closePostDetail(); openRetraction()" class="flex-1 py-2.5 border border-error/30 text-error rounded-xl font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1.5 hover:bg-error/5">
+            <span class="material-symbols-outlined text-sm">report</span>Retract
+          </button>
+        </div>
+        <p class="text-[10px] text-on-surface-variant mt-2 text-center leading-relaxed">Addenda are permanent and attributed. Retractions stamp the post visibly and require a public reason.</p>
       </div>
     </div>
   </div>
@@ -774,6 +837,48 @@
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
+
+  <!-- ADDENDUM SHEET -->
+  <div class="sheet-backdrop" id="addendum-backdrop" onclick="closeAddendum()"></div>
+  <div class="bottom-sheet" id="addendum-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-10">
+      <h3 class="font-bold text-primary text-xl mb-1">File Addendum</h3>
+      <p class="text-[12px] text-on-surface-variant mb-4 leading-relaxed">Your original post stays fully visible. The addendum is appended below it with a permanent timestamp. It cannot be deleted or edited once filed.</p>
+      <div class="bg-surface-container-low rounded-xl p-3 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-base shrink-0">add_notes</span>
+        <p class="text-xs font-semibold text-on-surface">Will appear as: <em class="text-on-surface-variant font-normal">Addendum filed [date] — [your name, institution]</em></p>
+      </div>
+      <div class="mb-5">
+        <label class="text-xs font-bold text-on-surface block mb-2">Your addendum</label>
+        <textarea id="addendum-text" rows="5" placeholder="What has changed, what you've learned, or what you want to clarify from the original post..." class="w-full bg-surface-container-low rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all leading-relaxed"></textarea>
+      </div>
+      <button onclick="submitAddendum()" class="w-full py-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-transform">File Addendum permanently</button>
+      <button onclick="closeAddendum()" class="w-full py-3 text-on-surface-variant text-sm font-semibold mt-2">Cancel</button>
+    </div>
+  </div>
+
+  <!-- RETRACTION SHEET -->
+  <div class="sheet-backdrop" id="retraction-backdrop" onclick="closeRetraction()"></div>
+  <div class="bottom-sheet" id="retraction-sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-6 pt-4 pb-10">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="material-symbols-outlined text-error text-2xl">warning</span>
+        <h3 class="font-bold text-primary text-xl">Retract this post</h3>
+      </div>
+      <div class="bg-error/10 rounded-xl p-4 mb-4 border border-error/20">
+        <p class="text-[12px] text-error font-semibold leading-relaxed">Your post will be stamped RETRACTED. The original content remains readable to all. Your reason is public and permanent. This cannot be undone.</p>
+      </div>
+      <div class="mb-5">
+        <label class="text-xs font-bold text-on-surface block mb-2">Public reason for retraction <span class="font-normal text-on-surface-variant">(minimum 30 words)</span></label>
+        <textarea id="retraction-reason" rows="5" oninput="updateRetractionWordCount()" placeholder="Explain why you are retracting this post. This reason is mandatory, public, and permanent — it will appear on the post for all readers." class="w-full bg-surface-container-low rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-error/40 transition-all leading-relaxed border border-outline-variant"></textarea>
+        <p class="text-[11px] text-on-surface-variant mt-1" id="retraction-word-count">0 words — 30 required</p>
+      </div>
+      <button id="retraction-submit-btn" onclick="submitRetraction()" class="w-full py-4 bg-error/50 text-white rounded-xl font-bold text-sm cursor-not-allowed" disabled>Retract this post</button>
+      <button onclick="closeRetraction()" class="w-full py-3 text-on-surface-variant text-sm font-semibold mt-2">Cancel</button>
+    </div>
+  </div>
 
   <script>
     // ---- Filter tabs ----
@@ -939,24 +1044,86 @@
       document.getElementById('post-sheet').classList.remove('open');
     }
 
-    let moreLoaded = false;
     function loadMore() {
-      if (moreLoaded) { showToast('All posts loaded'); return; }
-      moreLoaded = true;
-      const extra = [
-        { id: 4, node: 'Gradient', nodeColor: 'blue', title: 'RLHF Reward Collapse: A Documented Failure', body: 'Systematic documentation of reward hacking in fine-tuned RLHF pipelines...', clarity: 4.6, depth: 4.4, reviews: 5, author: 'Riya Srivastava', inst: 'IIIT Hyderabad', time: '2d ago', sealed: false },
-        { id: 5, node: 'Bare Metal', nodeColor: 'green', title: 'SPI DMA Transfer on STM32 — Race Condition Debug', body: 'Documenting a subtle DMA-SPI race condition found during production firmware testing...', clarity: 4.2, depth: 4.6, reviews: 8, author: 'Dev Iyer', inst: 'IIT Madras', time: '3d ago', sealed: false }
-      ];
       const container = document.getElementById('feed-cards');
       const loadBtn = document.getElementById('load-more-btn');
-      extra.forEach(p => {
-        const el = document.createElement('article');
-        el.className = 'bg-surface-container-lowest rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press';
-        el.id = 'post-' + p.id;
-        el.innerHTML = `<div class="flex justify-between items-start mb-3"><div class="flex gap-2">${p.sealed ? '<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>' : ''}<span class="flex items-center gap-1 bg-${p.nodeColor}-50 text-${p.nodeColor}-700 px-2 py-1 rounded text-[10px] font-bold"><span class="inline-block w-1.5 h-1.5 rounded-full bg-${p.nodeColor}-500"></span>${p.node}</span></div><button id="bk-${p.id}" onclick="toggleBookmark(${p.id})" class="text-outline hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-xl">bookmark</span></button></div><h3 class="text-base font-bold text-on-background mb-2 leading-snug">${p.title}</h3><p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">${p.body}</p><div class="flex items-center gap-2 mb-3"><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${p.clarity}</span><span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth ${p.depth}</span><span class="text-on-surface-variant text-[10px]">${p.reviews} reviews</span></div><div class="flex items-center justify-between pt-3 border-t border-surface-container"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">${p.author[0]}</div><div><p class="text-on-surface text-xs font-bold">${p.author}</p><p class="text-on-surface-variant text-[10px]">${p.inst}</p></div></div><div class="flex items-center gap-1"><button onclick="openReview('post-${p.id}','${p.author}','${p.node}','${p.title}')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container"><span class="material-symbols-outlined text-sm">rate_review</span>Review</button><span class="text-on-surface-variant text-[10px] ml-2">${p.time}</span></div></div>`;
-        container.insertBefore(el, loadBtn);
-      });
-      loadBtn.innerHTML = '<button onclick="loadMore()" class="px-8 py-2.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full cursor-not-allowed opacity-60">All posts loaded</button>';
+      loadBtn.innerHTML = '<div class="shimmer w-32 h-8 mx-auto rounded-full"></div>';
+      setTimeout(() => {
+        const retractedHTML = `
+          <article class="retracted-post bg-surface-container-lowest rounded-lg p-5 shadow-sm card-press relative" id="post-retracted">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex gap-2 flex-wrap">
+                <span class="flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-1 rounded text-[10px] font-bold tracking-tight">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span>Softer
+                </span>
+                <span class="badge-hypothesis px-2 py-1 rounded text-[10px] font-black">[Hypothesis]</span>
+              </div>
+              <span class="bg-error text-white text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-widest">RETRACTED</span>
+            </div>
+            <h3 class="text-sm font-bold text-on-surface-variant mb-2 line-clamp-2 line-through leading-snug opacity-60">Emergent Language Structures in Isolated Indigenous Communities: A Revised Framework</h3>
+            <div class="bg-error/10 border border-error/20 rounded-lg p-3 mb-3">
+              <p class="text-[10px] font-black text-error uppercase tracking-widest mb-1">Retraction notice · 28 Feb 2026</p>
+              <p class="text-xs text-on-surface leading-relaxed">The dataset used in this study contained a labelling error identified during peer review. The primary claim cannot be sustained under corrected data. A revised post will be filed after re-analysis is complete.</p>
+            </div>
+            <div class="flex items-center gap-2 pt-3 border-t border-surface-container">
+              <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-on-surface-variant">LK</div>
+              <div>
+                <p class="text-on-surface-variant text-xs font-bold leading-tight">Layla Khalil</p>
+                <p class="text-on-surface-variant text-[10px]">University of Cairo · 2nd yr</p>
+              </div>
+              <span class="ml-auto text-[10px] text-on-surface-variant">3d ago</span>
+            </div>
+          </article>`;
+        container.insertAdjacentHTML('beforeend', retractedHTML);
+        loadBtn.remove();
+      }, 800);
+    }
+
+    // ---- Addendum ----
+    function openAddendum() {
+      document.getElementById('addendum-backdrop').classList.add('open');
+      document.getElementById('addendum-sheet').classList.add('open');
+    }
+    function closeAddendum() {
+      document.getElementById('addendum-backdrop').classList.remove('open');
+      document.getElementById('addendum-sheet').classList.remove('open');
+    }
+    function submitAddendum() {
+      const text = document.getElementById('addendum-text').value.trim();
+      if (!text) { showToast('Please write your addendum.'); return; }
+      closeAddendum();
+      showToast('Addendum filed permanently ✓');
+    }
+
+    // ---- Retraction ----
+    function openRetraction() {
+      document.getElementById('retraction-backdrop').classList.add('open');
+      document.getElementById('retraction-sheet').classList.add('open');
+    }
+    function closeRetraction() {
+      document.getElementById('retraction-backdrop').classList.remove('open');
+      document.getElementById('retraction-sheet').classList.remove('open');
+    }
+    function updateRetractionWordCount() {
+      const text = document.getElementById('retraction-reason').value.trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      const label = document.getElementById('retraction-word-count');
+      const btn = document.getElementById('retraction-submit-btn');
+      label.textContent = words + ' words — ' + (words >= 30 ? 'minimum met' : '30 required');
+      label.style.color = words >= 30 ? '#546a59' : '';
+      if (words >= 30) {
+        btn.disabled = false;
+        btn.className = 'w-full py-4 bg-error text-white rounded-xl font-bold text-sm active:scale-95 transition-transform';
+      } else {
+        btn.disabled = true;
+        btn.className = 'w-full py-4 bg-error/50 text-white rounded-xl font-bold text-sm cursor-not-allowed';
+      }
+    }
+    function submitRetraction() {
+      const btn = document.getElementById('retraction-submit-btn');
+      if (btn.disabled) return;
+      closeRetraction();
+      showToast('Post retracted. Reason is now public.');
     }
 
     // Sidebar
@@ -996,6 +1163,446 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2000);
     }
+
+    // ══════════════════════════════════════════════
+    // LIVE DATA — Supabase wiring
+    // ══════════════════════════════════════════════
+
+    let _user = null, _profile = null;
+    let _feedPage = 0, _activeNodeFilter = null;
+    const PAGE_SIZE = 10;
+
+    // ── Boot ──
+    initAuth(async function(session, profile) {
+      _user = session.user;
+      _profile = profile;
+      await Promise.all([loadStats(), loadFeed(), loadNotifications()]);
+    });
+
+    // ── Stats row ──
+    async function loadStats() {
+      const { count: nodeCount } = await _sb.from('node_members')
+        .select('*', { count: 'exact', head: true }).eq('user_id', _user.id);
+
+      // Posts in user's nodes the user hasn't reviewed
+      const { data: memberRows } = await _sb.from('node_members').select('node_id').eq('user_id', _user.id);
+      const nodeIds = (memberRows || []).map(r => r.node_id);
+      let pendingReviews = 0;
+      if (nodeIds.length) {
+        const { data: revPosts } = await _sb.from('posts')
+          .select('id, reviews!inner(reviewer_id)')
+          .eq('status','live').in('node_id', nodeIds)
+          .neq('author_id', _user.id);
+        if (revPosts) {
+          pendingReviews = revPosts.filter(p =>
+            !p.reviews.some(r => r.reviewer_id === _user.id)
+          ).length;
+        }
+      }
+
+      document.querySelector('.grid.grid-cols-3 .text-2xl.font-black.text-primary').textContent = nodeCount || 0;
+      const reviewEl = document.querySelectorAll('.grid.grid-cols-3 .text-2xl.font-black.text-primary')[1];
+      if (reviewEl) reviewEl.textContent = pendingReviews;
+
+      // Inquiry quota
+      const used = _profile?.inquiry_quota_used || 0;
+      const quotaEls = document.querySelectorAll('.grid.grid-cols-3 .text-2xl');
+      if (quotaEls[2]) {
+        quotaEls[2].textContent = `${used}/1`;
+        quotaEls[2].className = `text-2xl font-black ${used >= 1 ? 'text-error' : 'text-primary'}`;
+      }
+    }
+
+    // ── Feed ──
+    async function loadFeed(nodeFilter, append) {
+      _activeNodeFilter = nodeFilter || null;
+      const container = document.getElementById('feed-cards');
+      if (!append) { _feedPage = 0; container.innerHTML = _skeletons(3); }
+
+      // Resolve node IDs to filter
+      let nodeIds = [];
+      if (nodeFilter) {
+        const { data: n } = await _sb.from('nodes').select('id').eq('name', nodeFilter).single();
+        if (n) nodeIds = [n.id];
+      } else {
+        const { data: rows } = await _sb.from('node_members').select('node_id').eq('user_id', _user.id);
+        nodeIds = (rows || []).map(r => r.node_id);
+      }
+
+      const from = _feedPage * PAGE_SIZE, to = from + PAGE_SIZE - 1;
+      let query = _sb.from('posts')
+        .select(`id, title, abstract, body, intent, status, vault_filename, is_parallel,
+                 guide_sealed, retraction_reason, retracted_at, created_at, author_id,
+                 author:profiles!author_id(full_name, institution, year, is_guide),
+                 node:nodes!node_id(name, color),
+                 reviews(clarity, depth, reviewer_id),
+                 signoffs(signee_id, status, profiles(full_name, institution))`)
+        .eq('status', 'live')
+        .order('guide_sealed', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (nodeIds.length) query = query.in('node_id', nodeIds);
+
+      const { data: posts } = await query;
+      if (!append) container.innerHTML = '';
+
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-on-surface-variant">
+          <span class="material-symbols-outlined text-5xl mb-3 block">auto_stories</span>
+          <p class="font-bold text-primary mb-1">No posts yet</p>
+          <p class="text-sm">Posts from your Nodes will appear here.</p>
+        </div>`;
+        return;
+      }
+
+      posts.forEach(p => container.insertAdjacentHTML('beforeend', _renderCard(p)));
+
+      const loadBtn = document.getElementById('load-more-btn');
+      if (posts.length === PAGE_SIZE) loadBtn.classList.remove('hidden');
+      else loadBtn.classList.add('hidden');
+    }
+
+    async function loadMorePosts() {
+      _feedPage++;
+      await loadFeed(_activeNodeFilter, true);
+    }
+
+    // ── Card renderer ──
+    function _renderCard(p) {
+      const author = p.author || {};
+      const node = p.node || {};
+      const reviews = p.reviews || [];
+      const signoffs = p.signoffs || [];
+      const initials = _ini(author.full_name || '?');
+      const clarity = reviews.length ? (reviews.reduce((s,r) => s + r.clarity, 0) / reviews.length).toFixed(1) : null;
+      const depth   = reviews.length ? (reviews.reduce((s,r) => s + r.depth,   0) / reviews.length).toFixed(1) : null;
+      const ago = _ago(p.created_at);
+      const isOwn = p.author_id === _user.id;
+
+      const intentColors = {
+        hypothesis: { bg:'#dbeafe', color:'#1e40af' },
+        milestone:  { bg:'#fef3c7', color:'#92400e' },
+        directive:  { bg:'#ede9fe', color:'#4338ca' },
+        consensus:  { bg:'#d0e9d4', color:'#374c3d' },
+        inquiry:    { bg:'#ffedd5', color:'#9a3412' },
+      };
+      const ic = intentColors[p.intent] || intentColors.hypothesis;
+      const intentBadge = `<span class="px-2 py-1 rounded text-[10px] font-black" style="background:${ic.bg};color:${ic.color}">[${_cap(p.intent)}]</span>`;
+
+      const nodeDot = node.color ? `<span class="inline-block w-1.5 h-1.5 rounded-full mr-1" style="background:${node.color}"></span>` : '';
+      const nodeBadge = `<span class="flex items-center px-2 py-1 rounded text-[10px] font-bold" style="background:${node.color}18;color:${node.color}">${nodeDot}${node.name || ''}</span>`;
+
+      const sealBadge = p.guide_sealed ? `<span class="flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2.5 py-1 rounded text-[10px] font-bold">✦ Sealed</span>` : '';
+      const vaultBadge = p.vault_filename ? `<span class="vault-badge"><span class="material-symbols-outlined text-xs">lock</span>Vault artifact</span>` : '';
+      const parallelBadge = p.is_parallel ? `<span class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold">↔ Parallel</span>` : '';
+
+      const scorePills = clarity ? `
+        <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Clarity ${clarity}</span>
+        <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-bold">Depth ${depth}</span>
+        <span class="text-on-surface-variant text-[10px]">${reviews.length} review${reviews.length !== 1 ? 's' : ''}</span>` : '';
+
+      // Signatories block for consensus
+      const signatoryBlock = p.intent === 'consensus' && signoffs.length ? `
+        <div class="bg-surface-container rounded-lg p-3 mb-3">
+          <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Signatories · ${signoffs.filter(s=>s.status==='signed').length} domain-verified</p>
+          <div class="space-y-1.5">
+            ${signoffs.filter(s=>s.status==='signed').slice(0,3).map(s => `
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-[8px] font-bold text-white shrink-0">${_ini(s.profiles?.full_name||'?')}</div>
+                <p class="text-[11px] font-bold text-primary">${s.profiles?.full_name||''} <span class="font-normal text-on-surface-variant">— ${s.profiles?.institution||''}</span></p>
+              </div>`).join('')}
+          </div>
+        </div>` : '';
+
+      // Milestone signatory note
+      const milestoneSignoff = p.intent === 'milestone' && signoffs.some(s=>s.status==='signed') ? `
+        <div class="bg-surface-container-low rounded-lg px-3 py-2 mb-3 flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm text-on-surface-variant shrink-0">verified_user</span>
+          <p class="text-[11px] text-on-surface-variant leading-snug"><span class="font-bold text-on-surface">Reviewed by ${signoffs.find(s=>s.status==='signed')?.profiles?.full_name||'peer'}</span> — ${signoffs.find(s=>s.status==='signed')?.profiles?.institution||''} · <span style="color:#C9922A">✦</span> signed</p>
+        </div>` : '';
+
+      // Inquiry response bar
+      const inquiryBar = p.intent === 'inquiry' ? `
+        <div class="bg-surface-container-low rounded-lg p-3 mb-3">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Respond to this Inquiry</p>
+          <div class="flex gap-2">
+            <button onclick="submitInquiryResponse('${p.id}','support')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-secondary-container/40 text-on-secondary-container transition-colors">Support</button>
+            <button onclick="submitInquiryResponse('${p.id}','challenge')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container hover:text-primary text-on-surface-variant transition-colors">Challenge</button>
+            <button onclick="submitInquiryResponse('${p.id}','extend')" class="flex-1 py-2 text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container hover:text-primary text-on-surface-variant transition-colors">Extend</button>
+          </div>
+        </div>` : '';
+
+      const cardClass = p.intent === 'milestone' ? 'milestone-card bg-surface-container-lowest'
+        : p.intent === 'consensus' ? 'consensus-card'
+        : 'bg-surface-container-lowest';
+
+      const timeLabel = p.intent === 'milestone'
+        ? `<span class="text-[10px] font-bold ml-2" style="color:#C9922A">Recorded · ${ago}</span>`
+        : `<span class="text-on-surface-variant text-[10px] ml-2">${ago}</span>`;
+
+      const titleBlock = p.intent === 'consensus'
+        ? `<div class="border-l-4 border-primary/40 pl-3 mb-3">
+            <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Group Consensus · ${node.name} Node</p>
+            <h3 class="text-base font-bold text-on-background leading-snug line-clamp-2">${_esc(p.title)}</h3>
+           </div>`
+        : `<h3 class="text-base font-bold text-on-background mb-2 leading-snug line-clamp-2">${_esc(p.title)}</h3>`;
+
+      return `
+      <article class="${cardClass} rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow card-press" data-post-id="${p.id}">
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex gap-2 flex-wrap">
+            ${nodeBadge}${sealBadge}${intentBadge}${parallelBadge}
+          </div>
+          <button onclick="toggleBookmark('${p.id}',this)" class="text-outline hover:text-primary transition-colors p-1">
+            <span class="material-symbols-outlined text-xl">bookmark</span>
+          </button>
+        </div>
+        ${titleBlock}
+        <p class="text-on-surface-variant text-sm leading-relaxed mb-3 line-clamp-2">${_esc(p.abstract || '')}</p>
+        ${scorePills ? `<div class="flex items-center gap-2 mb-3 flex-wrap">${scorePills}${vaultBadge ? '<span class="ml-auto">'+vaultBadge+'</span>' : ''}</div>` : (vaultBadge ? `<div class="mb-3">${vaultBadge}</div>` : '')}
+        ${milestoneSignoff}${signatoryBlock}${inquiryBar}
+        <div class="flex items-center justify-between pt-3 border-t border-surface-container">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white shrink-0">${initials}</div>
+            <div>
+              <p class="text-on-surface text-xs font-bold leading-tight">${_esc(author.full_name||'')}${author.is_guide ? ' <span style="color:#C9922A">✦</span>' : ''}</p>
+              <p class="text-on-surface-variant text-[10px]">${_esc(author.institution||'')}${author.year ? ' · '+author.year : ''}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            ${p.intent !== 'inquiry' ? `<button onclick="openReview('${p.id}','${_esc(author.full_name||'')}','${_esc(node.name||'')}','${_esc(p.title)}')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary-container/40 rounded text-xs font-bold text-on-secondary-container border border-secondary-container transition-colors">
+              <span class="material-symbols-outlined text-sm">rate_review</span> Review
+            </button>` : ''}
+            ${p.is_parallel ? `<button onclick="openParallel('${p.id}')" class="flex items-center gap-1 px-3 py-1.5 hover:bg-surface-container-low rounded text-xs font-bold text-primary transition-colors">
+              <span class="material-symbols-outlined text-sm">account_tree</span> Parallel
+            </button>` : ''}
+            ${timeLabel}
+          </div>
+        </div>
+        ${isOwn ? `<div class="flex gap-2 mt-3 pt-3 border-t border-surface-container">
+          <button onclick="openAddendum('${p.id}')" class="flex-1 py-2 border border-primary/20 text-primary rounded-lg text-xs font-bold flex items-center justify-center gap-1 hover:bg-primary/5 transition-colors">
+            <span class="material-symbols-outlined text-sm">add_notes</span>File Addendum
+          </button>
+          <button onclick="openRetraction('${p.id}')" class="flex items-center gap-1 px-3 py-2 border border-error/20 text-error rounded-lg text-xs font-bold hover:bg-error/5 transition-colors">
+            <span class="material-symbols-outlined text-sm">report</span>
+          </button>
+        </div>` : ''}
+      </article>`;
+    }
+
+    // ── Notifications ──
+    async function loadNotifications() {
+      const { data: notifs } = await _sb.from('notifications')
+        .select('*').eq('user_id', _user.id)
+        .order('created_at', { ascending: false }).limit(20);
+      if (!notifs || !notifs.length) return;
+      const unread = notifs.filter(n => !n.read).length;
+      if (unread > 0) document.getElementById('notif-dot').style.display = 'block';
+      const panel = document.querySelector('#notif-panel .divide-y');
+      if (!panel) return;
+      panel.innerHTML = notifs.map(n => `
+        <div class="px-5 py-4 flex gap-3 ${!n.read ? 'bg-primary/5' : ''} cursor-pointer hover:bg-primary/10 transition-colors" onclick="markNotifRead('${n.id}',this)">
+          <span class="material-symbols-outlined text-primary fill-icon text-xl shrink-0 mt-0.5">notifications</span>
+          <div>
+            <p class="text-sm font-bold text-primary leading-snug">${_esc(n.title)}</p>
+            ${n.subtitle ? `<p class="text-[11px] text-on-surface-variant mt-0.5">${_esc(n.subtitle)}</p>` : ''}
+            <p class="text-[10px] text-on-surface-variant mt-1">${_ago(n.created_at)}</p>
+          </div>
+        </div>`).join('');
+    }
+
+    async function markNotifRead(id, el) {
+      el.classList.remove('bg-primary/5');
+      await _sb.from('notifications').update({ read: true }).eq('id', id);
+    }
+
+    // ── Review submission → DB ──
+    let _reviewPostId = null;
+    function openReview(postId, author, node, title) {
+      _reviewPostId = postId;
+      currentPostId = postId;
+      currentAuthor = author;
+      document.getElementById('sheet-post-title').textContent = title;
+      document.getElementById('sheet-author-label').textContent = 'by ' + author;
+      document.getElementById('sheet-node-label').textContent = node;
+      document.getElementById('review-success').classList.add('hidden');
+      document.getElementById('review-success').classList.remove('flex');
+      document.getElementById('review-form').classList.remove('hidden');
+      clarityVal = 0; depthVal = 0;
+      updateStarUI('clarity', 0); updateStarUI('depth', 0);
+      document.getElementById('review-comment').value = '';
+      document.getElementById('word-count').textContent = '0';
+      document.getElementById('word-count-label').style.color = '';
+      updateSubmitBtn();
+      document.getElementById('review-backdrop').classList.add('open');
+      document.getElementById('review-sheet').classList.add('open');
+    }
+
+    async function submitReview() {
+      const body = document.getElementById('review-comment').value.trim();
+      const { error } = await _sb.from('reviews').insert({
+        post_id: _reviewPostId,
+        reviewer_id: _user.id,
+        clarity: clarityVal,
+        depth: depthVal,
+        body
+      });
+      if (error) { showToast('Error saving review'); return; }
+      document.getElementById('review-form').classList.add('hidden');
+      const success = document.getElementById('review-success');
+      success.classList.remove('hidden'); success.classList.add('flex');
+      document.getElementById('success-msg').textContent = 'Review published.';
+      document.getElementById('success-sub').textContent = currentAuthor + ' has been notified.';
+      setTimeout(closeReview, 2500);
+    }
+
+    // ── Addendum → DB ──
+    let _addendumPostId = null;
+    function openAddendum(postId) {
+      _addendumPostId = postId || null;
+      document.getElementById('addendum-text').value = '';
+      document.getElementById('addendum-backdrop').classList.add('open');
+      document.getElementById('addendum-sheet').classList.add('open');
+    }
+    function closeAddendum() {
+      document.getElementById('addendum-backdrop').classList.remove('open');
+      document.getElementById('addendum-sheet').classList.remove('open');
+    }
+    async function submitAddendum() {
+      const body = document.getElementById('addendum-text').value.trim();
+      if (!body) { showToast('Please write your addendum.'); return; }
+      if (!_addendumPostId) { showToast('No post selected.'); return; }
+      const { error } = await _sb.from('addenda').insert({
+        post_id: _addendumPostId, author_id: _user.id, body
+      });
+      if (error) { showToast('Error filing addendum'); return; }
+      closeAddendum();
+      showToast('Addendum filed permanently ✓');
+    }
+
+    // ── Retraction → DB ──
+    let _retractionPostId = null;
+    function openRetraction(postId) {
+      _retractionPostId = postId || null;
+      document.getElementById('retraction-reason').value = '';
+      document.getElementById('retraction-word-count').textContent = '0 words — 30 required';
+      document.getElementById('retraction-submit-btn').disabled = true;
+      document.getElementById('retraction-submit-btn').className = 'w-full py-4 bg-error/50 text-white rounded-xl font-bold text-sm cursor-not-allowed';
+      document.getElementById('retraction-backdrop').classList.add('open');
+      document.getElementById('retraction-sheet').classList.add('open');
+    }
+    async function submitRetraction() {
+      const btn = document.getElementById('retraction-submit-btn');
+      if (btn.disabled) return;
+      const reason = document.getElementById('retraction-reason').value.trim();
+      if (!_retractionPostId) { showToast('No post selected.'); return; }
+      const { error } = await _sb.from('posts').update({
+        status: 'retracted', retraction_reason: reason, retracted_at: new Date().toISOString()
+      }).eq('id', _retractionPostId).eq('author_id', _user.id);
+      if (error) { showToast('Error retracting post'); return; }
+      closeRetraction();
+      showToast('Post retracted. Reason is now public.');
+      // Remove card from feed
+      document.querySelector(`[data-post-id="${_retractionPostId}"]`)?.remove();
+    }
+
+    // ── Inquiry response → DB ──
+    async function submitInquiryResponse(postId, type) {
+      const { error } = await _sb.from('inquiry_responses').insert({
+        post_id: postId, responder_id: _user.id, response_type: type,
+        body: `${_cap(type)} response from ${_profile?.full_name || 'user'}`
+      });
+      if (error) { showToast('Error filing response'); return; }
+      showToast(`${_cap(type)} response filed`);
+    }
+
+    // ── Tab switching (connected to real data) ──
+    function switchTab(btn) {
+      document.querySelectorAll('#filter-tabs .tab-pill').forEach(b => {
+        b.classList.remove('bg-primary','text-on-primary');
+        b.classList.add('bg-surface-container-high','text-on-surface-variant');
+      });
+      btn.classList.add('bg-primary','text-on-primary');
+      btn.classList.remove('bg-surface-container-high','text-on-surface-variant');
+      const tab = btn.dataset.tab;
+      // Hide all sections except foryou (which holds the live feed)
+      Object.values(tabMap).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      document.getElementById(tabMap[tab])?.classList.remove('hidden');
+      // Load real data for node-specific tabs
+      if (tab === 'foryou') loadFeed(null);
+      else if (tab === 'following') loadFeed(null); // TODO: following feed
+      else if (!['convenes','vault'].includes(tab)) {
+        // Node tab — use the tab label as node name
+        const nodeName = btn.textContent.trim();
+        loadFeed(nodeName);
+        // Feed target is still feed-foryou container (real cards live there)
+        document.getElementById('feed-foryou').classList.remove('hidden');
+        document.getElementById(tabMap[tab]).classList.add('hidden');
+      }
+    }
+
+    // ── Parallel (post ID aware) ──
+    let _parallelPostId = null;
+    function openParallel(postId) {
+      _parallelPostId = postId || null;
+      document.getElementById('parallel-backdrop').classList.add('open');
+      document.getElementById('parallel-sheet').classList.add('open');
+    }
+    async function submitParallel() {
+      const text = document.querySelector('#parallel-sheet textarea')?.value?.trim();
+      if (!text) { showToast('Describe your contribution first'); return; }
+      // TODO: insert into parallel_requests table
+      closeParallel();
+      showToast('Contribution request sent');
+    }
+
+    // ── Bookmark (optimistic) ──
+    function toggleBookmark(id, btn) {
+      const icon = btn.querySelector('.material-symbols-outlined');
+      const isSaved = icon.classList.contains('fill-icon');
+      icon.classList.toggle('fill-icon', !isSaved);
+      icon.style.color = isSaved ? '' : '#002444';
+      showToast(isSaved ? 'Bookmark removed' : 'Bookmarked');
+    }
+
+    // ── Skeletons ──
+    function _skeletons(n) {
+      return Array(n).fill('').map(() => `
+        <div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm">
+          <div class="shimmer h-4 w-1/3 mb-3 rounded"></div>
+          <div class="shimmer h-5 w-3/4 mb-2 rounded"></div>
+          <div class="shimmer h-3 w-full mb-1 rounded"></div>
+          <div class="shimmer h-3 w-5/6 mb-4 rounded"></div>
+          <div class="flex gap-2"><div class="shimmer h-6 w-16 rounded-full"></div><div class="shimmer h-6 w-16 rounded-full"></div></div>
+        </div>`).join('');
+    }
+
+    // ── Utilities ──
+    function _ago(ts) {
+      if (!ts) return '';
+      const diff = Date.now() - new Date(ts).getTime();
+      const m = Math.floor(diff / 60000);
+      if (m < 60) return m <= 1 ? 'just now' : m + 'm ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + 'h ago';
+      const d = Math.floor(h / 24);
+      return d === 1 ? '1d ago' : d + 'd ago';
+    }
+    function _ini(name) {
+      const p = (name||'').trim().split(/\s+/);
+      return p.length === 1 ? (p[0][0]||'?').toUpperCase() : (p[0][0]+p[p.length-1][0]).toUpperCase();
+    }
+    function _cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+    function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   </script>
+
+  
+
+  
+
+
+
+
 </body>
 </html>
