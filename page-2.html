@@ -55,7 +55,26 @@
     * { -ms-overflow-style: none; scrollbar-width: none; }
     .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
     .card-press:active { transform: scale(0.97); }
-    .tab-btn { transition: all 200ms ease; }
+    .tab-btn { transition: color 200ms ease; }
+    /* Folio tab slider */
+    #folio-tabs { position: relative; }
+    #folio-tab-slider { position: absolute; top: 4px; bottom: 4px; background: #fff; border-radius: 0.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.12); transition: left 220ms cubic-bezier(0.34,1.56,0.64,1), width 220ms cubic-bezier(0.34,1.56,0.64,1); z-index: 0; pointer-events: none; }
+    #folio-tabs button { position: relative; z-index: 1; transition: color 200ms ease; background: transparent !important; box-shadow: none !important; }
+    #folio-tabs button.tab-active { color: #002444; font-weight: 700; }
+    #folio-tabs button:not(.tab-active) { color: #43474e; font-weight: 600; }
+
+    /* Rainfont. blade flash */
+    @keyframes blade-flash {
+      0%   { color: #002444; text-shadow: none; }
+      18%  { color: #ffffff; text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 40px rgba(171,201,242,0.7); }
+      38%  { color: #abc9f2; text-shadow: 0 0 8px rgba(171,201,242,0.4); }
+      100% { color: #002444; text-shadow: none; }
+    }
+    .rainfont-logo {
+      animation: blade-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+      display: inline-block;
+    }
+
 
     /* Toast */
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #002444; color: #fff; padding: 10px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transition: all 250ms ease; pointer-events: none; white-space: nowrap; }
@@ -107,7 +126,7 @@
         <a href="page-1.html" class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
           <span class="material-symbols-outlined text-primary">arrow_back</span>
         </a>
-        <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
+        <span class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</span>
       </div>
       <div class="flex items-center gap-2">
         <nav class="hidden md:flex gap-5 mr-4">
@@ -292,11 +311,11 @@
     </section>
 
     <!-- Tab Row: Published / Vault / Convenes / Cohorts -->
-    <div class="flex gap-1 bg-surface-container-low p-1 rounded-xl mb-6" id="folio-tabs">
-      <button id="tab-published" onclick="switchFolioTab('published')" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm tab-btn">Published</button>
-      <button id="tab-vault" onclick="switchFolioTab('vault')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Vault</button>
-      <button id="tab-convenes" onclick="switchFolioTab('convenes')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Convenes</button>
-      <button id="tab-cohorts" onclick="switchFolioTab('cohorts')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary tab-btn">Cohorts</button>
+    <div class="flex gap-1 bg-surface-container-low p-1 rounded-xl mb-6 relative" id="folio-tabs"><div id="folio-tab-slider"></div>
+      <button id="tab-published" onclick="switchFolioTab('published')" class="flex-1 py-2.5 rounded-lg text-sm tab-btn tab-active">Published</button>
+      <button id="tab-vault" onclick="switchFolioTab('vault')" class="flex-1 py-2.5 rounded-lg text-sm tab-btn">Vault</button>
+      <button id="tab-convenes" onclick="switchFolioTab('convenes')" class="flex-1 py-2.5 rounded-lg text-sm tab-btn">Convenes</button>
+      <button id="tab-cohorts" onclick="switchFolioTab('cohorts')" class="flex-1 py-2.5 rounded-lg text-sm tab-btn">Cohorts</button>
     </div>
 
     <!-- Published tab (Ledger History) -->
@@ -667,16 +686,24 @@
     function switchFolioTab(tab) {
       ['published','vault','convenes','cohorts'].forEach(t => {
         document.getElementById('content-' + t).classList.add('hidden');
-        const btn = document.getElementById('tab-' + t);
-        btn.classList.remove('bg-white','text-primary','shadow-sm');
-        btn.classList.add('text-on-surface-variant');
+        document.getElementById('tab-' + t).classList.remove('tab-active');
       });
       document.getElementById('content-' + tab).classList.remove('hidden');
-      const activeBtn = document.getElementById('tab-' + tab);
-      activeBtn.classList.add('bg-white','text-primary','shadow-sm');
-      activeBtn.classList.remove('text-on-surface-variant');
+      document.getElementById('tab-' + tab).classList.add('tab-active');
+      _slideFolioTab(tab);
       if (tab === 'cohorts') renderCohorts();
     }
+    function _slideFolioTab(tab) {
+      const btn = document.getElementById('tab-' + tab);
+      const rail = document.getElementById('folio-tabs');
+      const slider = document.getElementById('folio-tab-slider');
+      if (!slider || !btn || !rail) return;
+      const railRect = rail.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      slider.style.left = (btnRect.left - railRect.left) + 'px';
+      slider.style.width = btnRect.width + 'px';
+    }
+    window.addEventListener('load', () => { _slideFolioTab('published'); });
 
     // Share Folio
     function shareFolio() {

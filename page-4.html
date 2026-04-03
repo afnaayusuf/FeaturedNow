@@ -57,7 +57,19 @@
     @keyframes checkIn { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
     .circle-anim { stroke-dasharray: 200; stroke-dashoffset: 200; animation: circleIn 300ms ease forwards; }
     .check-anim { stroke-dasharray: 60; stroke-dashoffset: 60; animation: checkIn 200ms ease 300ms forwards; }
-  </style>
+  
+    /* Rainfont. blade flash */
+    @keyframes blade-flash {
+      0%   { color: #002444; text-shadow: none; }
+      18%  { color: #ffffff; text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 40px rgba(171,201,242,0.7); }
+      38%  { color: #abc9f2; text-shadow: 0 0 8px rgba(171,201,242,0.4); }
+      100% { color: #002444; text-shadow: none; }
+    }
+    .rainfont-logo {
+      animation: blade-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+      display: inline-block;
+    }
+</style>
 
   <style id="rainfont-theme">
     @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
@@ -73,7 +85,7 @@
   <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm flex items-center justify-between px-5 h-16">
     <div class="flex items-center gap-3">
       <a href="page-1.html" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95">arrow_back</a>
-      <h1 class="text-lg font-black tracking-tighter text-primary">Rainfont.</h1>
+      <h1 class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</h1>
     </div>
     <div class="flex items-center gap-2">
       <button onclick="openSearch()" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95">search</button>

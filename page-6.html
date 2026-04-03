@@ -141,7 +141,19 @@
     .toggle-pill.on { background: #002444; }
     .toggle-pill::after { content:''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 200ms; }
     .toggle-pill.on::after { transform: translateX(20px); }
-  </style>
+  
+    /* Rainfont. blade flash */
+    @keyframes blade-flash {
+      0%   { color: #002444; text-shadow: none; }
+      18%  { color: #ffffff; text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 40px rgba(171,201,242,0.7); }
+      38%  { color: #abc9f2; text-shadow: 0 0 8px rgba(171,201,242,0.4); }
+      100% { color: #002444; text-shadow: none; }
+    }
+    .rainfont-logo {
+      animation: blade-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+      display: inline-block;
+    }
+</style>
 
   <style id="rainfont-theme">
     @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
@@ -161,7 +173,7 @@
         <a href="page-1.html" class="p-2 hover:bg-slate-100 rounded-full active:scale-95">
           <span class="material-symbols-outlined text-primary">arrow_back</span>
         </a>
-        <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
+        <span class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</span>
       </div>
       <button onclick="toggleNotifPanel()" class="relative p-2 hover:bg-slate-100 rounded-full active:scale-95">
         <span class="material-symbols-outlined text-primary">notifications</span>

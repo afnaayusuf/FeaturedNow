@@ -53,7 +53,26 @@
     .notif-panel.open { transform: translateX(0); }
     .notif-overlay { position: fixed; inset: 0; z-index: 149; pointer-events: none; }
     .notif-overlay.open { pointer-events: auto; }
-  </style>
+  
+    /* Vault tab slider */
+    #vault-tabs { position: relative; }
+    #vault-tab-slider { position: absolute; top: 4px; bottom: 4px; background: #fff; border-radius: 0.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.12); transition: left 220ms cubic-bezier(0.34,1.56,0.64,1), width 220ms cubic-bezier(0.34,1.56,0.64,1); z-index: 0; pointer-events: none; }
+    #vault-tabs button { position: relative; z-index: 1; transition: color 200ms ease; background: transparent !important; box-shadow: none !important; }
+    #vault-tabs button.tab-active { color: #002444; font-weight: 700; }
+    #vault-tabs button:not(.tab-active) { color: #43474e; font-weight: 600; }
+
+    /* Rainfont. blade flash */
+    @keyframes blade-flash {
+      0%   { color: #002444; text-shadow: none; }
+      18%  { color: #ffffff; text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 40px rgba(171,201,242,0.7); }
+      38%  { color: #abc9f2; text-shadow: 0 0 8px rgba(171,201,242,0.4); }
+      100% { color: #002444; text-shadow: none; }
+    }
+    .rainfont-logo {
+      animation: blade-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+      display: inline-block;
+    }
+</style>
 
   <style id="rainfont-theme">
     @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
@@ -72,7 +91,7 @@
         <button class="p-2 hover:bg-slate-100 transition-colors active:scale-95 rounded-full">
           <span class="material-symbols-outlined text-primary">menu</span>
         </button>
-        <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
+        <span class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</span>
       </div>
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-white">JS</div>
@@ -116,10 +135,10 @@
           <input id="vault-search" oninput="filterFiles()" class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl focus:ring-2 focus:ring-primary/40 transition-all text-sm" placeholder="Search files, subjects, contributors..." type="text" />
         </div>
         <!-- Tabs -->
-        <nav class="flex bg-surface-container-low p-1 rounded-xl w-full md:w-auto self-stretch" id="vault-tabs">
-          <button id="vtab-library" onclick="switchVaultTab('library')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-bold bg-white text-primary shadow-sm">Library</button>
-          <button id="vtab-citations" onclick="switchVaultTab('citations')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Citations</button>
-          <button id="vtab-offline" onclick="switchVaultTab('offline')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Offline</button>
+        <nav class="flex bg-surface-container-low p-1 rounded-xl w-full md:w-auto self-stretch relative" id="vault-tabs"><div id="vault-tab-slider"></div>
+          <button id="vtab-library" onclick="switchVaultTab('library')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm tab-active">Library</button>
+          <button id="vtab-citations" onclick="switchVaultTab('citations')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm">Citations</button>
+          <button id="vtab-offline" onclick="switchVaultTab('offline')" class="flex-1 md:px-8 py-2.5 rounded-lg text-sm">Offline</button>
         </nav>
       </div>
     </section>
@@ -551,15 +570,23 @@
     function switchVaultTab(tab) {
       ['library','citations','offline'].forEach(t => {
         document.getElementById('vault-' + t).classList.add('hidden');
-        const btn = document.getElementById('vtab-' + t);
-        btn.classList.remove('bg-white','text-primary','shadow-sm');
-        btn.classList.add('text-on-surface-variant');
+        document.getElementById('vtab-' + t).classList.remove('tab-active');
       });
       document.getElementById('vault-' + tab).classList.remove('hidden');
-      const activeBtn = document.getElementById('vtab-' + tab);
-      activeBtn.classList.remove('text-on-surface-variant');
-      activeBtn.classList.add('bg-white','text-primary','shadow-sm');
+      document.getElementById('vtab-' + tab).classList.add('tab-active');
+      _slideVaultTab(tab);
     }
+    function _slideVaultTab(tab) {
+      const btn = document.getElementById('vtab-' + tab);
+      const rail = document.getElementById('vault-tabs');
+      const slider = document.getElementById('vault-tab-slider');
+      if (!slider || !btn || !rail) return;
+      const railRect = rail.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      slider.style.left = (btnRect.left - railRect.left) + 'px';
+      slider.style.width = btnRect.width + 'px';
+    }
+    window.addEventListener('load', () => { _slideVaultTab('library'); });
 
     // Search filter
     function filterFiles() {

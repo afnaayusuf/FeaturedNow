@@ -148,7 +148,19 @@
     .consensus-card { border: 1.5px solid #002444 !important; background: #f8fafe !important; }
     /* Retracted post */
     .retracted-post { opacity: 0.85; border: 1px solid rgba(186,26,26,0.2) !important; }
-  </style>
+  
+    /* Rainfont. blade flash */
+    @keyframes blade-flash {
+      0%   { color: #002444; text-shadow: none; }
+      18%  { color: #ffffff; text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 40px rgba(171,201,242,0.7); }
+      38%  { color: #abc9f2; text-shadow: 0 0 8px rgba(171,201,242,0.4); }
+      100% { color: #002444; text-shadow: none; }
+    }
+    .rainfont-logo {
+      animation: blade-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+      display: inline-block;
+    }
+</style>
 
   <style id="rainfont-theme">
     @font-face { font-family: 'DM Sans'; src: url('DM_Sans/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
@@ -164,7 +176,7 @@
   <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm flex items-center justify-between px-5 h-16">
     <div class="flex items-center gap-3">
       <button onclick="openSidebar()" class="material-symbols-outlined text-primary hover:bg-slate-100 transition-colors p-2 rounded-full active:scale-95 duration-200">menu</button>
-      <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
+      <span class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</span>
     </div>
     <div class="flex items-center gap-1">
       <nav class="hidden md:flex gap-6 mr-4">
@@ -617,7 +629,7 @@
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
   <div class="sidebar" id="sidebar">
     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-      <span class="text-lg font-black tracking-tighter text-primary">Rainfont.</span>
+      <span class="text-xl font-black tracking-tighter text-primary rainfont-logo">Rainfont.</span>
       <button onclick="closeSidebar()" class="material-symbols-outlined text-on-surface-variant p-1 hover:bg-slate-100 rounded-full">close</button>
     </div>
     <div class="px-4 py-4">
