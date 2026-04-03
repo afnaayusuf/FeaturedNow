@@ -461,7 +461,7 @@
     <a href="page-2.html"
       class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
       <span class="material-symbols-outlined">style</span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Signal</span>
     </a>
   </nav>
 
@@ -680,6 +680,7 @@
       }
     };
 
+    let _user = null;
     let currentNodeId = null;
     const joined = JSON.parse(localStorage.getItem('meridian_joined') || '{}');
 
@@ -691,12 +692,17 @@
       }
     });
 
-    function toggleJoin(id, btn) {
-      if (btn.classList.contains('joined')) return; // can't unjoin from here
+    async function toggleJoin(id, btn) {
+      if (btn.classList.contains('joined')) return;
       joined[id] = true;
       localStorage.setItem('meridian_joined', JSON.stringify(joined));
       setJoinedUI(btn);
-      showToast('Joined ' + btn.closest('.node-item')?.querySelector('.font-bold')?.textContent || id);
+      const nodeName = nodes[id]?.name || id;
+      if (_user && nodes[id]) {
+        const { data: n } = await window._sb.from('nodes').select('id').eq('name', nodes[id].name).single();
+        if (n) await window._sb.from('node_members').upsert({ user_id: _user.id, node_id: n.id }, { onConflict: 'user_id,node_id', ignoreDuplicates: true });
+      }
+      showToast('Joined ' + nodeName + ' ✓');
     }
 
     function setJoinedUI(btn) {
@@ -761,7 +767,7 @@
       currentNodeId = null;
     }
 
-    function toggleJoinFromDetail() {
+    async function toggleJoinFromDetail() {
       if (!currentNodeId) return;
       const node = nodes[currentNodeId];
       const btn = document.getElementById('detail-join-btn');
@@ -771,9 +777,12 @@
       btn.textContent = 'Joined ✓';
       btn.style.color = '#546a59';
       btn.style.borderColor = 'transparent';
-      // Also update list button
       const listBtn = document.getElementById('join-' + currentNodeId);
       if (listBtn) setJoinedUI(listBtn);
+      if (_user) {
+        const { data: n } = await window._sb.from('nodes').select('id').eq('name', node.name).single();
+        if (n) await window._sb.from('node_members').upsert({ user_id: _user.id, node_id: n.id }, { onConflict: 'user_id,node_id', ignoreDuplicates: true });
+      }
       showToast('Joined ' + node.name + ' ✓');
     }
 
@@ -935,9 +944,29 @@
       setTimeout(() => t.classList.remove('show'), 2200);
     }
 
-    // ── Auth init ──
-    initAuth(function(session, profile) {
-      // Page is authenticated — user data already injected by _auth.js
+    // ── Key map: HTML id → node name ──
+    const _nodeKeyToName = {
+      gradient:'Gradient', baremetal:'Bare Metal', softer:'Softer',
+      darkcurrent:'Dark Current', biosys:'Bio-Sys', neuralFold:'Neural Fold',
+      signalChain:'Signal Chain', lingua:'Lingua', nullspace:'Null Space',
+      terra:'Terra', torque:'Torque', photon:'Photon'
+    };
+
+    initAuth(async function(session, profile) {
+      _user = session.user;
+      // Load joined nodes from Supabase and update UI
+      const { data: memberships } = await window._sb.from('node_members')
+        .select('node:nodes!node_id(name)')
+        .eq('user_id', _user.id);
+      (memberships || []).forEach(m => {
+        if (!m.node) return;
+        const key = Object.keys(_nodeKeyToName).find(k => _nodeKeyToName[k] === m.node.name);
+        if (key) {
+          joined[key] = true;
+          const btn = document.getElementById('join-' + key);
+          if (btn) setJoinedUI(btn);
+        }
+      });
     });
   </script>
 

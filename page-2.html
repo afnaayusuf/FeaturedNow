@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Rainfont. — Folio · Julian Thorne</title>
+  <title>Rainfont. — Signal</title>
   <meta name="description" content="Julian Thorne's academic Folio on Rainfont — published research, Vault contributions, and Convene history." />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -55,6 +55,8 @@
     * { -ms-overflow-style: none; scrollbar-width: none; }
     .card-press { transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; }
     .card-press:active { transform: scale(0.97); }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .shimmer { background: linear-gradient(90deg, #E5E1D6 25%, #F2EFE6 50%, #E5E1D6 75%); background-size: 200% 100%; animation: shimmer 1.6s infinite; border-radius: 0.5rem; }
     .tab-btn { transition: color 200ms ease; }
     /* Folio tab slider */
     #folio-tabs { position: relative; }
@@ -158,16 +160,16 @@
         </div>
         <div class="flex-grow space-y-2">
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-3xl font-extrabold tracking-tight text-primary">Julian Thorne</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight text-primary" data-user-name>Julian Thorne</h1>
             <span style="color:#C9922A" class="text-xl font-bold">✦</span>
           </div>
           <p class="text-on-surface-variant font-medium flex items-center gap-2 text-sm">
             <span class="material-symbols-outlined text-base">account_balance</span>
-            Stanford University · Dept. of Quantum Informatics
+            <span data-user-meta>Stanford University · Dept. of Quantum Informatics</span>
           </p>
           <!-- Fixed chips as per README -->
           <div class="flex flex-wrap gap-2 pt-1">
-            <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">Quantum Informatics</span>
+            <span id="user-domain" class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">Quantum Informatics</span>
             <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest rounded-full">Scholar ✦</span>
           </div>
         </div>
@@ -187,20 +189,20 @@
     <section class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
       <div class="bg-surface-container-low p-4 rounded-lg card-press">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ledger Posts</p>
-        <p class="text-2xl font-black text-primary">142</p>
+        <p id="count-posts" class="text-2xl font-black text-primary">142</p>
       </div>
       <div class="bg-surface-container-low p-4 rounded-lg card-press">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Seals Received</p>
-        <p class="text-2xl font-black text-primary">38</p>
+        <p id="count-seals" class="text-2xl font-black text-primary">38</p>
         <p class="text-[10px] text-on-surface-variant mt-0.5">by Guides</p>
       </div>
       <div class="bg-surface-container-low p-4 rounded-lg card-press">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Reviews Written</p>
-        <p class="text-2xl font-black text-primary">47</p>
+        <p id="count-reviews" class="text-2xl font-black text-primary">47</p>
       </div>
       <div class="bg-surface-container-low p-4 rounded-lg card-press">
         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nodes Active</p>
-        <p class="text-2xl font-black text-primary">5</p>
+        <p id="count-nodes" class="text-2xl font-black text-primary">5</p>
       </div>
     </section>
 
@@ -212,23 +214,23 @@
       </div>
       <!-- Post type breakdown -->
       <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10 mb-3">
-        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">142 posts by intent</p>
+        <p id="cred-total" class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">142 posts by intent</p>
         <div class="grid grid-cols-2 gap-3">
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#dbeafe;color:#1e40af">[Hypothesis]</span>
-            <span class="text-lg font-black text-primary">94</span>
+            <span id="cred-hypothesis" class="text-lg font-black text-primary">94</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#fef3c7;color:#92400e">[Milestone]</span>
-            <span class="text-lg font-black text-primary">28</span>
+            <span id="cred-milestone" class="text-lg font-black text-primary">28</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#d0e9d4;color:#374c3d">[Consensus]</span>
-            <span class="text-lg font-black text-primary">12</span>
+            <span id="cred-consensus" class="text-lg font-black text-primary">12</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-black px-2 py-0.5 rounded" style="background:#ffedd5;color:#9a3412">[Inquiry]</span>
-            <span class="text-lg font-black text-primary">8</span>
+            <span id="cred-inquiry" class="text-lg font-black text-primary">8</span>
           </div>
         </div>
       </div>
@@ -236,17 +238,17 @@
       <div class="grid grid-cols-3 gap-3">
         <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
           <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Vault-tethered</p>
-          <p class="text-2xl font-black text-primary">40</p>
-          <p class="text-[10px] text-on-surface-variant mt-0.5">of 142 posts</p>
+          <p id="cred-vault-tethered" class="text-2xl font-black text-primary">40</p>
+          <p id="cred-vault-of" class="text-[10px] text-on-surface-variant mt-0.5">of 142 posts</p>
         </div>
         <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
           <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Sign-offs given</p>
-          <p class="text-2xl font-black text-primary">23</p>
+          <p id="cred-signoffs" class="text-2xl font-black text-primary">23</p>
           <p class="text-[10px] text-on-surface-variant mt-0.5">to peers</p>
         </div>
         <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
           <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Named signatory</p>
-          <p class="text-2xl font-black text-primary">8</p>
+          <p id="cred-signatory" class="text-2xl font-black text-primary">8</p>
           <p class="text-[10px] text-on-surface-variant mt-0.5">Consensus posts</p>
         </div>
       </div>
@@ -322,69 +324,13 @@
     <div id="content-published">
       <div class="flex items-center justify-between mb-4 px-1">
         <h2 class="text-xs font-black text-primary tracking-widest uppercase">Published</h2>
-        <button class="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-1">
-          Sort <span class="material-symbols-outlined text-sm">sort</span>
-        </button>
       </div>
-      <div class="space-y-3">
-        <!-- Item 1 -->
-        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Optimizing Zero-Knowledge Proofs in High-Latency Distributed Nodes','04 MAY 2024','Quantum Protocol','4.8','4.9','12',true)">
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">04 MAY 2024 · Quantum Protocol</span>
-            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
-          </div>
-          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Optimizing Zero-Knowledge Proofs in High-Latency Distributed Nodes</h4>
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-on-secondary-container text-[10px] font-bold flex items-center gap-1">Clarity 4.8</span>
-            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.9</span>
-            <span class="text-on-surface-variant text-[10px]">· 12 reviews</span>
-            <span class="flex items-center gap-1 text-[10px] font-bold ml-auto" style="color:#C9922A">✦ Sealed</span>
-          </div>
-        </div>
-        <!-- Item 2 -->
-        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Post-Quantum Signature Schemes: A Comparative Analysis of Lattice-Based Solutions','21 APR 2024','Cryptography','4.6','4.7','8',false)">
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">21 APR 2024 · Cryptography</span>
-            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
-          </div>
-          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Post-Quantum Signature Schemes: A Comparative Analysis of Lattice-Based Solutions</h4>
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.6</span>
-            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.7</span>
-            <span class="text-on-surface-variant text-[10px]">· 8 reviews</span>
-          </div>
-        </div>
-        <!-- Item 3 -->
-        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press" onclick="openPublishedPost('Byzantine Fault Tolerance in Peer-to-Peer Academic Publishing Networks','15 MAR 2024','Distributed Systems','4.7','4.8','20',true)">
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">15 MAR 2024 · Distributed Systems</span>
-            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
-          </div>
-          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Byzantine Fault Tolerance in Peer-to-Peer Academic Publishing Networks</h4>
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.7</span>
-            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.8</span>
-            <span class="text-on-surface-variant text-[10px]">· 20 reviews</span>
-            <span class="flex items-center gap-1 text-[10px] font-bold ml-auto" style="color:#C9922A">✦ Sealed</span>
-          </div>
-        </div>
-        <!-- Item 4 -->
-        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 group hover:shadow-md transition-shadow card-press">
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">02 FEB 2024 · Quantum Protocol</span>
-            <span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>
-          </div>
-          <h4 class="font-bold text-primary mb-2 text-sm leading-tight">Adversarial Robustness in LLM Fine-Tuning Pipelines: A Systematic Review</h4>
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-on-secondary-container text-[10px] font-bold">Clarity 4.4</span>
-            <span class="text-on-secondary-container text-[10px] font-bold">· Depth 4.5</span>
-            <span class="text-on-surface-variant text-[10px]">· 7 reviews</span>
-          </div>
-        </div>
+      <div id="published-list" class="space-y-3">
+        <!-- shimmer placeholders -->
+        <div class="shimmer h-20 rounded-lg"></div>
+        <div class="shimmer h-20 rounded-lg"></div>
+        <div class="shimmer h-20 rounded-lg"></div>
       </div>
-      <button class="w-full mt-5 py-3 bg-surface-container-low text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-lg hover:bg-surface-container-high transition-colors" onclick="showToast('Showing all 142 posts...')">
-        View all 142 posts
-      </button>
     </div>
 
     <!-- Vault tab -->
@@ -485,27 +431,9 @@
     <!-- Active Nodes (rebuilt from Network Nodes per README) -->
     <section class="mt-8 mb-6">
       <h2 class="text-xs font-black text-primary tracking-widest uppercase mb-4 px-1">Active Nodes</h2>
-      <div class="flex flex-wrap gap-2">
-        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
-          <span class="inline-block w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-          <span class="text-sm font-bold text-primary">Gradient</span>
-        </a>
-        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
-          <span class="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
-          <span class="text-sm font-bold text-primary">Bare Metal</span>
-        </a>
-        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
-          <span class="inline-block w-2 h-2 rounded-full bg-purple-500 shrink-0"></span>
-          <span class="text-sm font-bold text-primary">Softer</span>
-        </a>
-        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
-          <span class="inline-block w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
-          <span class="text-sm font-bold text-primary">Dark Current</span>
-        </a>
-        <a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
-          <span class="inline-block w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
-          <span class="text-sm font-bold text-primary">Bio-Sys</span>
-        </a>
+      <div id="active-nodes" class="flex flex-wrap gap-2">
+        <div class="shimmer h-9 w-24 rounded-lg"></div>
+        <div class="shimmer h-9 w-20 rounded-lg"></div>
       </div>
     </section>
 
@@ -517,9 +445,9 @@
           Interdisciplinary researcher focused on the intersection of quantum computing and decentralized consensus algorithms. Actively building the next generation of cryptographic proofs. Open to Parallel collaboration on ZK-proof research.
         </p>
         <div class="mt-5 space-y-3">
-          <a class="flex items-center gap-3 text-sm font-semibold text-primary hover:underline transition-colors" href="#">
+          <a id="signal-url-link" class="flex items-center gap-3 text-sm font-semibold text-primary hover:underline transition-colors" href="#">
             <span class="material-symbols-outlined text-lg">link</span>
-            meridian.app/folio/julianthorne
+            <span id="signal-url-text">rainfont.app/signal/...</span>
           </a>
           <a class="flex items-center gap-3 text-sm font-semibold text-primary hover:underline transition-colors" href="#">
             <span class="material-symbols-outlined text-lg">public</span>
@@ -533,7 +461,7 @@
   <!-- Share Folio persistent strip — above bottom nav -->
   <div class="fixed bottom-20 left-0 right-0 z-40 px-4 md:hidden">
     <div class="bg-surface-container-lowest border border-outline-variant/30 shadow-lg rounded-xl flex items-center justify-between px-4 py-3">
-      <p class="text-[11px] text-on-surface-variant truncate flex-1 mr-3">meridian.app/folio/julianthorne</p>
+      <p id="signal-url-display" class="text-[11px] text-on-surface-variant truncate flex-1 mr-3">rainfont.app/signal/...</p>
       <button onclick="shareFolio()" class="flex items-center gap-1 px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold active:scale-95 transition-transform whitespace-nowrap">
         Share <span class="material-symbols-outlined text-sm ml-0.5">arrow_forward</span>
       </button>
@@ -599,7 +527,7 @@
       </a>
       <a href="page-2.html" class="flex flex-col items-center justify-center text-primary bg-slate-100 rounded-xl px-3 py-1 transition-transform active:scale-90">
         <span class="material-symbols-outlined fill-icon">style</span>
-        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+        <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Signal</span>
       </a>
     </div>
   </nav>
@@ -695,29 +623,53 @@
     }
     function _slideFolioTab(tab) {
       const btn = document.getElementById('tab-' + tab);
-      const rail = document.getElementById('folio-tabs');
       const slider = document.getElementById('folio-tab-slider');
-      if (!slider || !btn || !rail) return;
-      const railRect = rail.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      slider.style.left = (btnRect.left - railRect.left) + 'px';
-      slider.style.width = btnRect.width + 'px';
+      if (!slider || !btn) return;
+      slider.style.left = btn.offsetLeft + 'px';
+      slider.style.width = btn.offsetWidth + 'px';
     }
-    window.addEventListener('load', () => { _slideFolioTab('published'); });
+    window.addEventListener('load', () => { requestAnimationFrame(() => _slideFolioTab('published')); });
+    window.addEventListener('resize', () => _slideFolioTab('published'));
 
-    // Share Folio
+    // ── Signal URL ──
+    let _signalSlug = '';
+
+    function _updateSignalUrls(slug) {
+      _signalSlug = slug;
+      const url = 'rainfont.app/signal/' + slug;
+      const disp = document.getElementById('signal-url-display');
+      if (disp) disp.textContent = url;
+      const txt = document.getElementById('signal-url-text');
+      if (txt) txt.textContent = url;
+      const link = document.getElementById('signal-url-link');
+      if (link) link.href = '#';
+    }
+
     function shareFolio() {
+      const url = 'https://rainfont.app/signal/' + _signalSlug;
       if (navigator.share) {
-        navigator.share({ title: 'Julian Thorne — Rainfont Folio', url: 'https://meridian.app/folio/julianthorne' });
+        navigator.share({ title: document.querySelector('[data-user-name]')?.textContent + ' — Rainfont Signal', url });
       } else {
         copyLink();
       }
     }
 
     function copyLink() {
-      navigator.clipboard.writeText('https://meridian.app/folio/julianthorne').then(() => {
-        showToast('Link copied to clipboard');
-      }).catch(() => showToast('Link: meridian.app/folio/julianthorne'));
+      const url = 'https://rainfont.app/signal/' + _signalSlug;
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied')).catch(() => showToast('rainfont.app/signal/' + _signalSlug));
+    }
+
+    // ── Helpers ──
+    function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function _cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+    function _ago(ts) {
+      if (!ts) return '';
+      const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+      if (s < 60) return 'just now';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      if (s < 604800) return Math.floor(s/86400) + 'd ago';
+      return Math.floor(s/604800) + 'w ago';
     }
 
     // Seal detail sheet
@@ -900,9 +852,103 @@
     }
 
     // ── Auth init ──
-    initAuth(function(session, profile) {
-      // Page is authenticated — user data already injected by _auth.js
+    initAuth(async function(session, profile) {
+      const p = profile || {};
+      const slug = p.folio_slug || session.user.id;
+      _updateSignalUrls(slug);
+
+      // Domain chip
+      const domainMap = { cs:'Computer Science', ee:'Electronics', bio:'Biological Sciences', hum:'Humanities', mech:'Mechanical', math:'Mathematics', phys:'Physics', env:'Environmental' };
+      const domainEl = document.getElementById('user-domain');
+      if (domainEl && p.domain) domainEl.textContent = domainMap[p.domain] || p.domain;
+
+      // Load credibility stack + node count in parallel
+      const [{ data: stack }, { count: nodeCount }] = await Promise.all([
+        window._sb.from('credibility_stack').select('*').eq('user_id', session.user.id).single(),
+        window._sb.from('node_members').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id)
+      ]);
+
+      if (stack) {
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+        set('count-posts',  stack.total_posts    || 0);
+        set('count-seals',  stack.seals_received || 0);
+        set('count-reviews', stack.reviews_written || 0);
+        set('count-nodes',  nodeCount || 0);
+        set('cred-total',   (stack.total_posts || 0) + ' posts by intent');
+        set('cred-hypothesis', stack.hypothesis_count || 0);
+        set('cred-milestone',  stack.milestone_count  || 0);
+        set('cred-consensus',  stack.consensus_count  || 0);
+        set('cred-inquiry',    stack.inquiry_count    || 0);
+        set('cred-vault-tethered', stack.vault_tethered || 0);
+        set('cred-vault-of', 'of ' + (stack.total_posts || 0) + ' posts');
+        set('cred-signoffs',  stack.signoffs_given || 0);
+        set('cred-signatory', stack.named_signatory_count || 0);
+      }
+
+      // Load published posts and active nodes in parallel
+      await Promise.all([_loadPublished(session.user.id), _loadActiveNodes(session.user.id)]);
     });
+
+    async function _loadPublished(userId) {
+      const container = document.getElementById('published-list');
+      if (!container) return;
+
+      const { data: posts } = await window._sb.from('posts')
+        .select('id, title, intent, guide_sealed, created_at, node:nodes!node_id(name, color), reviews(clarity, depth)')
+        .eq('author_id', userId)
+        .eq('status', 'live')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (!posts || !posts.length) {
+        container.innerHTML = '<div class="text-center py-16 text-on-surface-variant"><span class="material-symbols-outlined text-5xl mb-3 block">auto_stories</span><p class="font-bold text-primary mb-1">Nothing published yet</p><p class="text-sm">Your Ledger posts will appear here.</p></div>';
+        return;
+      }
+
+      const im = { hypothesis:{bg:'#dbeafe',color:'#1e40af'}, milestone:{bg:'#fef3c7',color:'#92400e'}, directive:{bg:'#ede9fe',color:'#4338ca'}, consensus:{bg:'#d0e9d4',color:'#374c3d'}, inquiry:{bg:'#ffedd5',color:'#9a3412'} };
+      container.innerHTML = posts.map(post => {
+        const revs = post.reviews || [];
+        const clarity = revs.length ? (revs.reduce((s,r)=>s+r.clarity,0)/revs.length).toFixed(1) : null;
+        const depth   = revs.length ? (revs.reduce((s,r)=>s+r.depth,0)/revs.length).toFixed(1) : null;
+        const ic = im[post.intent] || im.hypothesis;
+        const node = post.node || {};
+        const ago = _ago(post.created_at);
+        return `<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/10 card-press group hover:shadow-md transition-shadow" onclick="openPublishedPost('${_esc(post.title)}','${ago}','${_esc(node.name||'')}','${clarity||'—'}','${depth||'—'}','${revs.length}',${post.guide_sealed})">
+          <div class="flex justify-between items-start mb-2">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black" style="background:${ic.bg};color:${ic.color}">${_cap(post.intent)}</span>
+            ${post.guide_sealed ? '<span class="text-[10px] font-bold" style="color:#C9922A">✦ Sealed</span>' : '<span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">north_east</span>'}
+          </div>
+          <h4 class="font-bold text-primary mb-2 text-sm leading-tight line-clamp-2">${_esc(post.title)}</h4>
+          <div class="flex items-center gap-3 flex-wrap">
+            ${clarity ? `<span class="text-on-secondary-container text-[10px] font-bold">Clarity ${clarity}</span><span class="text-on-secondary-container text-[10px] font-bold">· Depth ${depth}</span><span class="text-on-surface-variant text-[10px]">· ${revs.length} review${revs.length!==1?'s':''}</span>` : '<span class="text-on-surface-variant text-[10px]">No reviews yet</span>'}
+            <span class="text-[10px] text-on-surface-variant ml-auto">${ago}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function _loadActiveNodes(userId) {
+      const container = document.getElementById('active-nodes');
+      if (!container) return;
+
+      const { data: memberships } = await window._sb.from('node_members')
+        .select('node:nodes!node_id(name, color)')
+        .eq('user_id', userId)
+        .limit(12);
+
+      if (!memberships || !memberships.length) {
+        container.innerHTML = '<p class="text-sm text-on-surface-variant">No Nodes joined yet. <a href="page-6.html" class="font-bold text-primary hover:underline">Browse Nodes →</a></p>';
+        return;
+      }
+
+      container.innerHTML = memberships.map(m => {
+        const n = m.node || {};
+        return `<a href="page-6.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline-variant/30 hover:border-primary/30 transition-colors card-press">
+          <span class="inline-block w-2 h-2 rounded-full shrink-0" style="background:${n.color||'#888'}"></span>
+          <span class="text-sm font-bold text-primary">${_esc(n.name||'')}</span>
+        </a>`;
+      }).join('');
+    }
   </script>
 
   

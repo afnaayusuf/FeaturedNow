@@ -470,7 +470,7 @@
     </a>
     <a href="page-2.html" class="flex flex-col items-center justify-center text-slate-400 hover:text-primary active:scale-90 transition-transform">
       <span class="material-symbols-outlined">style</span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Folio</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Signal</span>
     </a>
   </nav>
 
@@ -578,15 +578,13 @@
     }
     function _slideVaultTab(tab) {
       const btn = document.getElementById('vtab-' + tab);
-      const rail = document.getElementById('vault-tabs');
       const slider = document.getElementById('vault-tab-slider');
-      if (!slider || !btn || !rail) return;
-      const railRect = rail.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      slider.style.left = (btnRect.left - railRect.left) + 'px';
-      slider.style.width = btnRect.width + 'px';
+      if (!slider || !btn) return;
+      slider.style.left = btn.offsetLeft + 'px';
+      slider.style.width = btn.offsetWidth + 'px';
     }
-    window.addEventListener('load', () => { _slideVaultTab('library'); });
+    window.addEventListener('load', () => { requestAnimationFrame(() => _slideVaultTab('library')); });
+    window.addEventListener('resize', () => _slideVaultTab('library'));
 
     // Search filter
     function filterFiles() {
